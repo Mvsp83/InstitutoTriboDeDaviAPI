@@ -1,33 +1,61 @@
 ﻿using InstitutoTriboDeDavi.Common.BaseEntity.BaseEntity;
 using InstitutoTriboDeDavi.Common.DataAccess.Interfaces;
+using InstitutoTriboDeDavi.System.Infra.Context;
+using Microsoft.EntityFrameworkCore;
 
 namespace InstitutoTriboDeDavi.Common.DataAccess
 {
     public class BaseRepository<T> : IBaseRepository<T> where T : Base
     {
-        public Task<T> CreateAsync(T obj)
+        private readonly TriboDeDaviContext _context;
+
+        public BaseRepository(TriboDeDaviContext context)
         {
-            throw new NotImplementedException();
+            _context = context;
         }
 
-        public Task DeleteAsync(long id)
+        public virtual async Task<T> CreateAsync(T obj)
         {
-            throw new NotImplementedException();
+            _context.Add(obj);
+            await _context.SaveChangesAsync();
+
+            return obj;
         }
 
-        public Task<List<T>> GetAllAsync()
+        public virtual async Task DeleteAsync(long id)
         {
-            throw new NotImplementedException();
+            var obj = await GetByIdAsync(id);
+
+            if (obj != null)
+            {
+                _context.Remove(obj);
+                await _context.SaveChangesAsync();
+            }
         }
 
-        public Task<T> GetByIdAsync(long id)
+        public virtual async Task<List<T>> GetAllAsync()
         {
-            throw new NotImplementedException();
+            return await _context.Set<T>()
+                .AsNoTracking()
+                .ToListAsync();
         }
 
-        public Task<T> UpdateAsync(T obj)
+        public virtual async Task<T> GetByIdAsync(long id)
         {
-            throw new NotImplementedException();
+            var obj = await _context.Set<T>()
+                .AsNoTracking()
+                .Where(x => x.Id == id)
+                .ToListAsync();
+
+            return obj.FirstOrDefault();
+        }
+
+        public virtual async Task<T> UpdateAsync(T obj)
+        {
+            _context.Entry(obj).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+
+            return obj;
         }
     }
 }

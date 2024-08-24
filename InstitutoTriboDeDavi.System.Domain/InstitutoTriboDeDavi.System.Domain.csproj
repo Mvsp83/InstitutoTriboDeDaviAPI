@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\InstitutoTriboDeDavi.Common.BaseEntity\InstitutoTriboDeDavi.Common.BaseEntity.csproj" />
+    <ProjectReference Include="..\InstitutoTriboDeDavi.System.Core\InstitutoTriboDeDavi.System.Core.csproj" />
   </ItemGroup>
 
 </Project>

@@ -7,7 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\InstitutoTriboDeDavi.Common.BaseEntity\InstitutoTriboDeDavi.Common.BaseEntity.csproj" />
+    <ProjectReference Include="..\InstitutoTriboDeDavi.Common.DataAccess\InstitutoTriboDeDavi.Common.DataAccess.csproj" />
+    <ProjectReference Include="..\InstitutoTriboDeDavi.System.Domain\InstitutoTriboDeDavi.System.Domain.csproj" />
     <ProjectReference Include="..\InstitutoTriboDeDavi.System.Infra\InstitutoTriboDeDavi.System.Infra.csproj" />
   </ItemGroup>
 

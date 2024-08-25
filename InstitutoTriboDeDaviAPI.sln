@@ -37,6 +37,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DataAccess", "DataAccess", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InstitutoTriboDeDavi.System.DataAccess", "InstitutoTriboDeDavi.System.DataAccess\InstitutoTriboDeDavi.System.DataAccess.csproj", "{229C1AFB-A8EB-49A0-8620-61F41FCECC01}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "API", "API", "{08E41895-5D1A-42F3-9477-AF13276955A1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InstitutoTriboDeDavi.API", "InstitutoTriboDeDavi.API\InstitutoTriboDeDavi.API.csproj", "{58F6CDBE-E630-4DA2-B077-04E067797ED8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -75,6 +79,10 @@ Global
 		{229C1AFB-A8EB-49A0-8620-61F41FCECC01}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{229C1AFB-A8EB-49A0-8620-61F41FCECC01}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{229C1AFB-A8EB-49A0-8620-61F41FCECC01}.Release|Any CPU.Build.0 = Release|Any CPU
+		{58F6CDBE-E630-4DA2-B077-04E067797ED8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{58F6CDBE-E630-4DA2-B077-04E067797ED8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{58F6CDBE-E630-4DA2-B077-04E067797ED8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{58F6CDBE-E630-4DA2-B077-04E067797ED8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -96,6 +104,8 @@ Global
 		{C4EF021D-8830-4C38-8A0C-0C52BB0DD1EC} = {B976E4A4-C121-4598-8606-880710A62C34}
 		{69D72E5D-700B-4090-9D66-879E3AF67899} = {E1463564-B1EA-4E0F-B2BC-F16806E70237}
 		{229C1AFB-A8EB-49A0-8620-61F41FCECC01} = {69D72E5D-700B-4090-9D66-879E3AF67899}
+		{08E41895-5D1A-42F3-9477-AF13276955A1} = {91922AC2-6AF5-4DAD-9530-3DB43A1EAF2B}
+		{58F6CDBE-E630-4DA2-B077-04E067797ED8} = {08E41895-5D1A-42F3-9477-AF13276955A1}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6D8E80A7-28E1-4C67-A36B-6B24F3A0EDB9}

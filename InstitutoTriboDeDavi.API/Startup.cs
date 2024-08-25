@@ -41,6 +41,7 @@ namespace InstitutoTriboDeDavi.API
             {
                 cfg.CreateMap<Usuario, UsuarioDTO>().ReverseMap();
                 cfg.CreateMap<CreateUsuarioViewModel, UsuarioDTO>().ReverseMap();
+                cfg.CreateMap<UpdateUsuarioViewModel, UsuarioDTO>().ReverseMap();
             });
 
             services.AddSingleton(autoMapperConfig.CreateMapper());

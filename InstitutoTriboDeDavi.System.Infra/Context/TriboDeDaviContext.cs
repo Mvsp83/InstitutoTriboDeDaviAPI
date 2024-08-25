@@ -16,10 +16,10 @@ namespace InstitutoTriboDeDavi.System.Infra.Context
 
         }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            optionsBuilder.UseSqlServer("");
-        }
+        //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        //{
+        //    optionsBuilder.UseSqlServer("");
+        //}
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

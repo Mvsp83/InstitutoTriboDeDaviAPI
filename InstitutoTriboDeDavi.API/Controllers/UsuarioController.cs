@@ -10,7 +10,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace InstitutoTriboDeDavi.API.Controllers
 {
-    [ApiController]
+    [Route("/api/[controller]")]
+    [ApiController]    
     public class UsuarioController : ControllerBase
     {
         private readonly IMapper _mapper;
@@ -23,7 +24,7 @@ namespace InstitutoTriboDeDavi.API.Controllers
         }
 
         [HttpPost]
-        [Route("/apí/v1/users/create")]
+        [Route("/usuario/create")]
         public async Task<IActionResult> Create([FromBody] CreateUsuarioViewModel usuarioViewModel)
         {
             try
@@ -48,7 +49,7 @@ namespace InstitutoTriboDeDavi.API.Controllers
         }
 
         [HttpPut]
-        [Route("/apí/v1/users/update")]
+        [Route("/usuario/update")]
         public async Task<IActionResult> Update([FromBody] UpdateUsuarioViewModel usuarioViewModel)
         {
             try
@@ -74,7 +75,7 @@ namespace InstitutoTriboDeDavi.API.Controllers
         }
 
         [HttpDelete]
-        [Route("/apí/v1/users/delete/{id}")]
+        [Route("/usuario/delete/{id}")]
         public async Task<IActionResult> Delete(long id)
         {
             try
@@ -111,7 +112,7 @@ namespace InstitutoTriboDeDavi.API.Controllers
         }
 
         [HttpGet]
-        [Route("/apí/v1/users/get/{id}")]
+        [Route("/usuario/get/{id}")]
         public async Task<IActionResult> Get(long id)
         {
             try
@@ -146,7 +147,7 @@ namespace InstitutoTriboDeDavi.API.Controllers
         }
 
         [HttpGet]
-        [Route("/apí/v1/users/get-all")]
+        [Route("/usuario/get-all")]
         public async Task<IActionResult> GetAll()
         {
             try
@@ -170,8 +171,19 @@ namespace InstitutoTriboDeDavi.API.Controllers
             }
         }
 
+        //[HttpGet]
+        //[Route("/usuario")]
+        //public async Task<IActionResult> Index()
+        //{
+        //    var allCategories = await _usuarioService.GetAll();
+
+        //    var category = _mapper.Map<List<UsuarioDTO>>(allCategories);
+
+        //    return Ok(category);
+        //}
+
         [HttpGet]
-        [Route("/apí/v1/users/get-by-email")]
+        [Route("/usuario/get-by-email")]
         public async Task<IActionResult> GetByEmail([FromQuery] string email)
         {
             try
@@ -206,7 +218,7 @@ namespace InstitutoTriboDeDavi.API.Controllers
         }
 
         [HttpGet]
-        [Route("/apí/v1/users/search-by-email")]
+        [Route("/usuario/search-by-email")]
         public async Task<IActionResult> SearchByEmail([FromQuery] string email)
         {
             try

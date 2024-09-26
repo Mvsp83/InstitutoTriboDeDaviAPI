@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_tribo_de_davi_api/views/tela_login.dart';
+import 'package:flutter_tribo_de_davi_api/views/login_page.dart';
 
 void main() {
   runApp(const MainApp());
@@ -10,9 +10,9 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: LoginPage(), //MainPage(),
+      home: LoginPage(),
     );
   }
 }

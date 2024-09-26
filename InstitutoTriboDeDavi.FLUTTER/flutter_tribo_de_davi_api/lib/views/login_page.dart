@@ -6,7 +6,7 @@ void main() => runApp(MyApp());
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       debugShowCheckedModeBanner: false,
       home: LoginPage(),
     );
@@ -14,6 +14,8 @@ class MyApp extends StatelessWidget {
 }
 
 class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
+
   @override
   _LoginPageState createState() => _LoginPageState();
 }
@@ -24,20 +26,20 @@ class _LoginPageState extends State<LoginPage> {
 
   bool _isPasswordVisible = false;
 
-  // Função para verificar login
   void _login() {
     String email = _emailController.text;
     String password = _passwordController.text;
 
     // Simulando verificação de credenciais
     if (email == "admin" && password == "123") {
-      // Navegar para a página principal
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => HomePage()),
+        MaterialPageRoute(
+            builder: (context) => const HomePage(
+                // username: 'nome usuario',
+                )),
       );
     } else {
-      // Exibir uma mensagem de erro
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
@@ -69,27 +71,11 @@ class _LoginPageState extends State<LoginPage> {
               // Adicionando o logo no topo da tela
               Center(
                 child: Image.asset(
-                  'lib/assets/images/logo3.png',
+                  'lib/assets/images/logo.png',
                   height: 150, // Altura da imagem
                 ),
               ),
-              // const Text(
-              //   'Instituto Tribo de Davi',
-              //   style: TextStyle(
-              //     fontSize: 32,
-              //     fontWeight: FontWeight.bold,
-              //     color: Colors.white,
-              //   ),
-              // ),
               const SizedBox(height: 10),
-              // const Text(
-              //   'Please login to your account',
-              //   style: TextStyle(
-              //     fontSize: 16,
-              //     color: Colors.grey,
-              //   ),
-              // ),
-              //const SizedBox(height: 40),
               // Campo de Email
               TextField(
                 controller: _emailController,
@@ -170,7 +156,7 @@ class _LoginPageState extends State<LoginPage> {
               ),
               const SizedBox(height: 20),
               // Texto de rodapé para registro
-              Center(
+              const Center(
                 child: Text.rich(
                   TextSpan(
                     text: "Don't have an account? ",
@@ -193,18 +179,3 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 }
-
-// // Tela principal que será chamada após o login
-// class MainPage extends StatelessWidget {
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: const Text("Main Page"),
-//       ),
-//       body: const Center(
-//         child: Text("Bem-vindo à página principal!"),
-//       ),
-//     );
-//   }
-// }

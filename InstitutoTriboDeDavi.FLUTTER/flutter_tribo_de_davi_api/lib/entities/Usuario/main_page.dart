@@ -1,61 +1,110 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_tribo_de_davi_api/api/api_handler.dart';
-import 'package:flutter_tribo_de_davi_api/entities/Usuario/add_page.dart';
-import 'package:flutter_tribo_de_davi_api/entities/Usuario/edit_page.dart';
-import 'package:flutter_tribo_de_davi_api/entities/Usuario/find_user.dart';
-import 'package:flutter_tribo_de_davi_api/models/model.dart';
+import 'package:flutter_tribo_de_davi_api/api/api_base.dart';
+import 'package:flutter_tribo_de_davi_api/api/api_routes.dart';
+import 'package:flutter_tribo_de_davi_api/entities/models/usuario.dart';
+import 'package:flutter_tribo_de_davi_api/entities/usuario/add_page.dart';
+import 'package:flutter_tribo_de_davi_api/entities/usuario/edit_page.dart';
+import 'package:flutter_tribo_de_davi_api/entities/usuario/find_page.dart';
 
-class MainPage extends StatefulWidget {
-  const MainPage({super.key});
+class UsuarioPage extends StatefulWidget {
+  const UsuarioPage({super.key});
 
   @override
-  State<MainPage> createState() => _MainPageState();
+  State<UsuarioPage> createState() => _UsuarioPageState();
 }
 
-class _MainPageState extends State<MainPage> {
-  ApiHandler apiHandler = ApiHandler();
+class _UsuarioPageState extends State<UsuarioPage> {
+  ApiHandler<Usuario> apiHandler = ApiHandler<Usuario>(
+    baseUri: ApiRoutes.entity("usuario"),
+    fromJson: (json) => Usuario.fromJson(json),
+  );
   late List<Usuario> data = [];
 
-  void getData() async {
-    data = await apiHandler.getUsuarioData();
+  void getUsuario() async {
+    data = await apiHandler.getData();
     setState(() {});
   }
 
   void deleteUsuario(int id) async {
-    await apiHandler.deleteUsuario(id: id);
+    await apiHandler.deleteData(id: id);
     setState(() {});
   }
 
+  void searchByEmail(String email) async {}
+
   @override
   void initState() {
-    getData();
+    getUsuario();
     super.initState();
   }
+
+  String _getInitials(String name) {
+    return name.isNotEmpty
+        ? name.trim().split(' ').map((e) => e[0]).take(2).join().toUpperCase()
+        : '?';
+  }
+
+  void _confirmDelete(int id) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Confirmar Exclusão"),
+          content: const Text("Tem certeza que deseja excluir este usuário?"),
+          actions: <Widget>[
+            TextButton(
+              child: const Text("Cancelar"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text("Excluir"),
+              onPressed: () {
+                deleteUsuario(id);
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+// Lista de cores
+  final List<Color> avatarColors = [
+    Colors.blue,
+    Colors.green,
+    Colors.red,
+    Colors.orange,
+    Colors.purple,
+    Colors.teal,
+  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Instituto Tribo de Davi API"),
+        title: const Text("Usuários"),
         centerTitle: true,
         backgroundColor: Colors.black87,
         foregroundColor: Colors.white,
-        elevation: 4, // Adicionando sombra na AppBar para profundidade
+        elevation: 4,
         shadowColor: Colors.black54,
       ),
       bottomNavigationBar: MaterialButton(
-        color: Colors.teal,
-        textColor: Colors.yellow,
+        color: Colors.blue,
+        textColor: Colors.white,
         padding: const EdgeInsets.all(20),
-        onPressed: getData,
-        child: const Text('Refresh'),
+        onPressed: getUsuario,
+        child: const Text('Atualizar Lista'),
       ),
       floatingActionButton: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           FloatingActionButton(
             heroTag: 1,
-            backgroundColor: Colors.teal,
+            backgroundColor: Colors.blue,
             foregroundColor: Colors.white,
             onPressed: () {
               Navigator.push(context,
@@ -68,7 +117,7 @@ class _MainPageState extends State<MainPage> {
           ),
           FloatingActionButton(
             heroTag: 2,
-            backgroundColor: Colors.teal,
+            backgroundColor: Colors.blue,
             foregroundColor: Colors.white,
             onPressed: () {
               Navigator.push(context,
@@ -79,29 +128,24 @@ class _MainPageState extends State<MainPage> {
         ],
       ),
       body: Padding(
-        padding: const EdgeInsets.all(
-            8.0), // Adicionando espaçamento ao redor da lista
+        padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
             Expanded(
-              // Isso garante que a ListView ocupe o espaço disponível
               child: data.isEmpty
-                  ? Center(
+                  ? const Center(
                       child: CircularProgressIndicator(
-                        color: Colors.teal, // Indicador de carregamento
+                        color: Colors.teal,
                       ),
                     )
                   : ListView.builder(
                       itemCount: data.length,
                       itemBuilder: (BuildContext context, int index) {
                         return Card(
-                          elevation:
-                              5, // Aumentando a sombra para destacar o item
-                          margin: const EdgeInsets.symmetric(
-                              vertical: 8), // Espaçamento entre os itens
+                          elevation: 5,
+                          margin: const EdgeInsets.symmetric(vertical: 8),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(
-                                15), // Bordas arredondadas
+                            borderRadius: BorderRadius.circular(15),
                           ),
                           child: ListTile(
                             onTap: () {
@@ -109,37 +153,42 @@ class _MainPageState extends State<MainPage> {
                                   context,
                                   MaterialPageRoute(
                                       builder: (context) =>
-                                          EditPage(usuario: data[index])));
+                                          EditUsuario(usuario: data[index])));
                             },
                             leading: CircleAvatar(
+                              // A cor alterna com base no índice
                               backgroundColor:
-                                  Colors.teal, // Cor de fundo do avatar
+                                  avatarColors[index % avatarColors.length],
                               child: Text(
-                                "${data[index].id}",
+                                _getInitials(data[index].login),
                                 style: const TextStyle(
-                                    color:
-                                        Colors.white), // Texto branco no avatar
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold),
                               ),
                             ),
                             title: Text(
                               data[index].email,
                               style: const TextStyle(
-                                fontWeight: FontWeight.bold, // Texto em negrito
-                                fontSize: 16, // Aumentando o tamanho da fonte
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
                               ),
                             ),
-                            subtitle: Text(
-                              data[index].login,
-                              style: TextStyle(
-                                  color: Colors
-                                      .grey[600]), // Mudando a cor do subtítulo
+                            subtitle: Row(
+                              children: [
+                                const Icon(Icons.person_outline, size: 16),
+                                const SizedBox(width: 5),
+                                Text(
+                                  data[index].login,
+                                  style: TextStyle(color: Colors.grey[600]),
+                                ),
+                              ],
                             ),
                             trailing: IconButton(
                               icon: const Icon(Icons.delete_outline),
                               onPressed: () {
-                                deleteUsuario(data[index].id);
+                                _confirmDelete(data[index].id);
                               },
-                            ), // Ícone ao final do item
+                            ),
                           ),
                         );
                       },
@@ -150,147 +199,4 @@ class _MainPageState extends State<MainPage> {
       ),
     );
   }
-
-  //@override
-  // Widget build(BuildContext context) {
-  //   return Scaffold(
-  //     appBar: AppBar(
-  //       title: const Text("Instituto Tribo de Davi API"),
-  //       centerTitle: true,
-  //       backgroundColor: Colors.black87,
-  //       foregroundColor: Colors.white,
-  //     ),
-  //     bottomNavigationBar: MaterialButton(
-  //       color: Colors.teal,
-  //       textColor: Colors.yellow,
-  //       padding: const EdgeInsets.all(20),
-  //       onPressed: getData,
-  //       child: const Text('Refresh'),
-  //     ),
-  //     floatingActionButton: Column(
-  //       mainAxisAlignment: MainAxisAlignment.end,
-  //       children: [
-  //         FloatingActionButton(
-  //           heroTag: 1,
-  //           backgroundColor: Colors.teal,
-  //           foregroundColor: Colors.white,
-  //           onPressed: () {
-  //             Navigator.push(context,
-  //                 MaterialPageRoute(builder: (context) => const FindUsuario()));
-  //           },
-  //           child: const Icon(Icons.search),
-  //         ),
-  //         const SizedBox(
-  //           height: 10,
-  //         ),
-  //         FloatingActionButton(
-  //           heroTag: 2,
-  //           backgroundColor: Colors.teal,
-  //           foregroundColor: Colors.white,
-  //           onPressed: () {
-  //             Navigator.push(
-  //                 context,
-  //                 MaterialPageRoute(
-  //                   builder: (context) => const AddUsuario(),
-  //                 ));
-  //           },
-  //           child: const Icon(Icons.add),
-  //         ),
-  //       ],
-  //     ),
-  //     body: Padding(
-  //       padding: const EdgeInsets.all(
-  //           8.0), // Adicionando espaçamento ao redor da lista
-  //       child: Column(
-  //         children: [
-  //           Expanded(
-  //             // Isso garante que a ListView ocupe o espaço disponível
-  //             child: ListView.builder(
-  //               itemCount: data.length,
-  //               itemBuilder: (BuildContext context, int index) {
-  //                 return Card(
-  //                   elevation: 3, // Sombra para destacar o item
-  //                   margin: const EdgeInsets.symmetric(
-  //                       vertical: 8), // Espaçamento entre os itens
-  //                   shape: RoundedRectangleBorder(
-  //                     borderRadius:
-  //                         BorderRadius.circular(10), // Bordas arredondadas
-  //                   ),
-  //                   child: ListTile(
-  //                     onTap: () {
-  //                       Navigator.push(
-  //                           context,
-  //                           MaterialPageRoute(
-  //                               builder: (context) =>
-  //                                   EditPage(usuario: data[index])));
-  //                     },
-  //                     leading: CircleAvatar(
-  //                       backgroundColor: Colors.teal, // Cor de fundo do avatar
-  //                       child: Text(
-  //                         "${data[index].id}",
-  //                         style: const TextStyle(
-  //                             color: Colors.white), // Texto branco no avatar
-  //                       ),
-  //                     ),
-  //                     title: Text(
-  //                       data[index].email,
-  //                       style: const TextStyle(
-  //                         fontWeight: FontWeight.bold, // Texto em negrito
-  //                         fontSize: 16, // Aumentando o tamanho da fonte
-  //                       ),
-  //                     ),
-  //                     subtitle: Text(
-  //                       data[index].login,
-  //                       style: TextStyle(
-  //                           color:
-  //                               Colors.grey[600]), // Mudando a cor do subtítulo
-  //                     ),
-  //                     trailing: IconButton(
-  //                       icon: const Icon(Icons.delete_outline),
-  //                       onPressed: () {
-  //                         deleteUsuario(data[index].id);
-  //                       },
-  //                     ), // Ícone ao final do item
-  //                   ),
-  //                 );
-  //               },
-  //             ),
-  //           ),
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  // }
 }
-
-// @override
-  // Widget build(BuildContext context) {
-  //   return Scaffold(
-  //     appBar: AppBar(
-  //       title: const Text("Instituto Tribo de Davi API"),
-  //       centerTitle: true,
-  //       backgroundColor: Colors.black87,
-  //       foregroundColor: Colors.white,             
-  //     ),
-  //     bottomNavigationBar: MaterialButton(
-  //       color: Colors.teal,
-  //       textColor: Colors.yellow,
-  //       padding: const EdgeInsets.all(20),
-  //       onPressed: getData,
-  //       child: const Text('Refresh'),
-  //       ),
-  //     body: Column(children: [
-  //       ListView.builder(
-  //         shrinkWrap: true,
-  //         itemCount: data.length,
-  //         itemBuilder: (BuildContext context, int index){
-  //           return ListTile(
-  //             leading: Text("${data[index].id}"),
-  //             title: Text(data[index].email),
-  //             subtitle: Text(data[index].login),
-  //           );
-  //         },
-  //       )
-  //     ],),
-  //   );
-  // }

@@ -1,4 +1,4 @@
-﻿using InstitutoTriboDeDavi.API.ViewModels;
+﻿using InstitutoTriboDeDavi.API.ViewModels.Result;
 
 namespace InstitutoTriboDeDavi.API.Utilities
 {

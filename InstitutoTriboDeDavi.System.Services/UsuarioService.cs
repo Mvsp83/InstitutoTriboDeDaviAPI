@@ -60,9 +60,9 @@ namespace InstitutoTriboDeDavi.System.Services
             return _mapper.Map<UsuarioDTO>(usuario);
         }
 
-        public async Task<List<UsuarioDTO>> SearchEmail(string email)
+        public async Task<List<UsuarioDTO>> SearchByEmail(string email)
         {
-            var allUsuarios = await _usuarioRepository.SearchEmail(email);
+            var allUsuarios = await _usuarioRepository.SearchByEmail(email);
 
             return _mapper.Map<List<UsuarioDTO>>(allUsuarios);
         }

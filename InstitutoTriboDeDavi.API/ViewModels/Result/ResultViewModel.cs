@@ -1,4 +1,4 @@
-﻿namespace InstitutoTriboDeDavi.API.ViewModels
+﻿namespace InstitutoTriboDeDavi.API.ViewModels.Result
 {
     public class ResultViewModel
     {

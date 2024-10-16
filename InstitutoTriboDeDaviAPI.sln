@@ -11,15 +11,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{DD4831
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Domain", "Domain", "{8DA3D53F-B605-4922-B00A-1EDA86955D66}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InstitutoTriboDeDavi.System.Domain", "InstitutoTriboDeDavi.System.Domain\InstitutoTriboDeDavi.System.Domain.csproj", "{12791827-336A-4D5C-9131-10339E4B3778}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InstitutoTriboDeDavi.System.Domain", "InstitutoTriboDeDavi.System.Domain\InstitutoTriboDeDavi.System.Domain.csproj", "{12791827-336A-4D5C-9131-10339E4B3778}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InstitutoTriboDeDavi.Common.BaseEntity", "InstitutoTriboDeDavi.Common.BaseEntity\InstitutoTriboDeDavi.Common.BaseEntity.csproj", "{AD1E3A43-2051-4C51-A176-4ED85B7E4997}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InstitutoTriboDeDavi.Common.BaseEntity", "InstitutoTriboDeDavi.Common.BaseEntity\InstitutoTriboDeDavi.Common.BaseEntity.csproj", "{AD1E3A43-2051-4C51-A176-4ED85B7E4997}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InstitutoTriboDeDavi.Common.DataAccess", "InstitutoTriboDeDavi.Common.DataAccess\InstitutoTriboDeDavi.Common.DataAccess.csproj", "{31F74E6A-15CD-48A2-9834-852ABDE4AE7C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InstitutoTriboDeDavi.Common.DataAccess", "InstitutoTriboDeDavi.Common.DataAccess\InstitutoTriboDeDavi.Common.DataAccess.csproj", "{31F74E6A-15CD-48A2-9834-852ABDE4AE7C}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infra", "Infra", "{3F489D7C-192D-497B-8549-6A3982A6E7FE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InstitutoTriboDeDavi.System.Infra", "InstitutoTriboDeDavi.System.Infra\InstitutoTriboDeDavi.System.Infra.csproj", "{DFF205EC-54D8-48B1-A420-2C995AF67716}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InstitutoTriboDeDavi.System.Infra", "InstitutoTriboDeDavi.System.Infra\InstitutoTriboDeDavi.System.Infra.csproj", "{DFF205EC-54D8-48B1-A420-2C995AF67716}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{36C91F69-524F-460F-A368-EBD05A6A8006}"
 EndProject
@@ -27,19 +27,23 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DTO", "DTO", "{1A2ECBA1-961
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Services", "Services", "{B976E4A4-C121-4598-8606-880710A62C34}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InstitutoTriboDeDavi.System.Core", "InstitutoTriboDeDavi.System.Core\InstitutoTriboDeDavi.System.Core.csproj", "{AE07B46D-5F03-4A3D-AC18-AF516FED9CC1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InstitutoTriboDeDavi.System.Core", "InstitutoTriboDeDavi.System.Core\InstitutoTriboDeDavi.System.Core.csproj", "{AE07B46D-5F03-4A3D-AC18-AF516FED9CC1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InstitutoTriboDeDavi.System.DTO", "InstitutoTriboDeDavi.System.DTO\InstitutoTriboDeDavi.System.DTO.csproj", "{71AF644E-1308-4FE5-8342-91AD619B80B4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InstitutoTriboDeDavi.System.DTO", "InstitutoTriboDeDavi.System.DTO\InstitutoTriboDeDavi.System.DTO.csproj", "{71AF644E-1308-4FE5-8342-91AD619B80B4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InstitutoTriboDeDavi.System.Services", "InstitutoTriboDeDavi.System.Services\InstitutoTriboDeDavi.System.Services.csproj", "{C4EF021D-8830-4C38-8A0C-0C52BB0DD1EC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InstitutoTriboDeDavi.System.Services", "InstitutoTriboDeDavi.System.Services\InstitutoTriboDeDavi.System.Services.csproj", "{C4EF021D-8830-4C38-8A0C-0C52BB0DD1EC}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DataAccess", "DataAccess", "{69D72E5D-700B-4090-9D66-879E3AF67899}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InstitutoTriboDeDavi.System.DataAccess", "InstitutoTriboDeDavi.System.DataAccess\InstitutoTriboDeDavi.System.DataAccess.csproj", "{229C1AFB-A8EB-49A0-8620-61F41FCECC01}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InstitutoTriboDeDavi.System.DataAccess", "InstitutoTriboDeDavi.System.DataAccess\InstitutoTriboDeDavi.System.DataAccess.csproj", "{229C1AFB-A8EB-49A0-8620-61F41FCECC01}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "API", "API", "{08E41895-5D1A-42F3-9477-AF13276955A1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InstitutoTriboDeDavi.API", "InstitutoTriboDeDavi.API\InstitutoTriboDeDavi.API.csproj", "{58F6CDBE-E630-4DA2-B077-04E067797ED8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InstitutoTriboDeDavi.API", "InstitutoTriboDeDavi.API\InstitutoTriboDeDavi.API.csproj", "{58F6CDBE-E630-4DA2-B077-04E067797ED8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Factory", "Factory", "{6D161806-F6F5-43E3-B395-0B24731478BB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InstitutoTriboDeDavi.System.Factory", "InstitutoTriboDeDavi.System.Factory\InstitutoTriboDeDavi.System.Factory.csproj", "{BEA601CB-E781-48F4-A176-A0C214D09800}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -83,6 +87,10 @@ Global
 		{58F6CDBE-E630-4DA2-B077-04E067797ED8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{58F6CDBE-E630-4DA2-B077-04E067797ED8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{58F6CDBE-E630-4DA2-B077-04E067797ED8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BEA601CB-E781-48F4-A176-A0C214D09800}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BEA601CB-E781-48F4-A176-A0C214D09800}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BEA601CB-E781-48F4-A176-A0C214D09800}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BEA601CB-E781-48F4-A176-A0C214D09800}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -106,6 +114,8 @@ Global
 		{229C1AFB-A8EB-49A0-8620-61F41FCECC01} = {69D72E5D-700B-4090-9D66-879E3AF67899}
 		{08E41895-5D1A-42F3-9477-AF13276955A1} = {91922AC2-6AF5-4DAD-9530-3DB43A1EAF2B}
 		{58F6CDBE-E630-4DA2-B077-04E067797ED8} = {08E41895-5D1A-42F3-9477-AF13276955A1}
+		{6D161806-F6F5-43E3-B395-0B24731478BB} = {E1463564-B1EA-4E0F-B2BC-F16806E70237}
+		{BEA601CB-E781-48F4-A176-A0C214D09800} = {6D161806-F6F5-43E3-B395-0B24731478BB}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6D8E80A7-28E1-4C67-A36B-6B24F3A0EDB9}

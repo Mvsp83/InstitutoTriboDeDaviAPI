@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using InstitutoTriboDeDavi.API.ViewModels.Create;
 using InstitutoTriboDeDavi.API.ViewModels.Usuario;
 using InstitutoTriboDeDavi.System.DataAccess;
 using InstitutoTriboDeDavi.System.DataAccess.Interfaces;
@@ -32,6 +33,27 @@ namespace InstitutoTriboDeDavi.API
 
             services.AddScoped<IUsuarioService, UsuarioService>();
             services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+            services.AddScoped<IAlunoRepository, AlunoRepository>();
+            services.AddScoped<IAlunoService, AlunoService>();
+            services.AddScoped<IPoloRepository, PoloRepository>();
+            services.AddScoped<IPoloService, PoloService>();
+            services.AddScoped<IResponsavelRepository, ResponsavelRepository>();
+            services.AddScoped<IResponsavelService, ResponsavelService>();
+            services.AddScoped<IPaisRepository, PaisRepository>();
+            services.AddScoped<IPaisService, PaisService>();
+            services.AddScoped<IEstadoRepository, EstadoRepository>();
+            services.AddScoped<IEstadoService, EstadoService>();
+            services.AddScoped<ICidadeRepository, CidadeRepository>();
+            services.AddScoped<ICidadeService, CidadeService>();
+            services.AddScoped<IBairroRepository, BairroRepository>();
+            services.AddScoped<IBairroService, BairroService>();
+            services.AddScoped<IEnderecoRepository, EnderecoRepository>();
+            services.AddScoped<IEnderecoService, EnderecoService>();
+
+
+            //services.AddTransient<FactoryPlanilhaDB>(provider =>
+            //new FactoryPlanilhaDB(Configuration.GetConnectionString("ConnectionStrings:TRIBODEDAVIAPI")));
+
 
             #endregion
 
@@ -40,8 +62,24 @@ namespace InstitutoTriboDeDavi.API
             var autoMapperConfig = new MapperConfiguration(cfg =>
             {
                 cfg.CreateMap<Usuario, UsuarioDTO>().ReverseMap();
-                cfg.CreateMap<CreateUsuarioViewModel, UsuarioDTO>().ReverseMap();
-                cfg.CreateMap<UpdateUsuarioViewModel, UsuarioDTO>().ReverseMap();
+                cfg.CreateMap<UsuarioViewModel, UsuarioDTO>().ReverseMap();
+                cfg.CreateMap<Aluno, AlunoDTO>().ReverseMap();
+                cfg.CreateMap<AlunoViewModel, AlunoDTO>().ReverseMap();
+                cfg.CreateMap<Polo, PoloDTO>().ReverseMap();
+                cfg.CreateMap<PoloViewModel, PoloDTO>().ReverseMap();
+                cfg.CreateMap<Pais, PaisDTO>().ReverseMap();
+                cfg.CreateMap<PaisViewModel, PaisDTO>().ReverseMap();
+                cfg.CreateMap<Estado, EstadoDTO>().ReverseMap();
+                cfg.CreateMap<EstadoViewModel, EstadoDTO>().ReverseMap();
+                cfg.CreateMap<Cidade, CidadeDTO>().ReverseMap();
+                cfg.CreateMap<CidadeViewModel,  CidadeDTO>().ReverseMap();
+                cfg.CreateMap<Bairro, BairroDTO>().ReverseMap();
+                cfg.CreateMap<BairroViewModel, BairroDTO>().ReverseMap();
+                cfg.CreateMap<Responsavel, ResponsavelDTO>().ReverseMap();
+                cfg.CreateMap<ResponsavelViewModel, ResponsavelDTO>().ReverseMap();
+                cfg.CreateMap<Endereco, EnderecoDTO>().ReverseMap();
+                cfg.CreateMap<EnderecoViewModel, EnderecoDTO>().ReverseMap();
+
             });
 
             services.AddSingleton(autoMapperConfig.CreateMapper());

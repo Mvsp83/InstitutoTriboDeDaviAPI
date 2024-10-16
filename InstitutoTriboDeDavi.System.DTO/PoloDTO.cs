@@ -1,0 +1,19 @@
+﻿using InstitutoTriboDeDavi.System.Domain.Entities;
+using System.ComponentModel.DataAnnotations;
+
+namespace InstitutoTriboDeDavi.System.DTO
+{
+    public class PoloDTO
+    {
+        [Required(ErrorMessage = "O Id não pode ser vazio")]
+        [Range(1, long.MaxValue, ErrorMessage = "O Id não pode ser menor que 1")]
+        public long Id { get; set; }
+
+        [Required(ErrorMessage = "O Nome não pode ser vazio.")]
+        [MinLength(3, ErrorMessage = "O Nome deve ter no mínimo 3 caracteres.")]
+        [MaxLength(20, ErrorMessage = "O Nome deve ter no máximo 20 caracteres.")]
+        public string Nome { get; set; }
+        public long EnderecoId { get; set; }
+        public Endereco Endereco { get; set; }
+    }
+}

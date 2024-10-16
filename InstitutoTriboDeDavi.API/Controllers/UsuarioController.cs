@@ -1,16 +1,14 @@
 ﻿using AutoMapper;
 using InstitutoTriboDeDavi.API.Utilities;
-using InstitutoTriboDeDavi.API.ViewModels;
+using InstitutoTriboDeDavi.API.ViewModels.Result;
 using InstitutoTriboDeDavi.API.ViewModels.Usuario;
 using InstitutoTriboDeDavi.System.Core.Exceptions;
-using InstitutoTriboDeDavi.System.Domain.Entities;
 using InstitutoTriboDeDavi.System.DTO;
 using InstitutoTriboDeDavi.System.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InstitutoTriboDeDavi.API.Controllers
 {
-    [Route("/api/[controller]")]
     [ApiController]    
     public class UsuarioController : ControllerBase
     {
@@ -25,7 +23,7 @@ namespace InstitutoTriboDeDavi.API.Controllers
 
         [HttpPost]
         [Route("/usuario/create")]
-        public async Task<IActionResult> Create([FromBody] CreateUsuarioViewModel usuarioViewModel)
+        public async Task<IActionResult> Create([FromBody] UsuarioViewModel usuarioViewModel)
         {
             try
             {
@@ -50,11 +48,10 @@ namespace InstitutoTriboDeDavi.API.Controllers
 
         [HttpPut]
         [Route("/usuario/update")]
-        public async Task<IActionResult> Update([FromBody] UpdateUsuarioViewModel usuarioViewModel)
+        public async Task<IActionResult> Update([FromBody] UsuarioDTO usuarioDTO)
         {
             try
             {
-                var usuarioDTO = _mapper.Map<UsuarioDTO>(usuarioViewModel);
                 var usuarioUpdated = await _usuarioService.Update(usuarioDTO);
 
                 return Ok(new ResultViewModel
@@ -171,17 +168,6 @@ namespace InstitutoTriboDeDavi.API.Controllers
             }
         }
 
-        //[HttpGet]
-        //[Route("/usuario")]
-        //public async Task<IActionResult> Index()
-        //{
-        //    var allCategories = await _usuarioService.GetAll();
-
-        //    var category = _mapper.Map<List<UsuarioDTO>>(allCategories);
-
-        //    return Ok(category);
-        //}
-
         [HttpGet]
         [Route("/usuario/get-by-email")]
         public async Task<IActionResult> GetByEmail([FromQuery] string email)
@@ -223,7 +209,7 @@ namespace InstitutoTriboDeDavi.API.Controllers
         {
             try
             {
-                var allUsuarios = await _usuarioService.SearchEmail(email);
+                var allUsuarios = await _usuarioService.SearchByEmail(email);
 
                 if (allUsuarios.Count() == 0)
                 {

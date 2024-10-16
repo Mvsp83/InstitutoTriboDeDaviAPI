@@ -16,7 +16,7 @@ namespace InstitutoTriboDeDavi.System.DataAccess
 
         public async Task<Usuario> GetByEmail(string email)
         {
-            var user = await _context.Users
+            var user = await _context.Usuarios
                 .Where(c => c.Email.ToLower() == email.ToLower())
                 .AsNoTracking()
                 .ToListAsync();
@@ -24,9 +24,9 @@ namespace InstitutoTriboDeDavi.System.DataAccess
             return user.FirstOrDefault();
         }
 
-        public async Task<List<Usuario>> SearchEmail(string email)
+        public async Task<List<Usuario>> SearchByEmail(string email)
         {
-            var allUsers = await _context.Users
+            var allUsers = await _context.Usuarios
                 .Where(c => c.Email.ToLower().Contains(email.ToLower()))
                 .AsNoTracking()
                 .ToListAsync();

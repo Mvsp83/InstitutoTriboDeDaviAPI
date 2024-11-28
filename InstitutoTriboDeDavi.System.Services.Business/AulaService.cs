@@ -1,0 +1,64 @@
+﻿using AutoMapper;
+using InstitutoTriboDeDavi.System.DataAccess.Business.Interfaces;
+using InstitutoTriboDeDavi.System.Domain.Entities.Business;
+using InstitutoTriboDeDavi.System.DTO.Business;
+using InstitutoTriboDeDavi.System.Services.Business.Interfaces;
+
+namespace InstitutoTriboDeDavi.System.Services.Business
+{
+    public class AulaService : IAulaService
+    {
+        private readonly IMapper _mapper;
+        private readonly IAulaRepository _aulaRepository;
+
+        public AulaService(IMapper mapper, IAulaRepository aulaRepository)
+        {
+            _mapper = mapper;
+            _aulaRepository = aulaRepository;
+        }
+
+        public async Task<AulaDTO> Create(AulaDTO aulaDTO)
+        {
+            var aula = _mapper.Map<Aula>(aulaDTO);
+
+            var aulaCreated = await _aulaRepository.CreateAsync(aula);
+
+            return _mapper.Map<AulaDTO>(aulaCreated);
+        }
+
+        public async Task<AulaDTO> Get(long id)
+        {
+            var aula = await _aulaRepository.GetByIdAsync(id);
+
+            return _mapper.Map<AulaDTO>(aula);
+        }
+
+        public async Task Delete(long id)
+        {
+            await _aulaRepository.DeleteAsync(id);
+        }
+
+        public async Task<List<AulaDTO>> GetAll()
+        {
+            var allAulas = await _aulaRepository.GetAllAsync();
+
+            return _mapper.Map<List<AulaDTO>>(allAulas);
+        }
+
+        public async Task<AulaDTO> Update(AulaDTO aulaDTO)
+        {
+            var aulaExists = await _aulaRepository.GetByIdAsync(aulaDTO.Id);
+
+            if (aulaExists == null)
+            {
+                throw new Exception("Não existe um registro com o ID informado!");
+            }
+
+            var aula = _mapper.Map<Aula>(aulaDTO);
+
+            var aulaUpdated = await _aulaRepository.UpdateAsync(aula);
+
+            return _mapper.Map<AulaDTO>(aulaUpdated);
+        }
+    }
+}

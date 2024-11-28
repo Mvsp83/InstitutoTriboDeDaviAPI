@@ -24,4 +24,24 @@ class ApiRoutes {
   static String delete(String endpoint, int id) {
     return '$baseUrl/${entity(endpoint)}/delete/$id';
   }
+
+  static String getByNome(String endpoint, String nome) {
+    return '$baseUrl/${entity(endpoint)}/get-by-nome?nome=$nome';
+  }
+
+  static String searchByNome(String endpoint, String nome) {
+    return '$baseUrl/${entity(endpoint)}/search-by-nome?nome=$nome';
+  }
+
+  static String fetchTotalAlunos(String endpoint, int poloId) {
+    return '$baseUrl/${entity(endpoint)}/total';
+  }
+
+  static String getAll2(String endpoint) {
+    return '$baseUrl/${entity(endpoint)}';
+  }
+
+  static String getById2(String endpoint, int id) {
+    return '$baseUrl/${entity(endpoint)}';
+  }
 }

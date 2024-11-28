@@ -33,5 +33,10 @@ namespace InstitutoTriboDeDavi.System.DataAccess
 
             return allAlunos;
         }
+
+        public async Task<int> GetTotalAlunosAsync()
+        {
+            return await _context.Set<Aluno>().CountAsync();
+        }
     }
 }

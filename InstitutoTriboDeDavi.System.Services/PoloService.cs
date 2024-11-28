@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using InstitutoTriboDeDavi.System.DataAccess;
 using InstitutoTriboDeDavi.System.DataAccess.Interfaces;
 using InstitutoTriboDeDavi.System.Domain.Entities;
 using InstitutoTriboDeDavi.System.DTO;

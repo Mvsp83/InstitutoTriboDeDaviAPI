@@ -237,5 +237,75 @@ namespace InstitutoTriboDeDavi.API.Controllers
                 return StatusCode(500, Responses.ApplicationErrorMessage());
             }
         }
+
+        [HttpGet]
+        [Route("/usuario/get-by-nome")]
+        public async Task<IActionResult> GetByNome([FromQuery] string nome)
+        {
+            try
+            {
+                var usuario = await _usuarioService.GetByNome(nome);
+
+                if (usuario == null)
+                {
+                    return Ok(new ResultViewModel
+                    {
+                        Message = "Nenhum Usuário foi encontrado com o Nome informado!",
+                        Success = true,
+                        Data = usuario
+                    });
+                }
+
+                return Ok(new ResultViewModel
+                {
+                    Message = "Usuário encontrado com sucesso!",
+                    Success = true,
+                    Data = usuario
+                });
+            }
+            catch (DomainException ex)
+            {
+                return BadRequest(Responses.DomainErrorMessage(ex.Message, ex.Errors));
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, Responses.ApplicationErrorMessage());
+            }
+        }
+
+        [HttpGet]
+        [Route("/usuario/search-by-nome")]
+        public async Task<IActionResult> SearchByNome([FromQuery] string nome)
+        {
+            try
+            {
+                var allUsuarios = await _usuarioService.SearchByNome(nome);
+
+                if (allUsuarios.Count() == 0)
+                {
+                    return Ok(new ResultViewModel
+                    {
+                        Message = "Nenhum Usuário foi encontrado com o Nome informado!",
+                        Success = true,
+                        Data = null
+                    });
+                }
+
+                return Ok(new ResultViewModel
+                {
+                    Message = "Usuários encontrados com sucesso!",
+                    Success = true,
+                    Data = allUsuarios
+                });
+            }
+            catch (DomainException ex)
+            {
+                return BadRequest(Responses.DomainErrorMessage(ex.Message, ex.Errors));
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, Responses.ApplicationErrorMessage());
+            }
+        }
     }
 }

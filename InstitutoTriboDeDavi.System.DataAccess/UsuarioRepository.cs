@@ -33,5 +33,25 @@ namespace InstitutoTriboDeDavi.System.DataAccess
 
             return allUsers;
         }
+
+        public async Task<Usuario> GetByNome(string nome)
+        {
+            var user = await _context.Usuarios
+                .Where(c => c.Login.ToLower() == nome.ToLower())
+                .AsNoTracking()
+                .ToListAsync();
+
+            return user.FirstOrDefault();
+        }
+
+        public async Task<List<Usuario>> SearchByNome(string nome)
+        {
+            var allUsers = await _context.Usuarios
+                .Where(c => c.Login.ToLower().Contains(nome.ToLower()))
+                .AsNoTracking()
+                .ToListAsync();
+
+            return allUsers;
+        }
     }
 }

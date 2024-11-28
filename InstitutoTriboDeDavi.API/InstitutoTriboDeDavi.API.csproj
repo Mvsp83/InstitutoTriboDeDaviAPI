@@ -16,7 +16,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\InstitutoTriboDeDavi.System.DataAccess.Business\InstitutoTriboDeDavi.System.DataAccess.Business.csproj" />
     <ProjectReference Include="..\InstitutoTriboDeDavi.System.Factory\InstitutoTriboDeDavi.System.Factory.csproj" />
+    <ProjectReference Include="..\InstitutoTriboDeDavi.System.Services.Business\InstitutoTriboDeDavi.System.Services.Business.csproj" />
     <ProjectReference Include="..\InstitutoTriboDeDavi.System.Services\InstitutoTriboDeDavi.System.Services.csproj" />
   </ItemGroup>
 

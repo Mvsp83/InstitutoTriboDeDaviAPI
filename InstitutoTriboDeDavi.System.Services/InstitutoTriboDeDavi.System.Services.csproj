@@ -11,6 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\InstitutoTriboDeDavi.System.DataAccess.Business\InstitutoTriboDeDavi.System.DataAccess.Business.csproj" />
     <ProjectReference Include="..\InstitutoTriboDeDavi.System.DataAccess\InstitutoTriboDeDavi.System.DataAccess.csproj" />
     <ProjectReference Include="..\InstitutoTriboDeDavi.System.DTO\InstitutoTriboDeDavi.System.DTO.csproj" />
   </ItemGroup>

@@ -7,5 +7,6 @@ namespace InstitutoTriboDeDavi.System.DataAccess.Interfaces
     {
         Task<Aluno> GetByNome(string nome);
         Task<List<Aluno>> SearchByNome(string nome);
+        Task<int> GetTotalAlunosAsync();
     }
 }

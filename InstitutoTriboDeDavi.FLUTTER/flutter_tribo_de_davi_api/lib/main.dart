@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_tribo_de_davi_api/views/login_page.dart';
+import 'package:flutter_tribo_de_davi_api/views/login.dart';
 
 void main() {
   runApp(const MainApp());

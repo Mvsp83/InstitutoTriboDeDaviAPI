@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using InstitutoTriboDeDavi.System.DataAccess;
+using InstitutoTriboDeDavi.System.DataAccess.Business.Interfaces;
 using InstitutoTriboDeDavi.System.DataAccess.Interfaces;
 using InstitutoTriboDeDavi.System.Domain.Entities;
 using InstitutoTriboDeDavi.System.DTO;
@@ -80,6 +80,11 @@ namespace InstitutoTriboDeDavi.System.Services
             var alunoUpdated = await _alunoRepository.UpdateAsync(aluno);
 
             return _mapper.Map<AlunoDTO>(alunoUpdated);
+        }
+
+        public async Task<int> GetTotalAlunos()
+        {
+            return await _alunoRepository.GetTotalAlunosAsync();
         }
     }
 }

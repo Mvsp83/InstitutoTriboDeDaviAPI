@@ -83,5 +83,19 @@ namespace InstitutoTriboDeDavi.System.Services
 
             return _mapper.Map<UsuarioDTO>(usuarioUpdated);
         }
+
+        public async Task<UsuarioDTO> GetByNome(string nome)
+        {
+            var usuario = await _usuarioRepository.GetByNome(nome);
+
+            return _mapper.Map<UsuarioDTO>(usuario);
+        }
+
+        public async Task<List<UsuarioDTO>> SearchByNome(string nome)
+        {
+            var allUsuarios = await _usuarioRepository.SearchByNome(nome);
+
+            return _mapper.Map<List<UsuarioDTO>>(allUsuarios);
+        }
     }
 }

@@ -20,7 +20,7 @@ namespace InstitutoTriboDeDavi.System.Infra.Context
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer("");
+            //optionsBuilder.UseSqlServer(@"");
                 
         }
 
@@ -29,12 +29,6 @@ namespace InstitutoTriboDeDavi.System.Infra.Context
             builder.ApplyConfiguration(new UsuarioMap());
             builder.ApplyConfiguration(new AlunoMap());
             builder.ApplyConfiguration(new PoloMap());
-            builder.ApplyConfiguration(new PaisMap());
-            builder.ApplyConfiguration(new EstadoMap());
-            builder.ApplyConfiguration(new CidadeMap());
-            builder.ApplyConfiguration(new BairroMap());
-            builder.ApplyConfiguration(new EnderecoMap());
-            builder.ApplyConfiguration(new ResponsavelMap());
             builder.ApplyConfiguration(new AulaMap());
             builder.ApplyConfiguration(new PresencaMap());
         }
@@ -42,14 +36,9 @@ namespace InstitutoTriboDeDavi.System.Infra.Context
         public DbSet<Usuario> Usuarios { get; set; }
         public DbSet<Aluno> Alunos { get; set; }
         public DbSet<Polo> Polos { get; set; }
-        public DbSet<Pais> Paises { get; set; }
-        public DbSet<Estado> Estados { get; set; }
-        public DbSet<Cidade> Cidades { get; set; }
-        public DbSet<Bairro> Bairros { get; set; }
-        public DbSet<Endereco> Enderecos { get; set; }
         public DbSet<Aula> Aulas { get; set; }
         public DbSet<Presenca> Presencas { get; set; }
-        public DbSet<Responsavel> Responsaveis { get; set; }
+
 
     }
 }

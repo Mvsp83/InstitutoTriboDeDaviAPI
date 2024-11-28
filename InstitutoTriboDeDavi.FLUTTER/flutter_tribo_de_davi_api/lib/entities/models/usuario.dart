@@ -1,10 +1,8 @@
 class Usuario {
   final int id;
-  final String email;
   final String login;
   final String password;
-  //final DateTime dataCadastro;
-  //final DateTime dataAtualizacao;
+  final String email;
 
   const Usuario(
       {required this.id,

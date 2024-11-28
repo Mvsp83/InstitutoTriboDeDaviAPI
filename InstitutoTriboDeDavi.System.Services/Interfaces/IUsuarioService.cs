@@ -10,6 +10,8 @@ namespace InstitutoTriboDeDavi.System.Services.Interfaces
         Task<UsuarioDTO> Get(long id);
         Task<List<UsuarioDTO>> GetAll();
         Task<UsuarioDTO> GetByEmail(string email);
+        Task<UsuarioDTO> GetByNome(string nome);
         Task<List<UsuarioDTO>> SearchByEmail(string email);
+        Task<List<UsuarioDTO>> SearchByNome(string nome);
     }
 }

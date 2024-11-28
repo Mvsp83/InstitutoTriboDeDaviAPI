@@ -13,7 +13,9 @@ namespace InstitutoTriboDeDavi.System.DTO
         [MinLength(3, ErrorMessage = "O Nome deve ter no mínimo 3 caracteres.")]
         [MaxLength(20, ErrorMessage = "O Nome deve ter no máximo 20 caracteres.")]
         public string Nome { get; set; }
-        public long EnderecoId { get; set; }
-        public Endereco Endereco { get; set; }
+        public string Informacoes { get; set; }
+        public string Endereco { get; set; }
+        public string Bairro { get; set; }
+        public string Cidade { get; set; }
     }
 }

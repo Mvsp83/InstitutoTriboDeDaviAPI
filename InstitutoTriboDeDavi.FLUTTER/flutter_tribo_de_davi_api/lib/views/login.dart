@@ -1,3 +1,4 @@
+import 'package:flutter_tribo_de_davi_api/api/api_base.dart';
 import '../api/api_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_tribo_de_davi_api/views/inicial.dart';
@@ -10,23 +11,34 @@ class LoginPage extends StatefulWidget {
 }
 
 class LoginPageState extends State<LoginPage> {
-  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _loginController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
   bool _isPasswordVisible = false;
 
-  void _login() {
-    String email = _emailController.text;
+  void _login() async {
+    String login = _loginController.text;
     String password = _passwordController.text;
 
-    // Simulando verificação de credenciais
-    if (email == "admin" && password == "123") {
+    final apiHandler = ApiHandler(
+      baseUri: '',
+      fromJson: (json) => json,
+    );
+
+    final response = await apiHandler.login(login: login, password: password);
+
+    if (response != null &&
+        response['data'] != null &&
+        response['data'].containsKey('token')) {
+      final token = response['data']['token'];
+
+      await apiHandler.saveToken(token);
+
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-            builder: (context) => HomePage(
-                  userName: email,
-                )),
+          builder: (context) => HomePage(userName: login),
+        ),
       );
     } else {
       showDialog(
@@ -141,7 +153,7 @@ class LoginPageState extends State<LoginPage> {
                 ),
                 const SizedBox(height: 10),
                 TextField(
-                  controller: _emailController,
+                  controller: _loginController,
                   decoration: InputDecoration(
                     labelText: 'Email',
                     prefixIcon: const Icon(Icons.email),

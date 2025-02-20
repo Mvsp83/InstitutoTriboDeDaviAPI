@@ -43,13 +43,14 @@ class _DashboardPageState extends State<DashboardPage> {
 
   Future<Map<String, dynamic>> _fetchDashboardData() async {
     List<Aluno> alunos;
+    List<int> listaTurmasInformacoes = [0, 1, 2, 3, 4, 5];
 
     if (selectedPolo == null) {
       // Todos os polos
-      alunos = await apiAlunoHandler.getData();
+      alunos = await apiAlunoHandler.getDataAll();
     } else {
       // Apenas um polo
-      alunos = await apiAlunoHandler.getData();
+      alunos = await apiAlunoHandler.getDataPorPolo(listaTurmasInformacoes);
       alunos =
           alunos.where((aluno) => aluno.poloId == selectedPolo!.id).toList();
     }

@@ -34,9 +34,10 @@ class _AlunoPageState extends State<AlunoPage> {
     setState(() => isLoading = true);
     try {
       final alunos = await apiHandler.getData();
+      alunos.sort((a, b) => a.nome!.compareTo(b.nome!));
       setState(() {
         data = alunos;
-        filteredData = alunos;
+        filteredData = List.from(alunos);
         isLoading = false;
       });
     } catch (e) {
@@ -51,14 +52,11 @@ class _AlunoPageState extends State<AlunoPage> {
     setState(() {
       searchQuery = query;
       if (query.isEmpty) {
-        filteredData = data;
+        filteredData = List.from(data);
       } else {
         filteredData = data.where((aluno) {
-          final faixaNome = aluno.faixa != null
-              ? Faixa.fromId(aluno.faixa)
-                  .descricao // Converte ID para enum e obtém a descrição
-              : '';
-
+          final faixaNome =
+              aluno.faixa != null ? Faixa.fromId(aluno.faixa).descricao : '';
           return aluno.nome!.toLowerCase().contains(query.toLowerCase()) ||
               faixaNome.toLowerCase().contains(query.toLowerCase());
         }).toList();
@@ -81,6 +79,7 @@ class _AlunoPageState extends State<AlunoPage> {
             final index = data.indexWhere((a) => a.id == alunoAtualizado.id);
             if (index != -1) {
               data[index] = alunoAtualizado;
+              data.sort((a, b) => a.nome!.compareTo(b.nome!));
               _filterAlunos(searchQuery);
             }
           });
@@ -112,11 +111,10 @@ class _AlunoPageState extends State<AlunoPage> {
                 image: DecorationImage(
                   image: AssetImage(
                     aluno.faixa != null
-                        ? Faixa.fromId(aluno.faixa)
-                            .imagem // Converte ID para enum e obtém a imagem
+                        ? Faixa.fromId(aluno.faixa).imagem
                         : 'lib/assets/images/faixa_default.png',
                   ),
-                  fit: BoxFit.cover,
+                  fit: BoxFit.fill,
                 ),
               ),
             ),
@@ -196,17 +194,15 @@ class _AlunoPageState extends State<AlunoPage> {
           Expanded(
             child: isLoading
                 ? const Center(
-                    child: CircularProgressIndicator(color: Colors.teal),
-                  )
+                    child: CircularProgressIndicator(color: Colors.teal))
                 : filteredData.isEmpty
                     ? const Center(
                         child: Text(
                           'Nenhum aluno encontrado.',
                           style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.redAccent,
-                          ),
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.redAccent),
                         ),
                       )
                     : ListView.builder(

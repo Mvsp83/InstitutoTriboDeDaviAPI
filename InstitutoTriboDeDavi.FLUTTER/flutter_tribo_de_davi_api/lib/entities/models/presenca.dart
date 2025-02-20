@@ -1,7 +1,7 @@
 class Presenca {
   final int id;
   final int alunoId;
-  final String nomeAluno;
+  final String? nomeAluno;
   final int poloId;
   final DateTime data;
   final bool estaPresente;
@@ -11,7 +11,7 @@ class Presenca {
   const Presenca(
       {required this.id,
       required this.alunoId,
-      required this.nomeAluno,
+      this.nomeAluno,
       required this.poloId,
       required this.data,
       required this.estaPresente,
@@ -23,7 +23,7 @@ class Presenca {
         alunoId = 0,
         nomeAluno = '',
         poloId = 0,
-        data = DateTime(1970, 1, 1), // Valor padrão para data
+        data = DateTime(1970, 1, 1),
         estaPresente = false,
         observacoes = '',
         aulaId = 0;
@@ -43,7 +43,7 @@ class Presenca {
       'id': id,
       'alunoId': alunoId,
       'nomeAluno': nomeAluno,
-      'poloId': poloId, // Assegure-se de que aulaId seja incluído
+      'poloId': poloId,
       'data': data.toIso8601String(),
       'estaPresente': estaPresente,
       'observacoes': observacoes,

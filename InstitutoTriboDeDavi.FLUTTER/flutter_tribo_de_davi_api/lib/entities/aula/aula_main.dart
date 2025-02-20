@@ -47,8 +47,8 @@ class AulaPage extends StatelessWidget {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const PresencaPage()),
-                );
+                  MaterialPageRoute(builder: (context) => const PresencaPage(),
+                ));
               },
             ),
             const SizedBox(height: 20),

@@ -1,10 +1,10 @@
 class Aluno {
   final int id;
-  final String? nome;
+  final String nome;
   final String? rg;
   final String? cpf;
   final DateTime? dataNascimento;
-  final String? peso;
+  final double? peso;
   int faixa;
   final String? endereco;
   final String? bairro;
@@ -17,10 +17,11 @@ class Aluno {
   final String? escola;
   final String? periodo;
   final int? poloId;
+  final int? turma;
 
   Aluno(
       {required this.id,
-      this.nome,
+      required this.nome,
       this.rg,
       this.cpf,
       this.dataNascimento,
@@ -36,7 +37,8 @@ class Aluno {
       this.cpfResponsavel,
       this.escola,
       this.periodo,
-      this.poloId});
+      this.poloId,
+      this.turma});
 
   Aluno.empty(
       {this.id = 0,
@@ -44,7 +46,7 @@ class Aluno {
       this.rg = '',
       this.cpf = '',
       this.dataNascimento,
-      this.peso = '',
+      this.peso = 0.0,
       this.faixa = 0,
       this.endereco = '',
       this.bairro = '',
@@ -56,7 +58,8 @@ class Aluno {
       this.cpfResponsavel = '',
       this.escola = '',
       this.periodo = '',
-      this.poloId});
+      this.poloId = 0,
+      this.turma = 0});
 
   factory Aluno.fromJson(Map<String, dynamic> json) => Aluno(
       id: json['id'],
@@ -78,7 +81,8 @@ class Aluno {
       cpfResponsavel: json['cpfResponsavel'],
       escola: json['escola'],
       periodo: json['periodo'],
-      poloId: json['poloId']);
+      poloId: json['poloId'],
+      turma: json['turma']);
 
   Map<String, dynamic> toJson() => {
         "id": id,
@@ -98,48 +102,49 @@ class Aluno {
         "cpfResponsavel": cpfResponsavel,
         "escola": escola,
         "periodo": periodo,
-        "poloId": poloId
+        "poloId": poloId,
+        "turma": turma
       };
 
-  Aluno copyWith({
-    int? id,
-    String? nome,
-    String? rg,
-    String? cpf,
-    DateTime? dataNascimento,
-    String? peso,
-    int? faixa,
-    String? endereco,
-    String? bairro,
-    String? cidade,
-    String? celular,
-    String? responsavel,
-    int? parentesco,
-    String? rgResponsavel,
-    String? cpfResponsavel,
-    String? escola,
-    String? periodo,
-    int? poloId,
-  }) {
+  Aluno copyWith(
+      {int? id,
+      String? nome,
+      String? rg,
+      String? cpf,
+      DateTime? dataNascimento,
+      double? peso,
+      int? faixa,
+      String? endereco,
+      String? bairro,
+      String? cidade,
+      String? celular,
+      String? responsavel,
+      int? parentesco,
+      String? rgResponsavel,
+      String? cpfResponsavel,
+      String? escola,
+      String? periodo,
+      int? poloId,
+      int? turma}) {
     return Aluno(
-      id: id ?? this.id,
-      nome: nome ?? this.nome,
-      rg: rg ?? this.rg,
-      cpf: cpf ?? this.cpf,
-      dataNascimento: dataNascimento ?? this.dataNascimento,
-      peso: peso ?? this.peso,
-      faixa: faixa ?? this.faixa,
-      endereco: endereco ?? this.endereco,
-      bairro: bairro ?? this.bairro,
-      cidade: cidade ?? this.cidade,
-      celular: celular ?? this.celular,
-      responsavel: responsavel ?? this.responsavel,
-      parentesco: parentesco ?? this.parentesco,
-      rgResponsavel: rgResponsavel ?? this.rgResponsavel,
-      cpfResponsavel: cpfResponsavel ?? this.cpfResponsavel,
-      escola: escola ?? this.escola,
-      periodo: periodo ?? this.periodo,
-      poloId: poloId ?? this.poloId,
-    );
+        id: id ?? this.id,
+        nome: nome ?? this.nome,
+        rg: rg ?? this.rg,
+        cpf: cpf ?? this.cpf,
+        dataNascimento: dataNascimento ?? this.dataNascimento,
+        peso: peso ?? this.peso,
+        faixa: faixa ?? this.faixa,
+        endereco: endereco ?? this.endereco,
+        bairro: bairro ?? this.bairro,
+        cidade: cidade ?? this.cidade,
+        celular: celular ?? this.celular,
+        responsavel: responsavel ?? this.responsavel,
+        parentesco: parentesco ?? this.parentesco,
+        rgResponsavel: rgResponsavel ?? this.rgResponsavel,
+        cpfResponsavel: cpfResponsavel ?? this.cpfResponsavel,
+        escola: escola ?? this.escola,
+        periodo: periodo ?? this.periodo,
+        poloId: poloId ?? this.poloId,
+        turma: turma ?? this.turma);
   }
 }

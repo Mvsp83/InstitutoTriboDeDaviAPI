@@ -35,7 +35,7 @@ class _UsuarioPageState extends State<UsuarioPage> {
       List<Usuario> allUsuarios = await apiHandler.getData();
       setState(() {
         data = allUsuarios;
-        filteredData = allUsuarios; // Inicialmente, ambas listas são iguais.
+        filteredData = allUsuarios;
         isLoading = false;
       });
     } catch (e) {

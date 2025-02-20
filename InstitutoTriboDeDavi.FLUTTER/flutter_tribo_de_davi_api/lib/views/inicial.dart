@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_tribo_de_davi_api/api/api_base.dart';
 import 'package:flutter_tribo_de_davi_api/business/consultas/consulta_informacoes.dart';
 import 'package:flutter_tribo_de_davi_api/entities/biblia/biblia_find.dart';
 import 'package:flutter_tribo_de_davi_api/entities/aula/aula_main.dart';
@@ -26,6 +27,16 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _loadBibleXml();
+    _loadPoloName();
+  }
+
+  String _poloName = 'Carregando polo...';
+
+  Future<void> _loadPoloName() async {
+    final poloName = await ApiHandler.getPoloName();
+    setState(() {
+      _poloName = poloName ?? 'Polo não encontrado';
+    });
   }
 
   Future<void> _loadBibleXml() async {
@@ -105,7 +116,22 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
       appBar: AppBar(
-        title: const Text("Instituto Tribo de Davi"),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const Text(
+              "Instituto Tribo de Davi",
+              style: TextStyle(fontSize: 20), // Tamanho do texto do título
+            ),
+            Text(
+              _poloName, // Nome do polo
+              style: const TextStyle(
+                fontSize: 14, // Tamanho menor para o subtítulo
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+          ],
+        ),
         centerTitle: true,
         backgroundColor: AppTheme.primaryColor,
         foregroundColor: AppTheme.textColor,

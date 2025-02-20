@@ -72,8 +72,8 @@ class _MenuPageState extends State<MenuPage> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => const PresencaPage()),
-                      );
+                            builder: (context) => const PresencaPage(),
+                      ));
                     },
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,

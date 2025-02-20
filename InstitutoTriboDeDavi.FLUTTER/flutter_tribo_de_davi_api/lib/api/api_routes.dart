@@ -9,10 +9,6 @@ class ApiRoutes {
     return '$baseUrl/${entity(endpoint)}/get-all';
   }
 
-  static String getById(String endpoint, int id) {
-    return '$baseUrl/${entity(endpoint)}/get/$id';
-  }
-
   static String create(String endpoint) {
     return '$baseUrl/${entity(endpoint)}/create';
   }
@@ -25,23 +21,12 @@ class ApiRoutes {
     return '$baseUrl/${entity(endpoint)}/delete/$id';
   }
 
-  static String getByNome(String endpoint, String nome) {
-    return '$baseUrl/${entity(endpoint)}/get-by-nome?nome=$nome';
-  }
-
-  static String searchByNome(String endpoint, String nome) {
-    return '$baseUrl/${entity(endpoint)}/search-by-nome?nome=$nome';
-  }
-
-  static String fetchTotalAlunos(String endpoint, int poloId) {
-    return '$baseUrl/${entity(endpoint)}/total';
-  }
-
-  static String getAll2(String endpoint) {
+  static String getAllUrl(String endpoint) {
     return '$baseUrl/${entity(endpoint)}';
   }
 
-  static String getById2(String endpoint, int id) {
-    return '$baseUrl/${entity(endpoint)}';
+  static String getDataPorPolo(String endpoint, List<int> turmas) {
+    String turmasQuery = turmas.map((t) => 'turmas=$t').join('&');
+    return '$baseUrl/${entity(endpoint)}/get-por-polo/?$turmasQuery';
   }
 }

@@ -5,6 +5,7 @@ class Aula {
   final String horaInicio;
   final String horaFim;
   late bool presencaSalva;
+  final int turma;
 
   Aula(
       {required this.id,
@@ -12,7 +13,8 @@ class Aula {
       required this.data,
       required this.horaInicio,
       required this.horaFim,
-      this.presencaSalva = true});
+      this.presencaSalva = false,
+      required this.turma});
 
   Aula.empty()
       : id = 0,
@@ -20,7 +22,8 @@ class Aula {
         data = DateTime(1970, 1, 1),
         horaInicio = '',
         horaFim = '',
-        presencaSalva = true;
+        presencaSalva = false,
+        turma = 0;
 
   factory Aula.fromJson(Map<String, dynamic> json) => Aula(
       id: json['id'],
@@ -28,7 +31,8 @@ class Aula {
       data: DateTime.parse(json['data']),
       horaInicio: json['horaInicio'],
       horaFim: json['horaFim'],
-      presencaSalva: json['presencaSalva']);
+      presencaSalva: json['presencaSalva'],
+      turma: json['turma']);
 
   Map<String, dynamic> toJson() {
     return {
@@ -37,7 +41,8 @@ class Aula {
       'data': data.toIso8601String(),
       'horaInicio': horaInicio,
       'horaFim': horaFim,
-      'presencaSalva': presencaSalva
+      'presencaSalva': presencaSalva,
+      'turma': turma
     };
   }
 }

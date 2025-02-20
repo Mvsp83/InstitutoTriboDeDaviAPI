@@ -14,7 +14,7 @@ class AniversariantesPage extends StatelessWidget {
     List<Aniversariante> aniversariantes = await ApiHandler<Aniversariante>(
       baseUri: ApiRoutes.entity("aniversariantes/$mesAtual"),
       fromJson: (json) => Aniversariante.fromJson(json),
-    ).getData2();
+    ).getDataUrl();
 
     return aniversariantes;
   }
@@ -50,7 +50,7 @@ class AniversariantesPage extends StatelessWidget {
               return const Center(
                 child: Text(
                   "Nenhum aniversariante encontrado para este mês.",
-                  style: TextStyle(fontSize: 16, color: Colors.grey),
+                  style: TextStyle(fontSize: 16, color: Colors.red),
                 ),
               );
             }

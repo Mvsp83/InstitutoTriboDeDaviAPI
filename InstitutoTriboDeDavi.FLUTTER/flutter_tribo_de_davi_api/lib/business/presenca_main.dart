@@ -20,20 +20,23 @@ class _PresencaPageState extends State<PresencaPage> {
   List<Aluno> alunos = [];
   Map<int, bool> presencaMap = {};
   bool isSaving = false;
+  List<int> listaTurmasAulas = [0, 1, 2, 3, 4, 5];
 
   Future<List<Aula>> fetchAulas() async {
     final todasAulas = await ApiHandler<Aula>(
       baseUri: ApiRoutes.entity("aula"),
       fromJson: (json) => Aula.fromJson(json),
-    ).getData();
+    ).getDataPorPolo(listaTurmasAulas);
     return todasAulas.where((aula) => !aula.presencaSalva).toList();
   }
 
-  Future<void> fetchAlunos(Aula aula) async {
+  Future<void> fetchAlunos(Aula aula, List<int> turma) async {
     alunos = await ApiHandler<Aluno>(
       baseUri: ApiRoutes.entity("aluno"),
       fromJson: (json) => Aluno.fromJson(json),
-    ).getData();
+    ).getDataPorPolo(turma);
+    alunos.sort((a, b) => a.nome!.compareTo(b.nome!));
+
     presencaMap = {for (var aluno in alunos) aluno.id: true};
     setState(() {});
   }
@@ -49,16 +52,19 @@ class _PresencaPageState extends State<PresencaPage> {
         alunoId: entry.key,
         nomeAluno: '',
         poloId: selectedAula!.poloId,
-        aulaId: selectedAula!.id,
         data: selectedAula!.data,
         estaPresente: entry.value,
         observacoes: '',
+        aulaId: selectedAula!.id,
       );
     }).toList();
 
     try {
-      final response = await ApiHandler.post(
-        ApiRoutes.create("presenca/batch"),
+      final response = await ApiHandler<Presenca>(
+        baseUri: ApiRoutes.getAllUrl("presenca"),
+        fromJson: (json) => Presenca.fromJson(json),
+      ).post(
+        endpoint: "batch/create",
         body: presencas.map((p) => p.toJson()).toList(),
       );
 
@@ -89,11 +95,17 @@ class _PresencaPageState extends State<PresencaPage> {
       "id": aula.id,
       "poloId": aula.poloId,
       "data": aula.data.toIso8601String(),
+      'horaInicio': aula.horaInicio.toString(),
+      'horaFim': aula.horaFim.toString(),
       "presencaSalva": true,
+      "turma": aula.turma
     };
 
-    await ApiHandler.put(
-      ApiRoutes.update("aula"),
+    await ApiHandler<Aula>(
+      baseUri: ApiRoutes.entity("aula"),
+      fromJson: (json) => Aula.fromJson(json),
+    ).put(
+      endpoint: "aula",
       body: aulaAtualizada,
     );
   }
@@ -177,6 +189,8 @@ class _PresencaPageState extends State<PresencaPage> {
   }
 
   Widget _buildAulaCard(Aula aula) {
+    List<int> listaTurmas = [];
+
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       shape: RoundedRectangleBorder(
@@ -186,7 +200,7 @@ class _PresencaPageState extends State<PresencaPage> {
           aula.presencaSalva ? AppTheme.secondaryColor : AppTheme.primaryColor,
       child: ListTile(
         title: Text(
-          "Aula: ${DateFormat('dd/MM').format(aula.data)} - ${aula.horaInicio} : ${aula.horaFim}",
+          "Aula: ${DateFormat('dd/MM').format(aula.data)} - ${aula.horaInicio} : ${aula.horaFim} / Turma: ${aula.turma}",
           style: const TextStyle(color: AppTheme.textColor),
         ),
         trailing: aula.presencaSalva
@@ -195,9 +209,11 @@ class _PresencaPageState extends State<PresencaPage> {
         onTap: aula.presencaSalva
             ? null
             : () {
+                listaTurmas.add(aula.turma);
                 setState(() {
                   selectedAula = aula;
-                  fetchAlunos(aula);
+                  fetchAlunos(aula, listaTurmas);
+                  ;
                 });
               },
       ),

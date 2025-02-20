@@ -60,6 +60,9 @@ class DetalhesPresencaPage extends StatelessWidget {
           }
 
           var presencas = snapshot.data!;
+          presencas.sort((a, b) =>
+              a.nomeAluno!.compareTo(b.nomeAluno!)); // Ordenação alfabética
+
           return ListView.builder(
             itemCount: presencas.length,
             itemBuilder: (context, index) {
@@ -71,7 +74,7 @@ class DetalhesPresencaPage extends StatelessWidget {
                     : AppTheme.secondaryColor,
                 child: ListTile(
                   title: Text(
-                    "Aluno ID: ${presenca.nomeAluno}",
+                    presenca.nomeAluno!, // Exibe apenas o nome do aluno
                     style: const TextStyle(color: AppTheme.textColor),
                   ),
                   subtitle: Text(

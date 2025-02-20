@@ -62,9 +62,9 @@ class _EditPoloState extends State<EditPolo> {
         initialValue: initialValue,
         decoration: InputDecoration(
           labelText: labelText,
-          labelStyle: const TextStyle(color: Colors.black54), // Rótulo padrão
+          labelStyle: const TextStyle(color: Colors.black54),
           floatingLabelStyle: const TextStyle(
-            color: AppTheme.primaryColor, // Rótulo flutuante em destaque
+            color: AppTheme.primaryColor,
             fontWeight: FontWeight.bold,
           ),
           border: OutlineInputBorder(

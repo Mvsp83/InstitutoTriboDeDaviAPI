@@ -32,8 +32,13 @@ class _AlunoUpdatePageState extends State<AlunoUpdatePage> {
 
       final data = _formKey.currentState!.value;
       final alunoAtualizado = widget.aluno.copyWith(
-        peso: data['peso'],
+        peso: data['peso'] != null
+            ? double.tryParse(data['peso'].toString())
+            : null,
         faixa: data['faixa'],
+        turma: data['turma'] != null
+            ? int.tryParse(data['turma'].toString())
+            : null,
       );
 
       try {
@@ -105,6 +110,36 @@ class _AlunoUpdatePageState extends State<AlunoUpdatePage> {
     );
   }
 
+  Widget _buildEditableFieldDouble({
+    required String name,
+    required String label,
+    required IconData icon,
+    double? initialValue,
+    required TextInputType keyboardType,
+    FormFieldValidator<String>? validator,
+    required void Function(double?) onChanged,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      child: FormBuilderTextField(
+        name: name,
+        initialValue:
+            initialValue != null ? initialValue.toStringAsFixed(2) : null,
+        decoration: InputDecoration(
+          labelText: label,
+          prefixIcon: Icon(icon),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+        ),
+        keyboardType: keyboardType,
+        validator: validator,
+        onChanged: (value) {
+          double? parsedValue = double.tryParse(value ?? '');
+          onChanged(parsedValue);
+        },
+      ),
+    );
+  }
+
   Widget _buildDropdownField({
     required String name,
     required String label,
@@ -157,16 +192,17 @@ class _AlunoUpdatePageState extends State<AlunoUpdatePage> {
                         .format(widget.aluno.dataNascimento!)
                     : 'Não informado',
               ),
-              _buildEditableField(
+              _buildEditableFieldDouble(
                 name: 'peso',
                 label: 'Peso',
                 icon: Icons.monitor_weight,
-                initialValue: widget.aluno.peso,
-                keyboardType: TextInputType.number,
-                validator: FormBuilderValidators.compose([
-                  FormBuilderValidators.required(),
-                  FormBuilderValidators.numeric(),
-                ]),
+                initialValue: widget.aluno.peso?.toDouble(),
+                keyboardType: TextInputType.numberWithOptions(decimal: true),
+                validator: (value) =>
+                    value!.isEmpty ? 'Campo obrigatório' : null,
+                onChanged: (value) {
+                  print('Novo valor: $value');
+                },
               ),
               _buildDropdownField(
                 name: 'faixa',
@@ -179,6 +215,17 @@ class _AlunoUpdatePageState extends State<AlunoUpdatePage> {
                         })
                     .toList(),
                 initialValue: widget.aluno.faixa.toInt(),
+              ),
+              _buildEditableField(
+                name: 'turma',
+                label: 'Turma',
+                icon: Icons.class_,
+                initialValue: widget.aluno.turma,
+                keyboardType: TextInputType.number,
+                validator: FormBuilderValidators.compose([
+                  FormBuilderValidators.required(),
+                  FormBuilderValidators.numeric(),
+                ]),
               ),
               const SizedBox(height: 20),
               const Text(

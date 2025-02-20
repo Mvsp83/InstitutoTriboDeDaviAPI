@@ -29,9 +29,9 @@ class AlunosMaisFaltantesPageState extends State<AlunosMaisFaltantesPage> {
     setState(() => isLoading = true);
     try {
       final response = await ApiHandler<Frequencia>(
-        baseUri: ApiRoutes.entity("aluno/alunos-mais-faltantes?poloId=1"),
+        baseUri: ApiRoutes.entity("aluno/alunos-mais-faltantes"),
         fromJson: (json) => Frequencia.fromJson(json),
-      ).getData2();
+      ).getDataUrl();
 
       setState(() {
         alunos = response;
@@ -166,7 +166,7 @@ class AlunosMaisFaltantesPageState extends State<AlunosMaisFaltantesPage> {
                                     child: Image.asset(
                                       aluno.faixa != null
                                           ? Faixa.fromDescricao(aluno.faixa)
-                                              .imagem // Converte a string para enum e acessa a imagem
+                                              .imagem
                                           : 'lib/assets/images/faixa_default.png',
                                       fit: BoxFit.contain,
                                     ),

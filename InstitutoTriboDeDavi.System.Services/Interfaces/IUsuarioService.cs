@@ -13,5 +13,6 @@ namespace InstitutoTriboDeDavi.System.Services.Interfaces
         Task<UsuarioDTO> GetByNome(string nome);
         Task<List<UsuarioDTO>> SearchByEmail(string email);
         Task<List<UsuarioDTO>> SearchByNome(string nome);
+        Task<UsuarioDTO> ValidarUsuarioAsync(string login, string password);
     }
 }

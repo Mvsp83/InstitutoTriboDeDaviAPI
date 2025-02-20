@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using InstitutoTriboDeDavi.System.Domain.Enums;
 
 namespace InstitutoTriboDeDavi.API.ViewModels.Usuario
 {
@@ -7,5 +7,8 @@ namespace InstitutoTriboDeDavi.API.ViewModels.Usuario
         public string Login { get; set; }
         public string Password { get; set; }
         public string Email { get; set; }
+        public UserRole Role { get; set; }
+        public long? PoloId { get; set; }
+        public string PoloNome { get; set; }
     }
 }

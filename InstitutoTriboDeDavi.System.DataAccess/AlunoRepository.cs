@@ -38,5 +38,17 @@ namespace InstitutoTriboDeDavi.System.DataAccess
         {
             return await _context.Set<Aluno>().CountAsync();
         }
+
+        public async Task<List<Aluno>> ObterTodosAsync()
+        {
+            return await _context.Alunos.ToListAsync();
+        }
+
+        public async Task<List<Aluno>> ObterPorPoloTurmaAsync(long poloId, List<int> turmas)
+        {
+            return await _context.Alunos
+                                 .Where(a => a.PoloId == poloId && turmas.Contains(a.Turma))
+                                 .ToListAsync();
+        }
     }
 }

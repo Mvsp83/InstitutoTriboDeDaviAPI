@@ -9,5 +9,6 @@ namespace InstitutoTriboDeDavi.System.DataAccess.Interfaces
         Task<Usuario> GetByNome(string nome);
         Task<List<Usuario>> SearchByEmail(string email);
         Task<List<Usuario>> SearchByNome(string nome);
+        Task<Usuario> ObterUsuarioPorLoginAsync(string login);
     }
 }

@@ -1,5 +1,6 @@
 ﻿using InstitutoTriboDeDavi.Common.BaseEntity.BaseEntity;
 using InstitutoTriboDeDavi.System.Core.Exceptions;
+using InstitutoTriboDeDavi.System.Domain.Enums;
 using InstitutoTriboDeDavi.System.Domain.Validators;
 
 namespace InstitutoTriboDeDavi.System.Domain.Entities
@@ -8,9 +9,10 @@ namespace InstitutoTriboDeDavi.System.Domain.Entities
     {
         public string Email { get; set; }
         public string Login { get; set; }
-        public string Password { get; set; }
-        public DateTime DataCadastro { get; set; }
-        public DateTime? DataAtualizacao { get; set; }
+        public string SenhaHash { get; set; }
+        public UserRole Role { get; set; }
+        public long? PoloId { get; set; }
+        public string PoloNome { get; set; }
 
         public override bool Validate()
         {

@@ -1,5 +1,4 @@
 ﻿using InstitutoTriboDeDavi.System.DTO;
-using InstitutoTriboDeDavi.System.DTO.Business;
 
 namespace InstitutoTriboDeDavi.System.Services.Interfaces
 {
@@ -12,6 +11,6 @@ namespace InstitutoTriboDeDavi.System.Services.Interfaces
         Task<List<AlunoDTO>> GetAll();
         Task<AlunoDTO> GetByNome(string nome);
         Task<List<AlunoDTO>> SearchByNome(string nome);
-        Task<int> GetTotalAlunos();
+        Task<List<AlunoDTO>> ObterAlunosPorTurmaAsync(UsuarioDTO usuario, List<int> turmas);
     }
 }

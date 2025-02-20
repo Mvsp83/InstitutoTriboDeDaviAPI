@@ -27,7 +27,7 @@ namespace InstitutoTriboDeDavi.System.Domain.Validators
                 .MaximumLength(20)
                 .WithMessage("O Login deve ter no máximo 20 caracteres.");
 
-            RuleFor(x => x.Password)
+            RuleFor(x => x.SenhaHash)
                 .NotEmpty()
                 .WithMessage("O Password não pode ser vazio.")
 

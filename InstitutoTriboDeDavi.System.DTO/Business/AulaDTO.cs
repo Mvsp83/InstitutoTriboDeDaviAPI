@@ -8,6 +8,7 @@
         public TimeSpan HoraInicio { get; set; }
         public TimeSpan HoraFim { get; set; }
         public bool PresencaSalva { get; set; }
+        public int Turma { get; set; }
     }
 }
 

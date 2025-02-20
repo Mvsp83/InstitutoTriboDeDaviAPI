@@ -61,7 +61,7 @@ namespace InstitutoTriboDeDavi.System.Services.Business
             return _mapper.Map<PresencaDTO>(presencaUpdated);
         }
 
-        public async Task<List<PresencaDTO>> CreateBatch(List<PresencaDTO> presencasDTO)
+        public async Task<List<PresencaDTO>> CreateBatch(IEnumerable<PresencaDTO> presencasDTO)
         {
             var presencas = new List<PresencaDTO>();
 

@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using InstitutoTriboDeDavi.System.DataAccess.Business.Interfaces;
 using InstitutoTriboDeDavi.System.Domain.Entities.Business;
+using InstitutoTriboDeDavi.System.Domain.Enums;
+using InstitutoTriboDeDavi.System.DTO;
 using InstitutoTriboDeDavi.System.DTO.Business;
 using InstitutoTriboDeDavi.System.Services.Business.Interfaces;
 
@@ -59,6 +61,25 @@ namespace InstitutoTriboDeDavi.System.Services.Business
             var aulaUpdated = await _aulaRepository.UpdateAsync(aula);
 
             return _mapper.Map<AulaDTO>(aulaUpdated);
+        }
+
+        public async Task<List<AulaDTO>> ObterAulasTurmaAsync(UsuarioDTO usuarioDTO, IEnumerable<int> turmas)
+        {
+            if (usuarioDTO.Role == UserRole.Administrador)
+            {
+                var listaTodos = await _aulaRepository.ObterTodosAsync();
+
+                return _mapper.Map<List<AulaDTO>>(listaTodos);
+            }
+
+            if (usuarioDTO.Role == UserRole.Professor && usuarioDTO.PoloId.HasValue)
+            {
+                var listaPorPolo = await _aulaRepository.ObterPorPoloTurmaAsync(usuarioDTO.PoloId.Value, turmas);
+
+                return _mapper.Map<List<AulaDTO>>(listaPorPolo);
+            }
+
+            throw new UnauthorizedAccessException("Usuário não tem permissão para acessar esta informação.");
         }
     }
 }

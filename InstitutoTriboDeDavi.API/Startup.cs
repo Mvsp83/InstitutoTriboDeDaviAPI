@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
-using InstitutoTriboDeDavi.API.ViewModels.Business;
+using InstitutoTriboDeDavi.API.Token;
+using InstitutoTriboDeDavi.API.Token.Interfaces;
 using InstitutoTriboDeDavi.API.ViewModels.Create;
 using InstitutoTriboDeDavi.API.ViewModels.Usuario;
 using InstitutoTriboDeDavi.System.DataAccess;
@@ -18,7 +19,12 @@ using InstitutoTriboDeDavi.System.Services;
 using InstitutoTriboDeDavi.System.Services.Business;
 using InstitutoTriboDeDavi.System.Services.Business.Interfaces;
 using InstitutoTriboDeDavi.System.Services.Interfaces;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using System.Text;
 
 namespace InstitutoTriboDeDavi.API
 {
@@ -33,8 +39,33 @@ namespace InstitutoTriboDeDavi.API
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-            services.AddEndpointsApiExplorer();
-            services.AddSwaggerGen();
+            services.AddEndpointsApiExplorer();            
+
+            #region Jwt
+
+            var secretKey = Configuration["Jwt:Key"];
+
+            services.AddAuthentication(x =>
+            {
+                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(x =>
+            {
+                x.RequireHttpsMetadata = false;
+                x.SaveToken = true;
+                x.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(secretKey)),
+                    ValidateIssuer = false,
+                    ValidateAudience = false
+                };
+            });
+
+            #endregion
+
+
 
             #region Injeção de Dependência
 
@@ -57,6 +88,11 @@ namespace InstitutoTriboDeDavi.API
             services.AddScoped<IAniversarianteRepository, AniversarianteRepository>();
             services.AddScoped<IAniversarianteService, AniversarianteService>();
 
+            services.AddScoped<ITokenGenerator, TokenGenerator>();
+
+            services.AddScoped<IPasswordHasher<UsuarioDTO>, PasswordHasher<UsuarioDTO>>();
+
+
             services.AddTransient<FactoryPlanilhaDB>(provider =>
             new FactoryPlanilhaDB(Configuration.GetConnectionString("ConnectionStrings:TRIBODEDAVIAPI")));
 
@@ -69,23 +105,65 @@ namespace InstitutoTriboDeDavi.API
                 cfg.CreateMap<Usuario, UsuarioDTO>().ReverseMap();
                 cfg.CreateMap<UsuarioViewModel, UsuarioDTO>().ReverseMap();
                 cfg.CreateMap<Aluno, AlunoDTO>().ReverseMap();
-                cfg.CreateMap<AlunoViewModel, AlunoDTO>().ReverseMap();
                 cfg.CreateMap<Polo, PoloDTO>().ReverseMap();
-                cfg.CreateMap<PoloViewModel, PoloDTO>().ReverseMap();
 
                 cfg.CreateMap<Presenca, PresencaDTO>().ReverseMap();
-                cfg.CreateMap<PresencaViewModel, PresencaDTO>().ReverseMap();
-                cfg.CreateMap<Aula, AulaDTO>().ReverseMap();
-                cfg.CreateMap<AulaViewModel, AulaDTO>().ReverseMap();                               
+                cfg.CreateMap<Aula, AulaDTO>().ReverseMap();                          
 
                 cfg.CreateMap<Frequencia, FrequenciaDTO>().ReverseMap();
                 cfg.CreateMap<Aniversariante, AniversarianteDTO>().ReverseMap();
+
+                cfg.CreateMap<LoginViewModel, UsuarioDTO>().ReverseMap();
 
             });
 
             services.AddSingleton(autoMapperConfig.CreateMapper());
 
             #endregion
+
+
+            #region Swagger
+
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+                {
+                    Title = "API Instituto Tribo de Davi",
+                    Version = "v1",
+                    Description = "API Operacional - Controle de Chamadas",
+                    Contact = new Microsoft.OpenApi.Models.OpenApiContact
+                    {
+                        Name = "Name",
+                        Email = "email",
+                    },
+                });
+
+                c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+                {
+                    In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+                    Description = "Por favor utilize Bearer <TOKEN>",
+                    Name = "Authorization",
+                    Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey
+                });
+
+                c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            }
+                        },
+                        new string[] {}
+                    }
+                });
+            });          
+
+            #endregion
+
         }
 
         public void Configure(WebApplication app, IWebHostEnvironment env)
@@ -97,6 +175,8 @@ namespace InstitutoTriboDeDavi.API
             }
 
             app.UseHttpsRedirection();
+
+            app.UseAuthentication();
 
             app.UseAuthorization();
 

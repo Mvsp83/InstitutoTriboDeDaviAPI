@@ -1,6 +1,4 @@
-﻿using InstitutoTriboDeDavi.System.Domain.Entities;
-using InstitutoTriboDeDavi.System.Domain.Enums;
-using System.ComponentModel;
+﻿using InstitutoTriboDeDavi.System.Domain.Enums;
 using System.ComponentModel.DataAnnotations;
 
 namespace InstitutoTriboDeDavi.System.DTO
@@ -31,5 +29,6 @@ namespace InstitutoTriboDeDavi.System.DTO
         public string Escola { get; set; }
         public string Periodo { get; set; }
         public long PoloId { get; set; }
+        public int Turma { get; set; }
     }
 }

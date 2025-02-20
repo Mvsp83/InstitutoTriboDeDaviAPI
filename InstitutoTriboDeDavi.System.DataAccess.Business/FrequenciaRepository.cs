@@ -17,11 +17,11 @@ namespace InstitutoTriboDeDavi.System.DataAccess.Business
             _context = context;
         }
 
-        public async Task<List<Frequencia>> GetAlunosFaltasQuery(long poloId)
+        public async Task<List<Frequencia>> GetAlunosFaltasQuery(long? poloId)
         {
             var resultado = await (from presenca in _context.Presencas
                                    join aluno in _context.Alunos on presenca.AlunoId equals aluno.Id
-                                   where presenca.PoloId == poloId
+                                   where aluno.PoloId == poloId
                                    group presenca by new { aluno.Nome, aluno.Faixa } into g
                                    select new Frequencia
                                    {
@@ -30,12 +30,28 @@ namespace InstitutoTriboDeDavi.System.DataAccess.Business
                                        TotalAulas = g.Count(),
                                        TotalFaltas = g.Count(p => !p.EstaPresente)
                                    })
-                           .OrderByDescending(x => x.TotalFaltas)
-                           .ToListAsync();
+               .OrderByDescending(x => x.TotalFaltas)
+               .ToListAsync();
 
             return resultado;
         }
 
+        public async Task<List<Frequencia>> GetAlunosFaltasQueryTotal()
+        {
+            var resultado = await (from presenca in _context.Presencas
+                                   join aluno in _context.Alunos on presenca.AlunoId equals aluno.Id
+                                   group presenca by new { aluno.Nome, aluno.Faixa } into g
+                                   select new Frequencia
+                                   {
+                                       Nome = g.Key.Nome,
+                                       Faixa = g.Key.Faixa,
+                                       TotalAulas = g.Count(),
+                                       TotalFaltas = g.Count(p => !p.EstaPresente)
+                                   })
+               .OrderByDescending(x => x.TotalFaltas)
+               .ToListAsync();
 
+            return resultado;
+        }
     }
 }

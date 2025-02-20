@@ -24,6 +24,7 @@ namespace InstitutoTriboDeDavi.System.Domain.Entities
         public string? Escola { get; set; }
         public string? Periodo { get; set; }
         public long PoloId { get; set; }
+        public int Turma { get; set; }
 
         public override bool Validate()
         {

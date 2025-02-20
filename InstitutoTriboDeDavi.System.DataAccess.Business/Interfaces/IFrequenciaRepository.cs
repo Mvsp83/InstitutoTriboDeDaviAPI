@@ -4,6 +4,7 @@ namespace InstitutoTriboDeDavi.System.DataAccess.Business.Interfaces
 {
     public interface IFrequenciaRepository
     {
-        Task<List<Frequencia>> GetAlunosFaltasQuery(long poloId);
+        Task<List<Frequencia>> GetAlunosFaltasQueryTotal();
+        Task<List<Frequencia>> GetAlunosFaltasQuery(long? poloId);
     }
 }

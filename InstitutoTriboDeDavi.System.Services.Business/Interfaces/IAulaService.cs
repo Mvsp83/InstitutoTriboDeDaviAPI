@@ -1,4 +1,5 @@
-﻿using InstitutoTriboDeDavi.System.DTO.Business;
+﻿using InstitutoTriboDeDavi.System.DTO;
+using InstitutoTriboDeDavi.System.DTO.Business;
 
 namespace InstitutoTriboDeDavi.System.Services.Business.Interfaces
 {
@@ -9,5 +10,6 @@ namespace InstitutoTriboDeDavi.System.Services.Business.Interfaces
         Task Delete(long id);
         Task<AulaDTO> Get(long id);
         Task<List<AulaDTO>> GetAll();
+        Task<List<AulaDTO>> ObterAulasTurmaAsync(UsuarioDTO usuario, IEnumerable<int> turmas);
     }
 }

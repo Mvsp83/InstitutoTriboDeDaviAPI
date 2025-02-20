@@ -30,5 +30,22 @@ namespace InstitutoTriboDeDavi.System.DataAccess.Business
 
             return lista;
         }
+
+        public async Task<List<AniversarianteDTO>> GetAniversariantesPorPoloAsync(int mes, long idPolo)
+        {
+            var hoje = DateTime.Now;
+            var lista = await _context.Alunos
+                .Where(a => a.DataNascimento.Month == mes && a.PoloId == idPolo)
+                .OrderBy(a => a.DataNascimento.Day)
+                .Select(a => new AniversarianteDTO
+                {
+                    Nome = a.Nome,
+                    DataNascimento = a.DataNascimento,
+                    JaComemorado = a.DataNascimento.Day < hoje.Day
+                })
+                .ToListAsync();
+
+            return lista;
+        }
     }
 }

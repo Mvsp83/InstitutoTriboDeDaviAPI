@@ -1,12 +1,14 @@
 ﻿using AutoMapper;
+using InstitutoTriboDeDavi.API.Utilities;
 using InstitutoTriboDeDavi.API.ViewModels.Result;
 using InstitutoTriboDeDavi.System.Services.Business.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InstitutoTriboDeDavi.API.Controllers
 {
     [ApiController]
-    public class AniversarianteController : ControllerBase
+    public class AniversarianteController : BaseController
     {
         private readonly IMapper _mapper;
         private readonly IAniversarianteService _aniversarianteService;
@@ -17,34 +19,47 @@ namespace InstitutoTriboDeDavi.API.Controllers
             _aniversarianteService = aniversarianteService;
         }
 
-        [HttpGet("aniversariantes/{mes}")]
+        [HttpGet]
+        [Authorize]
+        [Route("aniversariantes/{mes}")]
         public async Task<IActionResult> GetAniversariantes(int mes)
         {
-            var aniversariantes = await _aniversarianteService.GetAniversariantesAsync(mes);
-
-            var aniversariantesComDescricao = aniversariantes.Select(static aluno => new
+            try
             {
-                Nome = aluno.Nome,
-                DataNascimento = aluno.DataNascimento,
-                JaComemorado = aluno.JaComemorado,
-            });
+                var aniversariantes = await _aniversarianteService.GetAniversariantesAsync(UsuarioAutenticado, mes);
 
-            if (aniversariantesComDescricao.Count() == 0)
-            {
+                var aniversariantesComDescricao = aniversariantes.Select(static aluno => new
+                {
+                    Nome = aluno.Nome,
+                    DataNascimento = aluno.DataNascimento,
+                    JaComemorado = aluno.JaComemorado,
+                });
+
+                if (aniversariantesComDescricao.Count() == 0)
+                {
+                    return Ok(new ResultViewModel
+                    {
+                        Message = "Nenhum Aluno foi encontrado!",
+                        Success = true,
+                        Data = null
+                    });
+                }
+
                 return Ok(new ResultViewModel
                 {
-                    Message = "Nenhum Aluno foi encontrado!",
+                    Message = "Datas de aniversário de alunos obtidas com sucesso!",
                     Success = true,
-                    Data = null
+                    Data = aniversariantesComDescricao
                 });
             }
-
-            return Ok(new ResultViewModel
+            catch (UnauthorizedAccessException ex)
             {
-                Message = "Faltas de alunos obtidas com sucesso!",
-                Success = true,
-                Data = aniversariantesComDescricao
-            });
+                return Forbid(ex.Message);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, Responses.ApplicationErrorMessage());
+            }
         }
     }
 }

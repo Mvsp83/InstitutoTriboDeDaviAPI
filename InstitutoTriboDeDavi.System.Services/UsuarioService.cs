@@ -3,6 +3,7 @@ using InstitutoTriboDeDavi.System.DataAccess.Interfaces;
 using InstitutoTriboDeDavi.System.Domain.Entities;
 using InstitutoTriboDeDavi.System.DTO;
 using InstitutoTriboDeDavi.System.Services.Interfaces;
+using Microsoft.AspNetCore.Identity;
 
 namespace InstitutoTriboDeDavi.System.Services
 {
@@ -10,11 +11,13 @@ namespace InstitutoTriboDeDavi.System.Services
     {
         private readonly IMapper _mapper;
         private readonly IUsuarioRepository _usuarioRepository;
+        private readonly IPasswordHasher<UsuarioDTO> _passwordHasher;
 
-        public UsuarioService(IMapper mapper, IUsuarioRepository usuarioRepository)
+        public UsuarioService(IMapper mapper, IUsuarioRepository usuarioRepository, IPasswordHasher<UsuarioDTO> passwordHasher)
         {
             _mapper = mapper;
             _usuarioRepository = usuarioRepository;
+            _passwordHasher = passwordHasher;
         }
 
         public async Task<UsuarioDTO> Create(UsuarioDTO usuarioDTO)
@@ -25,11 +28,11 @@ namespace InstitutoTriboDeDavi.System.Services
             {
                 throw new Exception("Já existe um registro com o mesmo Email informado!");
             }
-
             var usuario = _mapper.Map<Usuario>(usuarioDTO);
-            usuario.DataCadastro = DateTime.Now;
 
-            var usuarioCreated = await _usuarioRepository.CreateAsync(usuario);
+            usuario.SenhaHash = _passwordHasher.HashPassword(_mapper.Map<UsuarioDTO>(usuario), usuarioDTO.Password);
+
+            var usuarioCreated = await _usuarioRepository.CreateAsync(usuario);            
 
             return _mapper.Map<UsuarioDTO>(usuarioCreated);
         }
@@ -77,7 +80,6 @@ namespace InstitutoTriboDeDavi.System.Services
             }
 
             var usuario = _mapper.Map<Usuario>(userDTO);
-            usuario.DataAtualizacao = DateTime.Now;
 
             var usuarioUpdated = await _usuarioRepository.UpdateAsync(usuario);
 
@@ -97,5 +99,27 @@ namespace InstitutoTriboDeDavi.System.Services
 
             return _mapper.Map<List<UsuarioDTO>>(allUsuarios);
         }
+
+        public async Task<UsuarioDTO> ValidarUsuarioAsync(string login, string password)
+        {
+            var usuario = await _usuarioRepository.ObterUsuarioPorLoginAsync(login);
+
+            if (usuario == null)
+                return null;
+
+            var verificationResult = _passwordHasher.VerifyHashedPassword(_mapper.Map<UsuarioDTO>(usuario), usuario.SenhaHash, password);
+            if (verificationResult != PasswordVerificationResult.Success)
+                return null; 
+
+            return new UsuarioDTO
+            {
+                Login = usuario.Login,
+                Email = usuario.Email,
+                Role = usuario.Role,
+                PoloId = usuario.PoloId,
+                PoloNome = usuario.PoloNome
+            };
+        }
+
     }
 }

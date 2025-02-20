@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using InstitutoTriboDeDavi.System.Domain.Enums;
+using System.ComponentModel.DataAnnotations;
 
 namespace InstitutoTriboDeDavi.System.DTO
 {
@@ -23,7 +24,8 @@ namespace InstitutoTriboDeDavi.System.DTO
         [RegularExpression(@"^([\w-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$",
         ErrorMessage = "O Email informado não é válido.")]
         public string Email { get; set; }
-        public DateTime DataCadastro { get; set; }
-        public DateTime? DataAtualizacao { get; set; }
+        public UserRole Role { get; set; }
+        public long? PoloId { get; set; }
+        public string PoloNome { get; set; }
     }
 }

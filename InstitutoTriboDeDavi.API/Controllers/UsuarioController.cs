@@ -5,6 +5,7 @@ using InstitutoTriboDeDavi.API.ViewModels.Usuario;
 using InstitutoTriboDeDavi.System.Core.Exceptions;
 using InstitutoTriboDeDavi.System.DTO;
 using InstitutoTriboDeDavi.System.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InstitutoTriboDeDavi.API.Controllers
@@ -22,6 +23,7 @@ namespace InstitutoTriboDeDavi.API.Controllers
         }
 
         [HttpPost]
+        //[Authorize]
         [Route("/usuario/create")]
         public async Task<IActionResult> Create([FromBody] UsuarioViewModel usuarioViewModel)
         {
@@ -47,6 +49,7 @@ namespace InstitutoTriboDeDavi.API.Controllers
         }
 
         [HttpPut]
+        [Authorize]
         [Route("/usuario/update")]
         public async Task<IActionResult> Update([FromBody] UsuarioDTO usuarioDTO)
         {
@@ -72,6 +75,7 @@ namespace InstitutoTriboDeDavi.API.Controllers
         }
 
         [HttpDelete]
+        [Authorize]
         [Route("/usuario/delete/{id}")]
         public async Task<IActionResult> Delete(long id)
         {
@@ -109,6 +113,7 @@ namespace InstitutoTriboDeDavi.API.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         [Route("/usuario/get/{id}")]
         public async Task<IActionResult> Get(long id)
         {
@@ -144,6 +149,7 @@ namespace InstitutoTriboDeDavi.API.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         [Route("/usuario/get-all")]
         public async Task<IActionResult> GetAll()
         {
@@ -169,6 +175,7 @@ namespace InstitutoTriboDeDavi.API.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         [Route("/usuario/get-by-email")]
         public async Task<IActionResult> GetByEmail([FromQuery] string email)
         {
@@ -204,6 +211,7 @@ namespace InstitutoTriboDeDavi.API.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         [Route("/usuario/search-by-email")]
         public async Task<IActionResult> SearchByEmail([FromQuery] string email)
         {
@@ -239,6 +247,7 @@ namespace InstitutoTriboDeDavi.API.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         [Route("/usuario/get-by-nome")]
         public async Task<IActionResult> GetByNome([FromQuery] string nome)
         {
@@ -274,6 +283,7 @@ namespace InstitutoTriboDeDavi.API.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         [Route("/usuario/search-by-nome")]
         public async Task<IActionResult> SearchByNome([FromQuery] string nome)
         {

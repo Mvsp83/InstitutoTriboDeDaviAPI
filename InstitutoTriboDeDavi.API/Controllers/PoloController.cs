@@ -1,16 +1,17 @@
 ﻿using AutoMapper;
 using InstitutoTriboDeDavi.API.Utilities;
-using InstitutoTriboDeDavi.API.ViewModels.Create;
 using InstitutoTriboDeDavi.API.ViewModels.Result;
 using InstitutoTriboDeDavi.System.Core.Exceptions;
+using InstitutoTriboDeDavi.System.Domain.Enums;
 using InstitutoTriboDeDavi.System.DTO;
 using InstitutoTriboDeDavi.System.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InstitutoTriboDeDavi.API.Controllers
 {
     [ApiController]
-    public class PoloController : ControllerBase
+    public class PoloController : BaseController
     {
         private readonly IMapper _mapper;
         private readonly IPoloService _poloService;
@@ -22,7 +23,8 @@ namespace InstitutoTriboDeDavi.API.Controllers
         }
 
         [HttpGet]
-        [Route("/polo/get-all")]
+        [Authorize]
+        [Route("/polo/get-por-polo")]
         public async Task<IActionResult> GetAll()
         {
             try
@@ -47,12 +49,17 @@ namespace InstitutoTriboDeDavi.API.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         [Route("/polo/create")]
-        public async Task<IActionResult> Create([FromBody] PoloViewModel poloViewModel)
+        public async Task<IActionResult> Create([FromBody] PoloDTO poloDTO)
         {
             try
             {
-                var poloDTO = _mapper.Map<PoloDTO>(poloViewModel);
+                if (UsuarioAutenticado.Role != UserRole.Administrador)
+                {
+                    throw new UnauthorizedAccessException("Usuário não tem permissão para acessar esta informação.");
+                }
+
                 var poloCreated = await _poloService.Create(poloDTO);
 
                 return Ok(new ResultViewModel
@@ -73,11 +80,17 @@ namespace InstitutoTriboDeDavi.API.Controllers
         }
 
         [HttpPut]
+        [Authorize]
         [Route("/polo/update")]
         public async Task<IActionResult> Update([FromBody] PoloDTO poloDTO)
         {
             try
             {
+                if (UsuarioAutenticado.Role != UserRole.Administrador)
+                {
+                    throw new UnauthorizedAccessException("Usuário não tem permissão para acessar esta informação.");
+                }
+
                 var poloUpdated = await _poloService.Update(poloDTO);
 
                 return Ok(new ResultViewModel
@@ -98,11 +111,17 @@ namespace InstitutoTriboDeDavi.API.Controllers
         }
 
         [HttpDelete]
+        [Authorize]
         [Route("/polo/delete/{id}")]
         public async Task<IActionResult> Delete(long id)
         {
             try
             {
+                if (UsuarioAutenticado.Role != UserRole.Administrador)
+                {
+                    throw new UnauthorizedAccessException("Usuário não tem permissão para acessar esta informação.");
+                }
+
                 var polo = await _poloService.Get(id);
 
                 if (polo == null)
@@ -135,6 +154,7 @@ namespace InstitutoTriboDeDavi.API.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         [Route("/polo/get/{id}")]
         public async Task<IActionResult> Get(long id)
         {
@@ -167,76 +187,6 @@ namespace InstitutoTriboDeDavi.API.Controllers
             {
                 return StatusCode(500, Responses.ApplicationErrorMessage());
             }
-        }
-
-        [HttpGet]
-        [Route("/polo/get-by-nome")]
-        public async Task<IActionResult> GetByNome([FromQuery] string nome)
-        {
-            try
-            {
-                var polo = await _poloService.GetByNome(nome);
-
-                if (polo == null)
-                {
-                    return Ok(new ResultViewModel
-                    {
-                        Message = "Nenhum Polo foi encontrado com o Nome informado!",
-                        Success = true,
-                        Data = polo
-                    });
-                }
-
-                return Ok(new ResultViewModel
-                {
-                    Message = "Polo encontrado com sucesso!",
-                    Success = true,
-                    Data = polo
-                });
-            }
-            catch (DomainException ex)
-            {
-                return BadRequest(Responses.DomainErrorMessage(ex.Message, ex.Errors));
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, Responses.ApplicationErrorMessage());
-            }
-        }
-
-        [HttpGet]
-        [Route("/polo/search-by-nome")]
-        public async Task<IActionResult> SearchByEmail([FromQuery] string nome)
-        {
-            try
-            {
-                var allPolos = await _poloService.SearchByNome(nome);
-
-                if (allPolos.Count() == 0)
-                {
-                    return Ok(new ResultViewModel
-                    {
-                        Message = "Nenhum Polo foi encontrado com o Nome informado!",
-                        Success = true,
-                        Data = null
-                    });
-                }
-
-                return Ok(new ResultViewModel
-                {
-                    Message = "Polos encontrados com sucesso!",
-                    Success = true,
-                    Data = allPolos
-                });
-            }
-            catch (DomainException ex)
-            {
-                return BadRequest(Responses.DomainErrorMessage(ex.Message, ex.Errors));
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, Responses.ApplicationErrorMessage());
-            }
-        }
+        }        
     }
 }

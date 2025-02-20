@@ -22,11 +22,10 @@ namespace InstitutoTriboDeDavi.System.Infra.Mappings
                 .HasColumnName("Login")
                 .HasColumnType("VARCHAR(20)");
 
-            builder.Property(x => x.Password)
+            builder.Property(x => x.SenhaHash)
                 .IsRequired()
-                .HasMaxLength(20)
-                .HasColumnName("Password")
-                .HasColumnType("VARCHAR(20)");
+                 .HasColumnName("Password")
+                .HasColumnType("VARCHAR(200)");
 
             builder.Property(x => x.Email)
                 .IsRequired()

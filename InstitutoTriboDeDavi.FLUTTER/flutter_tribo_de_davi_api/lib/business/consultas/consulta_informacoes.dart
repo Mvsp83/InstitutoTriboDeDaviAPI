@@ -97,10 +97,18 @@ class _DashboardPageState extends State<DashboardPage> {
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
       appBar: AppBar(
-        title: const Text("Dashboard"),
+        title: const Text(
+          "Informações dos Polos",
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+        ),
         centerTitle: true,
-        backgroundColor: AppTheme.primaryColor,
+        backgroundColor: AppTheme.surfaceColor,
         foregroundColor: AppTheme.textColor,
+        elevation: 0,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(color: AppTheme.borderColor, height: 0.5),
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -213,7 +221,7 @@ class _DashboardPageState extends State<DashboardPage> {
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 20,
-                color: AppTheme.textColor,
+                color: AppTheme.accentColor,
               ),
             ),
             const SizedBox(height: 8),

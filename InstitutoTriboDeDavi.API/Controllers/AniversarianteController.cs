@@ -8,15 +8,18 @@ using Microsoft.AspNetCore.Mvc;
 namespace InstitutoTriboDeDavi.API.Controllers
 {
     [ApiController]
+    [Route("api/[controller]")]
     public class AniversarianteController : BaseController
     {
         private readonly IMapper _mapper;
         private readonly IAniversarianteService _aniversarianteService;
+        private readonly ILogger<AniversarianteController> _logger;
 
-        public AniversarianteController(IMapper mapper, IAniversarianteService aniversarianteService)
+        public AniversarianteController(IMapper mapper, IAniversarianteService aniversarianteService, ILogger<AniversarianteController> logger) : base(logger as ILogger<Controller>)
         {
             _mapper = mapper;
             _aniversarianteService = aniversarianteService;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -24,18 +27,18 @@ namespace InstitutoTriboDeDavi.API.Controllers
         [Route("aniversariantes/{mes}")]
         public async Task<IActionResult> GetAniversariantes(int mes)
         {
-            try
+            return await ExecuteAsync(async () =>
             {
                 var aniversariantes = await _aniversarianteService.GetAniversariantesAsync(UsuarioAutenticado, mes);
 
-                var aniversariantesComDescricao = aniversariantes.Select(static aluno => new
+                var aniversariantesComDescricao = aniversariantes.Select(aluno => new
                 {
                     Nome = aluno.Nome,
                     DataNascimento = aluno.DataNascimento,
                     JaComemorado = aluno.JaComemorado,
                 });
 
-                if (aniversariantesComDescricao.Count() == 0)
+                if (!aniversariantesComDescricao.Any())
                 {
                     return Ok(new ResultViewModel
                     {
@@ -51,15 +54,7 @@ namespace InstitutoTriboDeDavi.API.Controllers
                     Success = true,
                     Data = aniversariantesComDescricao
                 });
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                return Forbid(ex.Message);
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, Responses.ApplicationErrorMessage());
-            }
+            });
         }
     }
 }

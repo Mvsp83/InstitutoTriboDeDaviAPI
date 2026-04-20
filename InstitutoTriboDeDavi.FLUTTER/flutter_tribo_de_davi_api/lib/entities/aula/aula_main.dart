@@ -12,13 +12,18 @@ class AulaPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
       appBar: AppBar(
-        title: const Text("Gerenciamento de Aulas"),
+        title: const Text(
+          "Gerenciamento de Aulas",
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+        ),
         centerTitle: true,
-        backgroundColor: AppTheme.primaryColor,
+        backgroundColor: AppTheme.surfaceColor,
         foregroundColor: AppTheme.textColor,
-        elevation: 4,
-        shadowColor: Colors.black54,
-        toolbarHeight: 100,
+        elevation: 0,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(color: AppTheme.borderColor, height: 0.5),
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -46,9 +51,10 @@ class AulaPage extends StatelessWidget {
               color: AppTheme.primaryColor,
               onPressed: () {
                 Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const PresencaPage(),
-                ));
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const PresencaPage(),
+                    ));
               },
             ),
             const SizedBox(height: 20),

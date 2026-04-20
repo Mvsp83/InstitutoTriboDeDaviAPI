@@ -1,5 +1,5 @@
 class ApiRoutes {
-  static const String baseUrl = "http://10.0.2.2:7030";
+  static const String baseUrl = "http://10.0.2.2:7030/api";
 
   static String entity(String endpoint) {
     return endpoint;
@@ -27,6 +27,6 @@ class ApiRoutes {
 
   static String getDataPorPolo(String endpoint, List<int> turmas) {
     String turmasQuery = turmas.map((t) => 'turmas=$t').join('&');
-    return '$baseUrl/${entity(endpoint)}/get-por-polo/?$turmasQuery';
+    return '$baseUrl/${entity(endpoint)}/get-por-polo?$turmasQuery';
   }
 }

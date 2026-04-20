@@ -48,7 +48,6 @@ class _AlunoUpdatePageState extends State<AlunoUpdatePage> {
         setState(() => isLoading = false);
 
         if (!mounted) return;
-
         Navigator.pop(context, alunoAtualizado);
       } catch (e) {
         setState(() => isLoading = false);
@@ -56,12 +55,22 @@ class _AlunoUpdatePageState extends State<AlunoUpdatePage> {
         showDialog(
           context: context,
           builder: (context) => AlertDialog(
-            title: const Text("Erro"),
-            content: Text("Não foi possível atualizar o aluno. Detalhes: $e"),
+            backgroundColor: AppTheme.surfaceColor,
+            title: const Text(
+              "Erro",
+              style: TextStyle(color: AppTheme.textColor),
+            ),
+            content: Text(
+              "Não foi possível atualizar o aluno. Detalhes: $e",
+              style: const TextStyle(color: AppTheme.textMutedColor),
+            ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(),
-                child: const Text("Fechar"),
+                child: const Text(
+                  "Fechar",
+                  style: TextStyle(color: AppTheme.accentColor),
+                ),
               ),
             ],
           ),
@@ -70,97 +79,170 @@ class _AlunoUpdatePageState extends State<AlunoUpdatePage> {
     }
   }
 
-  Widget _buildReadOnlyField(String label, String value) {
+  // ─── Campo somente leitura no padrão AppTheme ─────────────────────────────
+  Widget _buildReadOnlyField(String labelText, String value) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10),
+      padding: const EdgeInsets.symmetric(vertical: 8),
       child: TextFormField(
         initialValue: value,
         readOnly: true,
+        style: const TextStyle(color: AppTheme.textMutedColor, fontSize: 14),
         decoration: InputDecoration(
-          labelText: label,
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+          labelText: labelText,
+          labelStyle: const TextStyle(
+            color: AppTheme.textMutedColor,
+            fontSize: 14,
+          ),
+          floatingLabelStyle: const TextStyle(
+            color: AppTheme.textMutedColor,
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+          ),
           filled: true,
-          fillColor: Colors.grey.shade200,
+          fillColor: AppTheme.surfaceColor.withOpacity(0.5),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide:
+                const BorderSide(color: AppTheme.borderColor, width: 0.5),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide:
+                const BorderSide(color: AppTheme.borderColor, width: 0.5),
+          ),
+          contentPadding:
+              const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
         ),
       ),
     );
   }
 
-  Widget _buildEditableField({
+  // ─── Campo editável no padrão AppTheme ───────────────────────────────────
+  Widget _buildTextField({
     required String name,
-    required String label,
-    required IconData icon,
-    dynamic initialValue,
-    required TextInputType keyboardType,
+    required String labelText,
+    IconData? icon,
+    String? initialValue,
+    TextInputType keyboardType = TextInputType.text,
     FormFieldValidator<String>? validator,
   }) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10),
+      padding: const EdgeInsets.symmetric(vertical: 8),
       child: FormBuilderTextField(
         name: name,
-        initialValue: initialValue?.toString(),
-        decoration: InputDecoration(
-          labelText: label,
-          prefixIcon: Icon(icon),
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-        ),
+        initialValue: initialValue,
+        style: const TextStyle(color: AppTheme.textColor, fontSize: 14),
+        cursorColor: AppTheme.accentColor,
         keyboardType: keyboardType,
+        decoration: InputDecoration(
+          labelText: labelText,
+          labelStyle: const TextStyle(
+            color: AppTheme.textMutedColor,
+            fontSize: 14,
+          ),
+          floatingLabelStyle: const TextStyle(
+            color: AppTheme.accentColor,
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+          ),
+          prefixIcon: icon != null
+              ? Icon(icon, color: AppTheme.accentColor, size: 20)
+              : null,
+          filled: true,
+          fillColor: AppTheme.surfaceColor,
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide:
+                const BorderSide(color: AppTheme.borderColor, width: 0.5),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(color: AppTheme.accentColor, width: 1),
+          ),
+          errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(color: Colors.redAccent, width: 0.5),
+          ),
+          focusedErrorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(color: Colors.redAccent, width: 1),
+          ),
+          contentPadding:
+              const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+        ),
         validator: validator,
       ),
     );
   }
 
-  Widget _buildEditableFieldDouble({
-    required String name,
-    required String label,
-    required IconData icon,
-    double? initialValue,
-    required TextInputType keyboardType,
-    FormFieldValidator<String>? validator,
-    required void Function(double?) onChanged,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10),
-      child: FormBuilderTextField(
-        name: name,
-        initialValue:
-            initialValue != null ? initialValue.toStringAsFixed(2) : null,
-        decoration: InputDecoration(
-          labelText: label,
-          prefixIcon: Icon(icon),
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-        ),
-        keyboardType: keyboardType,
-        validator: validator,
-        onChanged: (value) {
-          double? parsedValue = double.tryParse(value ?? '');
-          onChanged(parsedValue);
-        },
-      ),
-    );
-  }
-
+  // ─── Dropdown no padrão AppTheme ─────────────────────────────────────────
   Widget _buildDropdownField({
     required String name,
-    required String label,
+    required String labelText,
+    required IconData icon,
     required List<Map<String, dynamic>> options,
     int? initialValue,
   }) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10),
+      padding: const EdgeInsets.symmetric(vertical: 8),
       child: FormBuilderDropdown<int>(
         name: name,
         initialValue: initialValue,
+        style: const TextStyle(color: AppTheme.textColor, fontSize: 14),
+        dropdownColor: AppTheme.surfaceColor,
+        iconEnabledColor: AppTheme.accentColor,
         decoration: InputDecoration(
-          labelText: label,
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+          labelText: labelText,
+          labelStyle: const TextStyle(
+            color: AppTheme.textMutedColor,
+            fontSize: 14,
+          ),
+          floatingLabelStyle: const TextStyle(
+            color: AppTheme.accentColor,
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+          ),
+          prefixIcon: Icon(icon, color: AppTheme.accentColor, size: 20),
+          filled: true,
+          fillColor: AppTheme.surfaceColor,
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide:
+                const BorderSide(color: AppTheme.borderColor, width: 0.5),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(color: AppTheme.accentColor, width: 1),
+          ),
+          contentPadding:
+              const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
         ),
         items: options
             .map((option) => DropdownMenuItem<int>(
                   value: option['value'],
-                  child: Text(option['label']),
+                  child: Text(
+                    option['label'],
+                    style: const TextStyle(
+                        color: AppTheme.textColor, fontSize: 14),
+                  ),
                 ))
             .toList(),
+      ),
+    );
+  }
+
+  // ─── Separador de seção no padrão AppTheme ────────────────────────────────
+  Widget _buildSectionHeader(String title) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 16, bottom: 4),
+      child: Text(
+        title,
+        style: const TextStyle(
+          color: AppTheme.accentColor,
+          fontSize: 12,
+          fontWeight: FontWeight.w500,
+          letterSpacing: 0.8,
+        ),
       ),
     );
   }
@@ -168,22 +250,37 @@ class _AlunoUpdatePageState extends State<AlunoUpdatePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppTheme.primaryColor,
       appBar: AppBar(
-        title: const Text('Editar Aluno'),
-        backgroundColor: AppTheme.primaryColor,
+        title: const Text(
+          "Informações do Aluno",
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+        ),
+        centerTitle: true,
+        backgroundColor: AppTheme.surfaceColor,
+        foregroundColor: AppTheme.textColor,
+        elevation: 0,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(color: AppTheme.borderColor, height: 0.5),
+        ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         child: FormBuilder(
           key: _formKey,
+          initialValue: {
+            'peso': widget.aluno.peso != null
+                ? widget.aluno.peso!.toStringAsFixed(2)
+                : null,
+            'faixa': widget.aluno.faixa.toInt(),
+            'turma': widget.aluno.turma?.toString(),
+          },
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Informações do Aluno',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 10),
+              // ── Dados pessoais (somente leitura) ──
+              _buildSectionHeader('DADOS PESSOAIS'),
               _buildReadOnlyField('Nome', widget.aluno.nome ?? ''),
               _buildReadOnlyField(
                 'Data de Nascimento',
@@ -192,71 +289,70 @@ class _AlunoUpdatePageState extends State<AlunoUpdatePage> {
                         .format(widget.aluno.dataNascimento!)
                     : 'Não informado',
               ),
-              _buildEditableFieldDouble(
+
+              // ── Dados editáveis ──
+              _buildSectionHeader('DADOS EDITÁVEIS'),
+              _buildTextField(
                 name: 'peso',
-                label: 'Peso',
-                icon: Icons.monitor_weight,
-                initialValue: widget.aluno.peso?.toDouble(),
-                keyboardType: TextInputType.numberWithOptions(decimal: true),
+                labelText: 'Peso (kg)',
+                icon: Icons.monitor_weight_outlined,
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
                 validator: (value) =>
-                    value!.isEmpty ? 'Campo obrigatório' : null,
-                onChanged: (value) {
-                  print('Novo valor: $value');
-                },
+                    value == null || value.isEmpty ? 'Campo obrigatório' : null,
               ),
               _buildDropdownField(
                 name: 'faixa',
-                label: 'Faixa',
+                labelText: 'Faixa',
+                icon: Icons.emoji_events_outlined,
                 options: Faixa.listaFaixas
-                    .map((faixa) => {
-                          'label': faixa['label'],
-                          'value':
-                              faixa['value'], // Usa o ID da faixa como value
-                        })
+                    .map((f) => {'label': f['label'], 'value': f['value']})
                     .toList(),
                 initialValue: widget.aluno.faixa.toInt(),
               ),
-              _buildEditableField(
+              _buildTextField(
                 name: 'turma',
-                label: 'Turma',
-                icon: Icons.class_,
-                initialValue: widget.aluno.turma,
+                labelText: 'Turma',
+                icon: Icons.class_outlined,
                 keyboardType: TextInputType.number,
                 validator: FormBuilderValidators.compose([
                   FormBuilderValidators.required(),
                   FormBuilderValidators.numeric(),
                 ]),
               ),
-              const SizedBox(height: 20),
-              const Text(
-                'Contatos e Endereços',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 10),
+
+              // ── Contatos e endereços (somente leitura) ──
+              _buildSectionHeader('CONTATOS E ENDEREÇOS'),
               _buildReadOnlyField(
                   'Responsável', widget.aluno.responsavel ?? ''),
               _buildReadOnlyField('Celular', widget.aluno.celular ?? ''),
               _buildReadOnlyField('Endereço', widget.aluno.endereco ?? ''),
               _buildReadOnlyField('Bairro', widget.aluno.bairro ?? ''),
               _buildReadOnlyField('Cidade', widget.aluno.cidade ?? ''),
+
+              const SizedBox(height: 8),
             ],
           ),
         ),
       ),
       bottomNavigationBar: Padding(
-        padding: const EdgeInsets.all(16),
-        child: ElevatedButton(
-          onPressed: isLoading ? null : _updateData,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppTheme.primaryColor,
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
+        padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+        child: SizedBox(
+          height: 52,
+          child: ElevatedButton(
+            onPressed: isLoading ? null : _updateData,
+            style: AppTheme.elevatedButtonStyle,
+            child: isLoading
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: AppTheme.primaryColor,
+                    ),
+                  )
+                : const Text('ATUALIZAR', style: AppTheme.buttonTextStyle),
           ),
-          child: isLoading
-              ? const CircularProgressIndicator(color: Colors.white)
-              : const Text('Atualizar', style: TextStyle(fontSize: 18)),
         ),
       ),
     );

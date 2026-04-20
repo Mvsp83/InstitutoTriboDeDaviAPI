@@ -1,4 +1,5 @@
-﻿using InstitutoTriboDeDavi.System.Factory;
+﻿using InstitutoTriboDeDavi.System.Domain.Enums;
+using InstitutoTriboDeDavi.System.Factory;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,10 +8,12 @@ namespace InstitutoTriboDeDavi.API.Controllers
     public class ImportController : BaseController
     {
         private readonly FactoryPlanilhaDB _excelImporter;
+        private ILogger<ImportController> logger;
 
-        public ImportController(FactoryPlanilhaDB excelImporter)
+        public ImportController(FactoryPlanilhaDB excelImporter, ILogger<ImportController> logger) : base(logger as ILogger<Controller>)
         {
             _excelImporter = excelImporter;
+            this.logger = logger;
         }
 
         [HttpPost]
@@ -18,44 +21,26 @@ namespace InstitutoTriboDeDavi.API.Controllers
         [Route("import/upload")]
         public async Task<IActionResult> UploadFile(IFormFile file)
         {
-            try
+            return await ExecuteAsync(async () =>
             {
-                if (UsuarioAutenticado.Role == System.Domain.Enums.UserRole.Administrador)
+                ValidateUserRole(UserRole.Administrador);
+
+                if (file == null || file.Length == 0)
                 {
-                    if (file == null || file.Length == 0)
-                    {
-                        return BadRequest("Nenhum arquivo enviado.");
-                    }
-
-                    var filePath = Path.Combine(Path.GetTempPath(), file.FileName);
-
-                    using (var stream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await file.CopyToAsync(stream);
-                    }
-
-                    try
-                    {
-                        _excelImporter.ImportDataAlunos(filePath);
-                    }
-                    catch (Exception ex)
-                    {
-                        return StatusCode(500, $"Erro ao processar o arquivo: {ex.Message}");
-                    }
-
-                    return Ok("Arquivo processado com sucesso.");
+                    return BadRequest("Nenhum arquivo enviado.");
                 }
 
-                throw new UnauthorizedAccessException("Usuário não tem permissão para acessar esta informação.");
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                return Forbid(ex.Message);
-            }
-            catch (Exception)
-            {
-                throw;
-            }
+                var filePath = Path.Combine(Path.GetTempPath(), file.FileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await file.CopyToAsync(stream);
+                }
+
+                _excelImporter.ImportDataAlunos(filePath);
+
+                return Ok("Arquivo processado com sucesso.");
+            });          
         }
 
         [HttpPost]
@@ -63,44 +48,26 @@ namespace InstitutoTriboDeDavi.API.Controllers
         [Route("import/upload2")]
         public async Task<IActionResult> UploadFile2(IFormFile file)
         {
-            try
+            return await ExecuteAsync(async () =>
             {
-                if (UsuarioAutenticado.Role == System.Domain.Enums.UserRole.Administrador)
+                ValidateUserRole(UserRole.Administrador);
+
+                if (file == null || file.Length == 0)
                 {
-                    if (file == null || file.Length == 0)
-                    {
-                        return BadRequest("Nenhum arquivo enviado.");
-                    }
-
-                    var filePath = Path.Combine(Path.GetTempPath(), file.FileName);
-
-                    using (var stream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await file.CopyToAsync(stream);
-                    }
-
-                    try
-                    {
-                        _excelImporter.ImportDataPolos(filePath);
-                    }
-                    catch (Exception ex)
-                    {
-                        return StatusCode(500, $"Erro ao processar o arquivo: {ex.Message}");
-                    }
-
-                    return Ok("Arquivo processado com sucesso.");
+                    return BadRequest("Nenhum arquivo enviado.");
                 }
 
-                throw new UnauthorizedAccessException("Usuário não tem permissão para acessar esta informação.");
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                return Forbid(ex.Message);
-            }
-            catch (Exception)
-            {
-                throw;
-            }
+                var filePath = Path.Combine(Path.GetTempPath(), file.FileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await file.CopyToAsync(stream);
+                }
+
+                _excelImporter.ImportDataPolos(filePath);
+
+                return Ok("Arquivo processado com sucesso.");
+            });
         }
     }
 }

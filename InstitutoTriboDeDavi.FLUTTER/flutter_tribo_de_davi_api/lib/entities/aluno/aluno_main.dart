@@ -166,11 +166,18 @@ class _AlunoPageState extends State<AlunoPage> {
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
       appBar: AppBar(
-        title: const Text("Gestão de Alunos"),
+        title: const Text(
+          "Gestão de Alunos",
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+        ),
         centerTitle: true,
-        backgroundColor: AppTheme.primaryColor,
+        backgroundColor: AppTheme.surfaceColor,
         foregroundColor: AppTheme.textColor,
-        elevation: 4,
+        elevation: 0,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(color: AppTheme.borderColor, height: 0.5),
+        ),
       ),
       body: Column(
         children: [

@@ -15,20 +15,22 @@ namespace InstitutoTriboDeDavi.API.Controllers
         private readonly ITokenGenerator _tokenGenerator;
         private readonly IMapper _mapper;
         private readonly IUsuarioService _usuarioService;
+        private readonly ILogger<AuthController> _logger;
 
-        public AuthController(IConfiguration configuration, ITokenGenerator tokenGenerator, IMapper mapper, IUsuarioService usuarioService)
+        public AuthController(IConfiguration configuration, ITokenGenerator tokenGenerator, IMapper mapper, IUsuarioService usuarioService, ILogger<AuthController> logger) : base(logger as ILogger<Controller>)
         {
             _configuration = configuration;
             _tokenGenerator = tokenGenerator;
             _mapper = mapper;
             _usuarioService = usuarioService;
+            _logger = logger;
         }
 
         [HttpPost]
         [Route("/api/v1/auth/login")]
         public async Task<IActionResult> Login([FromBody] LoginViewModel loginViewModel)
         {
-            try
+            return await ExecuteAsync(async () =>
             {
                 var usuario = await _usuarioService.ValidarUsuarioAsync(loginViewModel.Login, loginViewModel.Password);
 
@@ -47,11 +49,7 @@ namespace InstitutoTriboDeDavi.API.Controllers
                         TokenExpires = DateTime.UtcNow.AddHours(int.Parse(_configuration["Jwt:HoursToExpire"]))
                     }
                 });
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, Responses.ApplicationErrorMessage());
-            }
+            });
         }
 
     }

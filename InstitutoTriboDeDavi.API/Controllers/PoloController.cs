@@ -4,6 +4,7 @@ using InstitutoTriboDeDavi.API.ViewModels.Result;
 using InstitutoTriboDeDavi.System.Core.Exceptions;
 using InstitutoTriboDeDavi.System.Domain.Enums;
 using InstitutoTriboDeDavi.System.DTO;
+using InstitutoTriboDeDavi.System.Services;
 using InstitutoTriboDeDavi.System.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -11,46 +12,62 @@ using Microsoft.AspNetCore.Mvc;
 namespace InstitutoTriboDeDavi.API.Controllers
 {
     [ApiController]
+    [Route("api/[controller]")]
     public class PoloController : BaseController
     {
         private readonly IMapper _mapper;
         private readonly IPoloService _poloService;
+        private readonly ILogger<PoloController> _logger;
 
-        public PoloController(IMapper mapper, IPoloService poloService)
+        public PoloController(IMapper mapper, IPoloService poloService, ILogger<PoloController> logger) : base(logger as ILogger<Controller>)
         {
             _mapper = mapper;
             _poloService = poloService;
+            _logger = logger;
         }
 
         [HttpGet]
         [Authorize]
-        [Route("/polo/get-por-polo")]
-        public async Task<IActionResult> GetAll()
+        [Route("get-por-polo")]
+        public async Task<IActionResult> GetAll([FromQuery] List<int> turmas)
         {
-            try
-            {
-                var allPolos = await _poloService.GetAll();
-
-                return Ok(new ResultViewModel
+          
+                return await ExecuteAsync(async () =>
                 {
-                    Message = "Polos encontrados com sucesso!",
-                    Success = true,
-                    Data = allPolos
-                });
-            }
-            catch (DomainException ex)
-            {
-                return BadRequest(Responses.DomainErrorMessage(ex.Message, ex.Errors));
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, Responses.ApplicationErrorMessage());
-            }
+                    var allPolos = await _poloService.ObterPolosAsync(UsuarioAutenticado, turmas);
+
+                    var polosComDescricao = allPolos.Select(polo => new
+                    {
+                        Id = polo.Id,
+                        Nome = polo.Nome,
+                        Informacoes = polo.Informacoes,
+                        Endereco = polo.Endereco,
+                        Bairro = polo.Bairro,
+                        Cidade = polo.Cidade
+                    });
+
+                    if (!polosComDescricao.Any())
+                    {
+                        return Ok(new ResultViewModel
+                        {
+                            Message = "Nenhum Polo foi encontrado!",
+                            Success = true,
+                            Data = null
+                        });
+                    }
+
+                    return Ok(new ResultViewModel
+                    {
+                        Message = "Polo obtidos com sucesso!",
+                        Success = true,
+                        Data = polosComDescricao
+                    });
+                });            
         }
 
         [HttpPost]
         [Authorize]
-        [Route("/polo/create")]
+        [Route("create")]
         public async Task<IActionResult> Create([FromBody] PoloDTO poloDTO)
         {
             try
@@ -81,7 +98,7 @@ namespace InstitutoTriboDeDavi.API.Controllers
 
         [HttpPut]
         [Authorize]
-        [Route("/polo/update")]
+        [Route("update")]
         public async Task<IActionResult> Update([FromBody] PoloDTO poloDTO)
         {
             try
@@ -112,7 +129,7 @@ namespace InstitutoTriboDeDavi.API.Controllers
 
         [HttpDelete]
         [Authorize]
-        [Route("/polo/delete/{id}")]
+        [Route("delete/{id}")]
         public async Task<IActionResult> Delete(long id)
         {
             try
@@ -155,7 +172,7 @@ namespace InstitutoTriboDeDavi.API.Controllers
 
         [HttpGet]
         [Authorize]
-        [Route("/polo/get/{id}")]
+        [Route("get/{id}")]
         public async Task<IActionResult> Get(long id)
         {
             try

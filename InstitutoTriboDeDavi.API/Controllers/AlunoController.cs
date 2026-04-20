@@ -13,31 +13,32 @@ using Microsoft.AspNetCore.Mvc;
 namespace InstitutoTriboDeDavi.API.Controllers
 {
     [ApiController]
+    [Route("api/[controller]")]
     public class AlunoController : BaseController
     {
         private readonly IMapper _mapper;
         private readonly IAlunoService _alunoService;
         private readonly IPresencaService _presencaService;
         private readonly IFrequenciaService _frequenciaService;
+        private readonly ILogger<AlunoController> _logger;
 
-        public AlunoController(IMapper mapper, IAlunoService alunoService, IPresencaService presencaService, IFrequenciaService frequenciaService)
+        public AlunoController(IMapper mapper, IAlunoService alunoService, IPresencaService presencaService, IFrequenciaService frequenciaService, ILogger<AlunoController> logger) : base(logger as ILogger<Controller>)
         {
             _mapper = mapper;
             _alunoService = alunoService;
             _presencaService = presencaService;
             _frequenciaService = frequenciaService;
+            _logger = logger;
         }
 
-        [HttpGet]
+        [HttpGet("get-all")]
         [Authorize]
-        [Route("/aluno/get-all")]
         public async Task<IActionResult> GetAll()
         {
-            try
+            return await ExecuteAsync(async () =>
             {
                 var allAlunos = await _alunoService.GetAll();
-
-                var alunosComDescricao = allAlunos.Select(static aluno => new
+                var alunosComDescricao = allAlunos.Select(aluno => new
                 {
                     Id = aluno.Id,
                     Nome = aluno.Nome,
@@ -66,32 +67,16 @@ namespace InstitutoTriboDeDavi.API.Controllers
                     Success = true,
                     Data = alunosComDescricao
                 });
-            }
-            catch (DomainException ex)
-            {
-                return BadRequest(Responses.DomainErrorMessage(ex.Message, ex.Errors));
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                return Forbid(ex.Message);
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, Responses.ApplicationErrorMessage());
-            }
+            });
         }
 
-        [HttpPost]
+        [HttpPost("create")]
         [Authorize]
-        [Route("/aluno/create")]
         public async Task<IActionResult> Create([FromBody] AlunoDTO alunoDTO)
         {
-            try
+            return await ExecuteAsync(async () =>
             {
-                if (UsuarioAutenticado.Role != UserRole.Administrador)
-                {
-                    throw new UnauthorizedAccessException("Usuário não tem permissão para acessar esta informação.");
-                }
+                ValidateUserRole(UserRole.Administrador);
 
                 var alunoCreated = await _alunoService.Create(alunoDTO);
 
@@ -101,32 +86,16 @@ namespace InstitutoTriboDeDavi.API.Controllers
                     Success = true,
                     Data = alunoCreated
                 });
-            }
-            catch (DomainException ex)
-            {
-                return BadRequest(Responses.DomainErrorMessage(ex.Message, ex.Errors));
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                return Forbid(ex.Message);
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, Responses.ApplicationErrorMessage());
-            }
+            });
         }
 
-        [HttpPut]
+        [HttpPut("update")]
         [Authorize]
-        [Route("/aluno/update")]
         public async Task<IActionResult> Update([FromBody] AlunoDTO alunoDTO)
         {
-            try
+            return await ExecuteAsync(async () =>
             {
-                if (UsuarioAutenticado.Role != UserRole.Professor)
-                {
-                    throw new UnauthorizedAccessException("Usuário não tem permissão para acessar esta informação.");
-                }
+                ValidateUserRole(UserRole.Professor);
 
                 var alunoUpdated = await _alunoService.Update(alunoDTO);
 
@@ -136,32 +105,16 @@ namespace InstitutoTriboDeDavi.API.Controllers
                     Success = true,
                     Data = alunoUpdated
                 });
-            }
-            catch (DomainException ex)
-            {
-                return BadRequest(Responses.DomainErrorMessage(ex.Message, ex.Errors));
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                return Forbid(ex.Message);
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, Responses.ApplicationErrorMessage());
-            }
+            });
         }
 
-        [HttpDelete]
+        [HttpDelete("delete/{id}")]
         [Authorize]
-        [Route("/aluno/delete/{id}")]
         public async Task<IActionResult> Delete(long id)
         {
-            try
+            return await ExecuteAsync(async () =>
             {
-                if (UsuarioAutenticado.Role != UserRole.Administrador)
-                {
-                    throw new UnauthorizedAccessException("Usuário não tem permissão para acessar esta informação.");
-                }
+                ValidateUserRole(UserRole.Administrador);
 
                 var aluno = await _alunoService.Get(id);
 
@@ -183,31 +136,18 @@ namespace InstitutoTriboDeDavi.API.Controllers
                     Success = true,
                     Data = null
                 });
-            }
-            catch (DomainException ex)
-            {
-                return BadRequest(Responses.DomainErrorMessage(ex.Message, ex.Errors));
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                return Forbid(ex.Message);
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, Responses.ApplicationErrorMessage());
-            }
+            });
         }
 
-        [HttpGet]
+        [HttpGet("alunos-mais-faltantes")]
         [Authorize]
-        [Route("/aluno/alunos-mais-faltantes")]
         public async Task<IActionResult> GetAlunosFaltas()
         {
-            try
+            return await ExecuteAsync(async () =>
             {
-                List<FrequenciaDTO> totalAlunos = await _frequenciaService.GetAlunosFaltasAsync(UsuarioAutenticado);
+                var totalAlunos = await _frequenciaService.GetAlunosFaltasAsync(UsuarioAutenticado);
 
-                var totalAlunosComDescricao = totalAlunos.Select(static aluno => new
+                var totalAlunosComDescricao = totalAlunos.Select(aluno => new
                 {
                     AlunoId = aluno.AlunoId,
                     Nome = aluno.Nome,
@@ -216,7 +156,7 @@ namespace InstitutoTriboDeDavi.API.Controllers
                     TotalFaltas = aluno.TotalFaltas
                 });
 
-                if (totalAlunosComDescricao.Count() == 0)
+                if (!totalAlunosComDescricao.Any())
                 {
                     return Ok(new ResultViewModel
                     {
@@ -232,31 +172,18 @@ namespace InstitutoTriboDeDavi.API.Controllers
                     Success = true,
                     Data = totalAlunosComDescricao
                 });
-            }
-            catch (DomainException ex)
-            {
-                return BadRequest(Responses.DomainErrorMessage(ex.Message, ex.Errors));
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                return Forbid(ex.Message);
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, Responses.ApplicationErrorMessage());
-            }
+            });
         }
 
-        [HttpGet]
+        [HttpGet("get-por-polo")]
         [Authorize]
-        [Route("/aluno/get-por-polo")]
         public async Task<IActionResult> ObterAlunos([FromQuery] List<int> turmas)
         {
-            try
+            return await ExecuteAsync(async () =>
             {
                 var allAlunos = await _alunoService.ObterAlunosPorTurmaAsync(UsuarioAutenticado, turmas);
 
-                var alunosComDescricao = allAlunos.Select(static aluno => new
+                var alunosComDescricao = allAlunos.Select(aluno => new
                 {
                     Id = aluno.Id,
                     Nome = aluno.Nome,
@@ -279,8 +206,7 @@ namespace InstitutoTriboDeDavi.API.Controllers
                     Turma = aluno.Turma
                 });
 
-
-                if (allAlunos.Count() == 0)
+                if (!alunosComDescricao.Any())
                 {
                     return Ok(new ResultViewModel
                     {
@@ -296,15 +222,7 @@ namespace InstitutoTriboDeDavi.API.Controllers
                     Success = true,
                     Data = alunosComDescricao
                 });
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                return Forbid(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, "Erro interno: " + ex.Message);
-            }
+            });
         }
     }
 }

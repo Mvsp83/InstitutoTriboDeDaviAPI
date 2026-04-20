@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
+using InstitutoTriboDeDavi.System.DataAccess;
 using InstitutoTriboDeDavi.System.DataAccess.Interfaces;
 using InstitutoTriboDeDavi.System.Domain.Entities;
+using InstitutoTriboDeDavi.System.Domain.Enums;
 using InstitutoTriboDeDavi.System.DTO;
 using InstitutoTriboDeDavi.System.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
@@ -119,6 +121,25 @@ namespace InstitutoTriboDeDavi.System.Services
                 PoloId = usuario.PoloId,
                 PoloNome = usuario.PoloNome
             };
+        }
+
+        public async Task<List<UsuarioDTO>> ObterUsuariosPorTurmaAsync(UsuarioDTO usuarioDTO, List<int> turmas)
+        {
+            if (usuarioDTO.Role == UserRole.Administrador)
+            {
+                var listaTodos = await _usuarioRepository.ObterTodosAsync();
+
+                return _mapper.Map<List<UsuarioDTO>>(listaTodos);
+            }
+
+            if (usuarioDTO.Role == UserRole.Professor && usuarioDTO.PoloId.HasValue)
+            {
+                var listaPorPolo = await _usuarioRepository.ObterPorPoloTurmaAsync(usuarioDTO.PoloId.Value, turmas);
+
+                return _mapper.Map<List<UsuarioDTO>>(listaPorPolo);
+            }
+
+            throw new UnauthorizedAccessException("Usuário não tem permissão para acessar esta informação.");
         }
 
     }

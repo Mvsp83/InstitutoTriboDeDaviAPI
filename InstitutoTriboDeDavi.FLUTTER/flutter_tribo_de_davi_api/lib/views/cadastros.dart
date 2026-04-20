@@ -25,31 +25,24 @@ class _CadastrosPageState extends State<CadastrosPage> {
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
       appBar: AppBar(
-        title: const Text("Gerenciamento de Cadastros"),
+        title: const Text(
+          "Gerenciamento de Cadastros",
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+        ),
         centerTitle: true,
-        backgroundColor: AppTheme.primaryColor,
+        backgroundColor: AppTheme.surfaceColor,
         foregroundColor: AppTheme.textColor,
-        elevation: 4,
-        shadowColor: Colors.black54,
+        elevation: 0,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(color: AppTheme.borderColor, height: 0.5),
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _buildActionCard(
-              context,
-              title: "Usuário",
-              icon: Icons.supervised_user_circle_sharp,
-              color: AppTheme.primaryColor,
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const UsuarioPage()),
-                );
-              },
-            ),
-            const SizedBox(height: 20),
             _buildActionCard(
               context,
               title: "Polos",

@@ -33,5 +33,11 @@ namespace InstitutoTriboDeDavi.System.DataAccess
 
             return allPolos;
         }
+
+        public async Task<List<Polo>> ObterTodosAsync()
+        {
+            return await _context.Polos.ToListAsync();
+        }
+
     }
 }

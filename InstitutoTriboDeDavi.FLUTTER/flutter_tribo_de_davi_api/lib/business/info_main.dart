@@ -11,13 +11,18 @@ class InfoPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
       appBar: AppBar(
-        title: const Text("Informações"),
+        title: const Text(
+          "Informações",
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+        ),
         centerTitle: true,
-        backgroundColor: AppTheme.primaryColor,
+        backgroundColor: AppTheme.surfaceColor,
         foregroundColor: AppTheme.textColor,
-        elevation: 4,
-        shadowColor: Colors.black54,
-        toolbarHeight: 100,
+        elevation: 0,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(color: AppTheme.borderColor, height: 0.5),
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

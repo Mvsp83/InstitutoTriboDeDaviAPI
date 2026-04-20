@@ -51,28 +51,58 @@ class _EditPoloState extends State<EditPolo> {
   Widget _buildTextField({
     required String name,
     required String labelText,
-    required IconData icon,
+    IconData? icon,
     String? initialValue,
     FormFieldValidator<String>? validator,
   }) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10),
+      padding: const EdgeInsets.symmetric(vertical: 8),
       child: FormBuilderTextField(
         name: name,
         initialValue: initialValue,
+        style: const TextStyle(color: AppTheme.textColor, fontSize: 14),
+        cursorColor: AppTheme.accentColor,
         decoration: InputDecoration(
           labelText: labelText,
-          labelStyle: const TextStyle(color: Colors.black54),
+          // Label recolhido (campo vazio)
+          labelStyle: const TextStyle(
+            color: AppTheme.textMutedColor,
+            fontSize: 14,
+          ),
+          // Label flutuante (campo em foco ou preenchido) — âmbar, sem sobreposição
           floatingLabelStyle: const TextStyle(
-            color: AppTheme.primaryColor,
-            fontWeight: FontWeight.bold,
+            color: AppTheme.accentColor,
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
           ),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          prefixIcon: Icon(icon, color: AppTheme.primaryColor),
+          prefixIcon: icon != null
+              ? Icon(icon, color: AppTheme.accentColor, size: 20)
+              : null,
           filled: true,
-          fillColor: Colors.white,
+          fillColor: AppTheme.surfaceColor,
+          // Borda padrão
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide:
+                const BorderSide(color: AppTheme.borderColor, width: 0.5),
+          ),
+          // Borda em foco — destaca em âmbar
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(color: AppTheme.accentColor, width: 1),
+          ),
+          // Borda de erro
+          errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(color: Colors.redAccent, width: 0.5),
+          ),
+          focusedErrorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(color: Colors.redAccent, width: 1),
+          ),
+          // Padding interno — garante espaço para o label flutuar sem sobrepor
+          contentPadding:
+              const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
         ),
         validator: validator,
       ),
@@ -82,16 +112,24 @@ class _EditPoloState extends State<EditPolo> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.backgroundColor,
+      backgroundColor: AppTheme.primaryColor,
       appBar: AppBar(
-        title: const Text("Editar Polo"),
+        title: const Text(
+          "Informações do Polo",
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+        ),
         centerTitle: true,
-        backgroundColor: AppTheme.primaryColor,
+        backgroundColor: AppTheme.surfaceColor,
         foregroundColor: AppTheme.textColor,
-        elevation: 4,
+        elevation: 0,
+        // Linha âmbar sutil na base da AppBar
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(color: AppTheme.borderColor, height: 0.5),
+        ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
         child: FormBuilder(
           key: _formKey,
           initialValue: {
@@ -106,7 +144,7 @@ class _EditPoloState extends State<EditPolo> {
               _buildTextField(
                 name: 'nome',
                 labelText: 'Nome do Polo',
-                icon: Icons.account_balance,
+                icon: Icons.account_balance_outlined,
                 validator: FormBuilderValidators.required(),
               ),
               _buildTextField(
@@ -117,40 +155,21 @@ class _EditPoloState extends State<EditPolo> {
               _buildTextField(
                 name: 'endereco',
                 labelText: 'Endereço',
-                icon: Icons.location_on,
+                icon: Icons.location_on_outlined,
               ),
               _buildTextField(
                 name: 'bairro',
                 labelText: 'Bairro',
-                icon: Icons.home,
+                icon: Icons.home_outlined,
               ),
               _buildTextField(
                 name: 'cidade',
                 labelText: 'Cidade',
-                icon: Icons.location_city,
+                icon: Icons.location_city_outlined,
               ),
+              const SizedBox(height: 8),
             ],
           ),
-        ),
-      ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.all(16),
-        child: ElevatedButton(
-          onPressed: isLoading ? null : _updateData,
-          style: AppTheme.elevatedButtonStyle.copyWith(
-            padding: WidgetStateProperty.all(
-              const EdgeInsets.symmetric(vertical: 20),
-            ),
-          ),
-          child: isLoading
-              ? const CircularProgressIndicator(color: Colors.white)
-              : const Text(
-                  'Atualizar',
-                  style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: AppTheme.textColor),
-                ),
         ),
       ),
     );

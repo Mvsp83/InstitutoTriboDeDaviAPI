@@ -6,6 +6,7 @@ namespace InstitutoTriboDeDavi.System.DataAccess.Interfaces
     public interface IPoloRepository : IBaseRepository<Polo>
     {
         Task<Polo> GetByNome(string nome);
-        Task<List<Polo>> SearchByNome(string nome);        
+        Task<List<Polo>> SearchByNome(string nome);
+        Task<List<Polo>> ObterTodosAsync();
     }
 }

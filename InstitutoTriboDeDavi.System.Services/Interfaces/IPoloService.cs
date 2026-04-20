@@ -10,6 +10,7 @@ namespace InstitutoTriboDeDavi.System.Services.Interfaces
         Task<PoloDTO> Get(long id);
         Task<List<PoloDTO>> GetAll();
         Task<PoloDTO> GetByNome(string nome);
-        Task<List<PoloDTO>> SearchByNome(string nome);        
+        Task<List<PoloDTO>> SearchByNome(string nome);
+        Task<List<PoloDTO>> ObterPolosAsync(UsuarioDTO usuarioDTO, List<int> turmas);
     }
 }

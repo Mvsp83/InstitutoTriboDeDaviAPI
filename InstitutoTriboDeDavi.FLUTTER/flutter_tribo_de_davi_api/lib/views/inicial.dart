@@ -88,14 +88,36 @@ class _HomePageState extends State<HomePage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Confirmar Saída'),
-          content: const Text('Tem certeza de que deseja sair?'),
+          backgroundColor: AppTheme.surfaceColor,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+            side: const BorderSide(color: AppTheme.borderColor, width: 0.5),
+          ),
+          title: const Text(
+            'Confirmar Saída',
+            style: TextStyle(
+              color: AppTheme.textColor,
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          content: const Text(
+            'Tem certeza de que deseja sair?',
+            style: TextStyle(
+              color: AppTheme.textMutedColor,
+              fontSize: 14,
+            ),
+          ),
           actions: [
             TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Cancelar'),
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text(
+                'Cancelar',
+                style: TextStyle(
+                  color: AppTheme.textMutedColor,
+                  fontSize: 14,
+                ),
+              ),
             ),
             ElevatedButton(
               onPressed: () {
@@ -103,7 +125,7 @@ class _HomePageState extends State<HomePage> {
                 _logout();
               },
               style: AppTheme.elevatedButtonStyle,
-              child: const Text('Sair'),
+              child: const Text('SAIR', style: AppTheme.buttonTextStyle),
             ),
           ],
         );
@@ -121,30 +143,38 @@ class _HomePageState extends State<HomePage> {
           children: [
             const Text(
               "Instituto Tribo de Davi",
-              style: TextStyle(fontSize: 20), // Tamanho do texto do título
+              style: TextStyle(
+                color: AppTheme.textColor,
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+              ),
             ),
             Text(
-              _poloName, // Nome do polo
+              _poloName,
               style: const TextStyle(
-                fontSize: 14, // Tamanho menor para o subtítulo
-                fontStyle: FontStyle.italic,
+                color: AppTheme.accentColor,
+                fontSize: 13,
+                fontWeight: FontWeight.w400,
               ),
             ),
           ],
         ),
         centerTitle: true,
-        backgroundColor: AppTheme.primaryColor,
+        backgroundColor: AppTheme.surfaceColor,
         foregroundColor: AppTheme.textColor,
-        elevation: 4,
-        shadowColor: Colors.black54,
-        toolbarHeight: 100,
+        elevation: 0,
+        toolbarHeight: kToolbarHeight,
         actions: [
           IconButton(
-            icon: const Icon(Icons.exit_to_app),
+            icon: const Icon(Icons.exit_to_app, color: AppTheme.accentColor),
             onPressed: _confirmLogout,
             tooltip: 'Sair',
           ),
         ],
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(color: AppTheme.borderColor, height: 0.5),
+        ),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -170,12 +200,11 @@ class _HomePageState extends State<HomePage> {
                     Expanded(
                       child: Text(
                         'Bem-vindo(a), ${widget.userName}!',
-                        style: AppTheme.bodyTextStyle.copyWith(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style:
+                            TextStyle(color: AppTheme.textColor, fontSize: 24),
                       ),
                     ),
+                    //),
                   ],
                 ),
               ),
@@ -188,15 +217,13 @@ class _HomePageState extends State<HomePage> {
                   children: [
                     Text(
                       'Medite na Palavra',
-                      style: AppTheme.bodyTextStyle.copyWith(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style:
+                          TextStyle(color: AppTheme.accentColor, fontSize: 24),
                     ),
                     const SizedBox(height: 10),
                     Text(
                       _selectedVerse,
-                      style: AppTheme.bodyTextStyle.copyWith(fontSize: 16),
+                      style: TextStyle(color: AppTheme.textColor, fontSize: 14),
                     ),
                   ],
                 ),

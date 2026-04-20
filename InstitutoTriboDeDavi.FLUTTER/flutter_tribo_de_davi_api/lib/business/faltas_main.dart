@@ -66,13 +66,18 @@ class AlunosMaisFaltantesPageState extends State<AlunosMaisFaltantesPage> {
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
       appBar: AppBar(
-        title: const Text("Alunos Mais Faltantes"),
+        title: const Text(
+          "Consulta de Faltas",
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+        ),
         centerTitle: true,
-        backgroundColor: AppTheme.primaryColor,
+        backgroundColor: AppTheme.surfaceColor,
         foregroundColor: AppTheme.textColor,
-        elevation: 4,
-        shadowColor: Colors.black54,
-        toolbarHeight: 100,
+        elevation: 0,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(color: AppTheme.borderColor, height: 0.5),
+        ),
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -103,9 +108,12 @@ class AlunosMaisFaltantesPageState extends State<AlunosMaisFaltantesPage> {
                     value: ordem,
                     isExpanded: true,
                     icon: const Icon(Icons.arrow_downward),
+                    style: const TextStyle(
+                        color: AppTheme.textColor, fontSize: 16),
+                    dropdownColor: AppTheme.surfaceColor,
                     underline: Container(
                       height: 2,
-                      color: AppTheme.primaryColor,
+                      color: AppTheme.accentColor,
                     ),
                     onChanged: (String? newValue) {
                       if (newValue != null) {

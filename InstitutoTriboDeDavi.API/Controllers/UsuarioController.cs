@@ -10,21 +10,24 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace InstitutoTriboDeDavi.API.Controllers
 {
-    [ApiController]    
-    public class UsuarioController : ControllerBase
+    [ApiController]
+    [Route("api/[controller]")]
+    public class UsuarioController : BaseController
     {
         private readonly IMapper _mapper;
         private readonly IUsuarioService _usuarioService;
+        private readonly ILogger<UsuarioController> _logger;
 
-        public UsuarioController(IMapper mapper, IUsuarioService usuarioService)
+        public UsuarioController(IMapper mapper, IUsuarioService usuarioService, ILogger<UsuarioController> logger) : base(logger as ILogger<Controller>)
         {
             _mapper = mapper;
             _usuarioService = usuarioService;
+            _logger = logger;
         }
 
         [HttpPost]
         //[Authorize]
-        [Route("/usuario/create")]
+        [Route("create")]
         public async Task<IActionResult> Create([FromBody] UsuarioViewModel usuarioViewModel)
         {
             try
@@ -50,7 +53,7 @@ namespace InstitutoTriboDeDavi.API.Controllers
 
         [HttpPut]
         [Authorize]
-        [Route("/usuario/update")]
+        [Route("update")]
         public async Task<IActionResult> Update([FromBody] UsuarioDTO usuarioDTO)
         {
             try
@@ -76,7 +79,7 @@ namespace InstitutoTriboDeDavi.API.Controllers
 
         [HttpDelete]
         [Authorize]
-        [Route("/usuario/delete/{id}")]
+        [Route("delete/{id}")]
         public async Task<IActionResult> Delete(long id)
         {
             try
@@ -114,7 +117,7 @@ namespace InstitutoTriboDeDavi.API.Controllers
 
         [HttpGet]
         [Authorize]
-        [Route("/usuario/get/{id}")]
+        [Route("get/{id}")]
         public async Task<IActionResult> Get(long id)
         {
             try
@@ -150,7 +153,7 @@ namespace InstitutoTriboDeDavi.API.Controllers
 
         [HttpGet]
         [Authorize]
-        [Route("/usuario/get-all")]
+        [Route("get-all")]
         public async Task<IActionResult> GetAll()
         {
             try
@@ -176,7 +179,7 @@ namespace InstitutoTriboDeDavi.API.Controllers
 
         [HttpGet]
         [Authorize]
-        [Route("/usuario/get-by-email")]
+        [Route("get-by-email")]
         public async Task<IActionResult> GetByEmail([FromQuery] string email)
         {
             try
@@ -212,7 +215,7 @@ namespace InstitutoTriboDeDavi.API.Controllers
 
         [HttpGet]
         [Authorize]
-        [Route("/usuario/search-by-email")]
+        [Route("search-by-email")]
         public async Task<IActionResult> SearchByEmail([FromQuery] string email)
         {
             try
@@ -248,7 +251,7 @@ namespace InstitutoTriboDeDavi.API.Controllers
 
         [HttpGet]
         [Authorize]
-        [Route("/usuario/get-by-nome")]
+        [Route("get-by-nome")]
         public async Task<IActionResult> GetByNome([FromQuery] string nome)
         {
             try
@@ -284,7 +287,7 @@ namespace InstitutoTriboDeDavi.API.Controllers
 
         [HttpGet]
         [Authorize]
-        [Route("/usuario/search-by-nome")]
+        [Route("search-by-nome")]
         public async Task<IActionResult> SearchByNome([FromQuery] string nome)
         {
             try
@@ -316,6 +319,40 @@ namespace InstitutoTriboDeDavi.API.Controllers
             {
                 return StatusCode(500, Responses.ApplicationErrorMessage());
             }
+        }
+
+        [HttpGet("get-por-polo")]
+        [Authorize]
+        public async Task<IActionResult> ObterUsuarios([FromQuery] List<int> turmas)
+        {
+            return await ExecuteAsync(async () =>
+            {
+                var allUsuarios = await _usuarioService.ObterUsuariosPorTurmaAsync(UsuarioAutenticado, turmas);
+
+                var usuariosComDescricao = allUsuarios.Select(usuario => new
+                {
+                    Id = usuario.Id,
+                    Nome = usuario.Login,
+                    Turma = usuario.PoloNome
+                });
+
+                if (!usuariosComDescricao.Any())
+                {
+                    return Ok(new ResultViewModel
+                    {
+                        Message = "Nenhum Usuário foi encontrado!",
+                        Success = true,
+                        Data = null
+                    });
+                }
+
+                return Ok(new ResultViewModel
+                {
+                    Message = "Usuários obtidos com sucesso!",
+                    Success = true,
+                    Data = usuariosComDescricao
+                });
+            });
         }
     }
 }

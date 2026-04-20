@@ -243,7 +243,7 @@ class ApiHandler<T> {
     required String login,
     required String password,
   }) async {
-    final uri = Uri.parse('${ApiRoutes.baseUrl}/api/v1/auth/login');
+    final uri = Uri.parse('${ApiRoutes.baseUrl}/v1/auth/login');
     Map<String, dynamic>? responseData;
 
     try {

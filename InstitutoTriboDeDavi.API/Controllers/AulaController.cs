@@ -2,63 +2,58 @@
 using InstitutoTriboDeDavi.API.Utilities;
 using InstitutoTriboDeDavi.API.ViewModels.Result;
 using InstitutoTriboDeDavi.System.Core.Exceptions;
+using InstitutoTriboDeDavi.System.Domain.Entities;
 using InstitutoTriboDeDavi.System.Domain.Enums;
+using InstitutoTriboDeDavi.System.DTO;
 using InstitutoTriboDeDavi.System.DTO.Business;
 using InstitutoTriboDeDavi.System.Services.Business.Interfaces;
+using Microsoft.AspNet.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InstitutoTriboDeDavi.API.Controllers
 {
     [ApiController]
+    [Route("api/[controller]")]
     public class AulaController : BaseController
     {
         private readonly IMapper _mapper;
         private readonly IAulaService _aulaService;
+        private readonly ILogger<AulaController> _logger;
 
-        public AulaController(IAulaService aulaService, IMapper mapper)
+        public AulaController(IAulaService aulaService, IMapper mapper, ILogger<AulaController> logger) : base(logger as ILogger<Controller>)
         {
             _mapper = mapper;
             _aulaService = aulaService;
+            _logger = logger;
         }
 
         [HttpGet]
         [Authorize]
-        [Route("/aula/get-all")]
+        [Route("get-all")]
         public async Task<IActionResult> GetAll()
         {
-            try
+            return await ExecuteAsync(async () =>
             {
                 var allAulas = await _aulaService.GetAll();
-
                 return Ok(new ResultViewModel
                 {
                     Message = "Aulas encontradas com sucesso!",
                     Success = true,
                     Data = allAulas
                 });
-            }
-            catch (DomainException ex)
-            {
-                return BadRequest(Responses.DomainErrorMessage(ex.Message, ex.Errors));
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, Responses.ApplicationErrorMessage());
-            }
+            });
         }
 
         [HttpPost]
         [Authorize]
-        [Route("/aula/create")]
+        [Route("create")]
         public async Task<IActionResult> Create([FromBody] AulaDTO aulaDTO)
         {
-            try
+            return await ExecuteAsync(async () =>
             {
-                if (UsuarioAutenticado.PoloId != aulaDTO.PoloId)
-                {
-                    throw new UnauthorizedAccessException("Usuário não tem permissão para acessar esta informação.");
-                }
+                ValidatePoloUsuario(UsuarioAutenticado, aulaDTO.PoloId);
+                ValidateUserRole(UserRole.Professor);
 
                 var aulaCreated = await _aulaService.Create(aulaDTO);
 
@@ -68,28 +63,17 @@ namespace InstitutoTriboDeDavi.API.Controllers
                     Success = true,
                     Data = aulaCreated
                 });
-            }
-            catch (DomainException ex)
-            {
-                return BadRequest(Responses.DomainErrorMessage(ex.Message, ex.Errors));
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, Responses.ApplicationErrorMessage());
-            }
+            });
         }
 
         [HttpPut]
         [Authorize]
-        [Route("/aula/update")]
+        [Route("update")]
         public async Task<IActionResult> Update([FromBody] AulaDTO aulaDTO)
         {
-            try
+            return await ExecuteAsync(async () =>
             {
-                if (UsuarioAutenticado.PoloId != aulaDTO.PoloId)
-                {
-                    throw new UnauthorizedAccessException("Usuário não tem permissão.");
-                }
+                ValidatePoloUsuario(UsuarioAutenticado, aulaDTO.PoloId);
 
                 var aulaUpdated = await _aulaService.Update(aulaDTO);
 
@@ -99,28 +83,17 @@ namespace InstitutoTriboDeDavi.API.Controllers
                     Success = true,
                     Data = aulaUpdated
                 });
-            }
-            catch (DomainException ex)
-            {
-                return BadRequest(Responses.DomainErrorMessage(ex.Message, ex.Errors));
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, Responses.ApplicationErrorMessage());
-            }
+            });
         }
 
         [HttpDelete]
         [Authorize]
-        [Route("/aula/delete/{id}")]
+        [Route("delete/{id}")]
         public async Task<IActionResult> Delete(long id)
         {
-            try
+            return await ExecuteAsync(async () =>
             {
-                if (UsuarioAutenticado.Role != UserRole.Administrador)
-                {
-                    throw new UnauthorizedAccessException("Usuário não tem permissão para acessar esta informação.");
-                }
+                ValidateUserRole(UserRole.Administrador);
 
                 var aula = await _aulaService.Get(id);
 
@@ -142,23 +115,15 @@ namespace InstitutoTriboDeDavi.API.Controllers
                     Success = true,
                     Data = null
                 });
-            }
-            catch (DomainException ex)
-            {
-                return BadRequest(Responses.DomainErrorMessage(ex.Message, ex.Errors));
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, Responses.ApplicationErrorMessage());
-            }
+            });           
         }
 
         [HttpGet]
         [Authorize]
-        [Route("/aula/get/{id}")]
+        [Route("get/{id}")]
         public async Task<IActionResult> Get(long id)
         {
-            try
+            return await ExecuteAsync(async () =>
             {
                 var aula = await _aulaService.Get(id);
 
@@ -178,26 +143,17 @@ namespace InstitutoTriboDeDavi.API.Controllers
                     Success = true,
                     Data = aula
                 });
-            }
-            catch (DomainException ex)
-            {
-                return BadRequest(Responses.DomainErrorMessage(ex.Message, ex.Errors));
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, Responses.ApplicationErrorMessage());
-            }
+            });
         }
 
         [HttpGet]
         [Authorize]
-        [Route("/aula/get-por-polo")]
+        [Route("get-por-polo")]
         public async Task<IActionResult> ObterAulas([FromQuery] IEnumerable<int> turmas)
         {
-            try
+            return await ExecuteAsync(async () =>
             {
                 var allAulas = await _aulaService.ObterAulasTurmaAsync(UsuarioAutenticado, turmas);
-
                 if (allAulas.Count() == 0)
                 {
                     return Ok(new ResultViewModel
@@ -207,22 +163,13 @@ namespace InstitutoTriboDeDavi.API.Controllers
                         Data = null
                     });
                 }
-
                 return Ok(new ResultViewModel
                 {
                     Message = "Aulas obtidas com sucesso!",
                     Success = true,
                     Data = allAulas
                 });
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                return Forbid(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, "Erro interno: " + ex.Message);
-            }
+            });
         }
     }
 }

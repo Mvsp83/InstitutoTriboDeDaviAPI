@@ -37,17 +37,14 @@ class _CriarAulaPageState extends State<CriarAulaPage> {
 
       if (token != null) {
         final payload = _decodeJWT(token);
-
         final poloIdString = payload['PoloId'];
         poloId = int.tryParse(poloIdString.toString());
-
-        if (poloId == null) {
-          throw Exception("PoloId não encontrado no token.");
-        }
+        if (poloId == null) throw Exception("PoloId não encontrado no token.");
       } else {
         throw Exception("Token não encontrado.");
       }
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Erro ao carregar PoloId: $e')),
       );
@@ -57,10 +54,7 @@ class _CriarAulaPageState extends State<CriarAulaPage> {
 
   Map<String, dynamic> _decodeJWT(String token) {
     final parts = token.split('.');
-    if (parts.length != 3) {
-      throw Exception("Token inválido.");
-    }
-
+    if (parts.length != 3) throw Exception("Token inválido.");
     final payload =
         utf8.decode(base64Url.decode(base64Url.normalize(parts[1])));
     return json.decode(payload) as Map<String, dynamic>;
@@ -80,26 +74,20 @@ class _CriarAulaPageState extends State<CriarAulaPage> {
       return;
     }
 
-    setState(() {
-      isLoading = true;
-    });
+    setState(() => isLoading = true);
 
-    List<DateTime> datasAulas = [];
     for (int semana = 0; semana < semanasParaReplicar; semana++) {
-      DateTime novaData = selectedDate!.add(Duration(days: semana * 7));
-      datasAulas.add(novaData);
-    }
-
-    for (var data in datasAulas) {
+      final data = selectedDate!.add(Duration(days: semana * 7));
       final aula = Aula(
-          id: 0,
-          poloId: poloId!,
-          data: data,
-          horaInicio:
-              "${horaInicio!.hour.toString().padLeft(2, '0')}:${horaInicio!.minute.toString().padLeft(2, '0')}:00",
-          horaFim:
-              "${horaFim!.hour.toString().padLeft(2, '0')}:${horaFim!.minute.toString().padLeft(2, '0')}:00",
-          turma: turma!);
+        id: 0,
+        poloId: poloId!,
+        data: data,
+        horaInicio:
+            "${horaInicio!.hour.toString().padLeft(2, '0')}:${horaInicio!.minute.toString().padLeft(2, '0')}:00",
+        horaFim:
+            "${horaFim!.hour.toString().padLeft(2, '0')}:${horaFim!.minute.toString().padLeft(2, '0')}:00",
+        turma: turma!,
+      );
 
       try {
         final response = await ApiHandler<Aula>(
@@ -108,185 +96,292 @@ class _CriarAulaPageState extends State<CriarAulaPage> {
         ).addData(item: aula);
 
         if (response.statusCode != 200) {
+          if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Erro ao criar a aula.')),
           );
         }
       } catch (e) {
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Erro de conexão: $e')),
         );
       }
     }
 
-    setState(() {
-      isLoading = false;
-    });
+    setState(() => isLoading = false);
 
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Aulas criadas com sucesso!')),
     );
     Navigator.pop(context);
   }
 
+  // ─── Campo de data / hora (picker) ───────────────────────────────────────
+  Widget _buildPickerField({
+    required String labelText,
+    required String? value,
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(10),
+        child: InputDecorator(
+          decoration: InputDecoration(
+            labelText: labelText,
+            labelStyle: const TextStyle(
+              color: AppTheme.textMutedColor,
+              fontSize: 14,
+            ),
+            floatingLabelStyle: const TextStyle(
+              color: AppTheme.accentColor,
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+            ),
+            prefixIcon: Icon(icon, color: AppTheme.accentColor, size: 20),
+            suffixIcon: const Icon(
+              Icons.chevron_right,
+              color: AppTheme.textMutedColor,
+              size: 20,
+            ),
+            filled: true,
+            fillColor: AppTheme.surfaceColor,
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide:
+                  const BorderSide(color: AppTheme.borderColor, width: 0.5),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide:
+                  const BorderSide(color: AppTheme.accentColor, width: 1),
+            ),
+            contentPadding:
+                const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+          ),
+          child: Text(
+            value ?? '—',
+            style: TextStyle(
+              color:
+                  value != null ? AppTheme.textColor : AppTheme.textMutedColor,
+              fontSize: 14,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ─── Dropdown de semanas ──────────────────────────────────────────────────
+  Widget _buildSemanasDropdown() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: DropdownButtonFormField<int>(
+        value: semanasParaReplicar,
+        dropdownColor: AppTheme.surfaceColor,
+        iconEnabledColor: AppTheme.accentColor,
+        style: const TextStyle(color: AppTheme.textColor, fontSize: 14),
+        decoration: InputDecoration(
+          labelText: 'Replicar por',
+          labelStyle: const TextStyle(
+            color: AppTheme.textMutedColor,
+            fontSize: 14,
+          ),
+          floatingLabelStyle: const TextStyle(
+            color: AppTheme.accentColor,
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+          ),
+          prefixIcon: const Icon(
+            Icons.repeat,
+            color: AppTheme.accentColor,
+            size: 20,
+          ),
+          filled: true,
+          fillColor: AppTheme.surfaceColor,
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide:
+                const BorderSide(color: AppTheme.borderColor, width: 0.5),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(color: AppTheme.accentColor, width: 1),
+          ),
+          contentPadding:
+              const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+        ),
+        items: List.generate(4, (i) => i + 1)
+            .map((v) => DropdownMenuItem<int>(
+                  value: v,
+                  child: Text(
+                    '$v ${v == 1 ? 'semana' : 'semanas'}',
+                    style: const TextStyle(
+                        color: AppTheme.textColor, fontSize: 14),
+                  ),
+                ))
+            .toList(),
+        onChanged: (v) => setState(() => semanasParaReplicar = v!),
+      ),
+    );
+  }
+
+  // ─── Campo de turma ───────────────────────────────────────────────────────
+  Widget _buildTurmaField() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: TextField(
+        controller: turmaController,
+        keyboardType: TextInputType.number,
+        style: const TextStyle(color: AppTheme.textColor, fontSize: 14),
+        cursorColor: AppTheme.accentColor,
+        onChanged: (v) => turma = int.tryParse(v),
+        decoration: InputDecoration(
+          labelText: 'Turma',
+          hintText: '1 ou 2',
+          labelStyle: const TextStyle(
+            color: AppTheme.textMutedColor,
+            fontSize: 14,
+          ),
+          hintStyle: const TextStyle(
+            color: AppTheme.textMutedColor,
+            fontSize: 14,
+          ),
+          floatingLabelStyle: const TextStyle(
+            color: AppTheme.accentColor,
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+          ),
+          prefixIcon: const Icon(
+            Icons.class_outlined,
+            color: AppTheme.accentColor,
+            size: 20,
+          ),
+          filled: true,
+          fillColor: AppTheme.surfaceColor,
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide:
+                const BorderSide(color: AppTheme.borderColor, width: 0.5),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(color: AppTheme.accentColor, width: 1),
+          ),
+          errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(color: Colors.redAccent, width: 0.5),
+          ),
+          contentPadding:
+              const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.backgroundColor,
+      backgroundColor: AppTheme.primaryColor,
       appBar: AppBar(
-        title: const Text("Criar Aula"),
+        title: const Text(
+          "Criar Aula",
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+        ),
         centerTitle: true,
-        backgroundColor: AppTheme.primaryColor,
+        backgroundColor: AppTheme.surfaceColor,
         foregroundColor: AppTheme.textColor,
+        elevation: 0,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(color: AppTheme.borderColor, height: 0.5),
+        ),
       ),
       body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    poloId == null
-                        ? const Center(child: CircularProgressIndicator())
-                        : Column(
-                            children: [
-                              _buildPickerButton(
-                                label: selectedDate == null
-                                    ? 'Selecionar Data'
-                                    : 'Data: ${selectedDate!.toLocal()}'
-                                        .split(' ')[0],
-                                icon: Icons.calendar_today,
-                                onPressed: () async {
-                                  selectedDate = await showDatePicker(
-                                    context: context,
-                                    initialDate: DateTime.now(),
-                                    firstDate: DateTime(2000),
-                                    lastDate: DateTime(2100),
-                                  );
-                                  setState(() {});
-                                },
-                              ),
-                              const SizedBox(height: 20),
-                              _buildPickerButton(
-                                label: horaInicio == null
-                                    ? 'Selecionar Hora Início'
-                                    : 'Início: ${horaInicio!.format(context)}',
-                                icon: Icons.access_time,
-                                onPressed: () async {
-                                  horaInicio = await showTimePicker(
-                                    context: context,
-                                    initialTime: TimeOfDay.now(),
-                                  );
-                                  setState(() {});
-                                },
-                              ),
-                              const SizedBox(height: 20),
-                              _buildPickerButton(
-                                label: horaFim == null
-                                    ? 'Selecionar Hora Fim'
-                                    : 'Fim: ${horaFim!.format(context)}',
-                                icon: Icons.access_time_filled,
-                                onPressed: () async {
-                                  horaFim = await showTimePicker(
-                                    context: context,
-                                    initialTime: TimeOfDay.now(),
-                                  );
-                                  setState(() {});
-                                },
-                              ),
-                              const SizedBox(height: 20),
-                              DropdownButton<int>(
-                                value: semanasParaReplicar,
-                                onChanged: (int? newValue) {
-                                  setState(() {
-                                    semanasParaReplicar = newValue!;
-                                  });
-                                },
-                                items: List.generate(4, (index) => index + 1)
-                                    .map<DropdownMenuItem<int>>((int value) {
-                                  return DropdownMenuItem<int>(
-                                    value: value,
-                                    child: Text('$value semanas'),
-                                  );
-                                }).toList(),
-                              ),
-                              TextField(
-                                controller: turmaController,
-                                keyboardType: TextInputType.number,
-                                decoration: const InputDecoration(
-                                  labelText: 'Digite a Turma (1 ou 2)',
-                                  border: OutlineInputBorder(),
-                                ),
-                                onChanged: (value) {
-                                  turma = int.tryParse(value);
-                                },
-                              ),
-                              const SizedBox(height: 40),
-                              _buildActionCard(
-                                context,
-                                title: "Salvar Aulas",
-                                icon: Icons.save,
-                                color: AppTheme.primaryColor,
-                                onPressed: saveAula,
-                              ),
-                            ],
-                          ),
-                  ],
+          ? const Center(
+              child: CircularProgressIndicator(color: AppTheme.accentColor),
+            )
+          : poloId == null
+              ? const Center(
+                  child: CircularProgressIndicator(color: AppTheme.accentColor),
+                )
+              : SingleChildScrollView(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      _buildPickerField(
+                        labelText: 'Data',
+                        value: selectedDate != null
+                            ? '${selectedDate!.day.toString().padLeft(2, '0')}/'
+                                '${selectedDate!.month.toString().padLeft(2, '0')}/'
+                                '${selectedDate!.year}'
+                            : null,
+                        icon: Icons.calendar_today_outlined,
+                        onTap: () async {
+                          final picked = await showDatePicker(
+                            context: context,
+                            initialDate: DateTime.now(),
+                            firstDate: DateTime(2000),
+                            lastDate: DateTime(2100),
+                          );
+                          if (picked != null)
+                            setState(() => selectedDate = picked);
+                        },
+                      ),
+                      _buildPickerField(
+                        labelText: 'Hora de Início',
+                        value: horaInicio?.format(context),
+                        icon: Icons.access_time_outlined,
+                        onTap: () async {
+                          final picked = await showTimePicker(
+                            context: context,
+                            initialTime: TimeOfDay.now(),
+                          );
+                          if (picked != null)
+                            setState(() => horaInicio = picked);
+                        },
+                      ),
+                      _buildPickerField(
+                        labelText: 'Hora de Fim',
+                        value: horaFim?.format(context),
+                        icon: Icons.access_time_filled_outlined,
+                        onTap: () async {
+                          final picked = await showTimePicker(
+                            context: context,
+                            initialTime: TimeOfDay.now(),
+                          );
+                          if (picked != null) setState(() => horaFim = picked);
+                        },
+                      ),
+                      _buildSemanasDropdown(),
+                      _buildTurmaField(),
+                      const SizedBox(height: 8),
+                    ],
+                  ),
                 ),
-              ),
-            ),
-    );
-  }
-
-  Widget _buildPickerButton({
-    required String label,
-    required IconData icon,
-    required VoidCallback onPressed,
-  }) {
-    return GestureDetector(
-      onTap: onPressed,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-        decoration: AppTheme.cardDecoration,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(label, style: AppTheme.bodyTextStyle),
-            Icon(icon, color: AppTheme.iconColor),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildActionCard(BuildContext context,
-      {required String title,
-      required IconData icon,
-      required Color color,
-      required VoidCallback onPressed}) {
-    return GestureDetector(
-      onTap: onPressed,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
-        decoration: AppTheme.cardDecoration.copyWith(
-          color: color,
-          border: Border.all(color: AppTheme.borderColor, width: 2),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, size: 40, color: AppTheme.iconColor),
-            const SizedBox(width: 15),
-            Text(
-              title,
-              style: AppTheme.bodyTextStyle.copyWith(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: AppTheme.textColor,
-              ),
-            ),
-          ],
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+        child: SizedBox(
+          height: 52,
+          child: ElevatedButton(
+            onPressed: (isLoading || poloId == null) ? null : saveAula,
+            style: AppTheme.elevatedButtonStyle,
+            child: isLoading
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: AppTheme.primaryColor,
+                    ),
+                  )
+                : const Text('SALVAR AULAS', style: AppTheme.buttonTextStyle),
+          ),
         ),
       ),
     );

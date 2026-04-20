@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
+using InstitutoTriboDeDavi.System.DataAccess;
 using InstitutoTriboDeDavi.System.DataAccess.Interfaces;
 using InstitutoTriboDeDavi.System.Domain.Entities;
+using InstitutoTriboDeDavi.System.Domain.Enums;
 using InstitutoTriboDeDavi.System.DTO;
 using InstitutoTriboDeDavi.System.Services.Interfaces;
 
@@ -79,6 +81,13 @@ namespace InstitutoTriboDeDavi.System.Services
             var poloUpdated = await _poloRepository.UpdateAsync(polo);
 
             return _mapper.Map<PoloDTO>(poloUpdated);
+        }
+
+        public async Task<List<PoloDTO>> ObterPolosAsync(UsuarioDTO usuarioDTO, List<int> turmas)
+        {
+            var listaTodos = await _poloRepository.ObterTodosAsync();
+
+            return _mapper.Map<List<PoloDTO>>(listaTodos);
         }
     }
 }

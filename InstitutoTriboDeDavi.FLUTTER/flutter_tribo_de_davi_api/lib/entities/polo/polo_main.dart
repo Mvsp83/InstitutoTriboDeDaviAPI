@@ -98,11 +98,18 @@ class _PoloPageState extends State<PoloPage> {
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
       appBar: AppBar(
-        title: const Text("Gestão de Polos"),
+        title: const Text(
+          "Gestão de Polos",
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+        ),
         centerTitle: true,
-        backgroundColor: AppTheme.primaryColor,
+        backgroundColor: AppTheme.surfaceColor,
         foregroundColor: AppTheme.textColor,
-        elevation: 4,
+        elevation: 0,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(color: AppTheme.borderColor, height: 0.5),
+        ),
       ),
       body: Column(
         children: [
@@ -152,11 +159,11 @@ class _PoloPageState extends State<PoloPage> {
                             ),
                             child: Container(
                               margin: const EdgeInsets.symmetric(vertical: 10),
-                              padding: const EdgeInsets.all(16.0),
+                              padding: const EdgeInsets.all(20.0),
                               decoration: BoxDecoration(
                                 color: AppTheme.primaryColor,
-                                border:
-                                    Border.all(color: Colors.white, width: 2),
+                                border: Border.all(
+                                    color: AppTheme.accentColor, width: 2),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Row(
@@ -171,11 +178,6 @@ class _PoloPageState extends State<PoloPage> {
                                       color: Colors.white,
                                     ),
                                   ),
-                                  IconButton(
-                                    icon: const Icon(Icons.delete_outline),
-                                    color: Colors.white,
-                                    onPressed: () => _confirmDelete(polo.id),
-                                  ),
                                 ],
                               ),
                             ),
@@ -184,17 +186,6 @@ class _PoloPageState extends State<PoloPage> {
                       ),
           ),
         ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const AddPolo()),
-        ),
-        backgroundColor: AppTheme.primaryColor,
-        child: const Icon(
-          Icons.add,
-          color: AppTheme.textColor,
-        ),
       ),
     );
   }

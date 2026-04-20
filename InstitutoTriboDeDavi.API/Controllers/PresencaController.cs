@@ -11,20 +11,23 @@ using Microsoft.AspNetCore.Mvc;
 namespace InstitutoTriboDeDavi.API.Controllers
 {
     [ApiController]
+    [Route("api/[controller]")]
     public class PresencaController : BaseController
     {
         private readonly IMapper _mapper;
         private readonly IPresencaService _presencaService;
+        private readonly ILogger<PresencaController> _logger;
 
-        public PresencaController(IPresencaService presencaService, IMapper mapper)
+        public PresencaController(IPresencaService presencaService, IMapper mapper, ILogger<PresencaController> logger) : base(logger as ILogger<Controller>)
         {
             _mapper = mapper;
             _presencaService = presencaService;
+            _logger = logger;
         }
 
         [HttpGet]
         [Authorize]
-        [Route("/presenca/get-all")]
+        [Route("get-all")]
         public async Task<IActionResult> GetAll()
         {
             try
@@ -50,7 +53,7 @@ namespace InstitutoTriboDeDavi.API.Controllers
 
         [HttpPost]
         [Authorize]
-        [Route("/presenca/batch/create")]
+        [Route("batch/create")]
         public async Task<IActionResult> CreateBatch([FromBody] List<PresencaDTO> presencaDTO)
         {
             try
@@ -81,7 +84,7 @@ namespace InstitutoTriboDeDavi.API.Controllers
 
         [HttpPut]
         [Authorize]
-        [Route("/presenca/update")]
+        [Route("update")]
         public async Task<IActionResult> Update([FromBody] PresencaDTO presencaDTO)
         {
             try
@@ -113,7 +116,7 @@ namespace InstitutoTriboDeDavi.API.Controllers
 
         [HttpDelete]
         [Authorize]
-        [Route("/presenca/delete/{id}")]
+        [Route("delete/{id}")]
         public async Task<IActionResult> Delete(long id)
         {
             try
@@ -157,7 +160,7 @@ namespace InstitutoTriboDeDavi.API.Controllers
 
         [HttpGet]
         [Authorize]
-        [Route("/presenca/get/{id}")]
+        [Route("get/{id}")]
         public async Task<IActionResult> Get(long id)
         {
             try
@@ -199,7 +202,7 @@ namespace InstitutoTriboDeDavi.API.Controllers
 
         [HttpGet]
         [Authorize]
-        [Route("/presenca/aula/{aulaId}")]
+        [Route("aula/{aulaId}")]
         public async Task<IActionResult> GetPresencasPorAula(long aulaId)
         {
             try

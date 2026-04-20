@@ -17,7 +17,6 @@ class _ConsultaPresencaPageState extends State<ConsultaPresencaPage> {
   List<Aula> _aulas = [];
   List<Aula> _filteredAulas = [];
   bool _isLoading = true;
-  String _searchQuery = '';
 
   @override
   void initState() {
@@ -26,12 +25,10 @@ class _ConsultaPresencaPageState extends State<ConsultaPresencaPage> {
   }
 
   Future<void> _loadAulas() async {
-    setState(() {
-      _isLoading = true;
-    });
+    setState(() => _isLoading = true);
 
     try {
-      List<Aula> todasAulas = await ApiHandler<Aula>(
+      final todasAulas = await ApiHandler<Aula>(
         baseUri: ApiRoutes.entity("aula"),
         fromJson: (json) => Aula.fromJson(json),
       ).getData();
@@ -42,9 +39,8 @@ class _ConsultaPresencaPageState extends State<ConsultaPresencaPage> {
         _isLoading = false;
       });
     } catch (error) {
-      setState(() {
-        _isLoading = false;
-      });
+      setState(() => _isLoading = false);
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Erro ao carregar aulas: $error")),
       );
@@ -53,7 +49,6 @@ class _ConsultaPresencaPageState extends State<ConsultaPresencaPage> {
 
   void _filterAulas(String query) {
     setState(() {
-      _searchQuery = query;
       if (query.isEmpty) {
         _filteredAulas = _aulas;
       } else {
@@ -71,92 +66,163 @@ class _ConsultaPresencaPageState extends State<ConsultaPresencaPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppTheme.primaryColor,
       appBar: AppBar(
-        title: const Text("Consultas de Presenças"),
-        backgroundColor: AppTheme.primaryColor,
-        foregroundColor: AppTheme.textColor,
+        title: const Text(
+          "Consulta de Presenças",
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+        ),
         centerTitle: true,
+        backgroundColor: AppTheme.surfaceColor,
+        foregroundColor: AppTheme.textColor,
+        elevation: 0,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(color: AppTheme.borderColor, height: 0.5),
+        ),
       ),
-      backgroundColor: AppTheme.backgroundColor,
       body: Column(
         children: [
+          // ── Campo de busca ──────────────────────────────────────────────
           Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
             child: TextField(
+              onChanged: _filterAulas,
+              style: const TextStyle(color: AppTheme.textColor, fontSize: 14),
+              cursorColor: AppTheme.accentColor,
               decoration: InputDecoration(
-                hintText: "Buscar por data, hora ou polo...",
-                prefixIcon: const Icon(Icons.search, color: AppTheme.iconColor),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
+                hintText: 'Buscar por data, hora ou polo...',
+                hintStyle: const TextStyle(
+                  color: AppTheme.textMutedColor,
+                  fontSize: 14,
+                ),
+                prefixIcon: const Icon(
+                  Icons.search,
+                  color: AppTheme.accentColor,
+                  size: 20,
+                ),
+                filled: true,
+                fillColor: AppTheme.surfaceColor,
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide:
+                      const BorderSide(color: AppTheme.borderColor, width: 0.5),
                 ),
                 focusedBorder: OutlineInputBorder(
-                  borderSide: const BorderSide(color: AppTheme.primaryColor),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide:
+                      const BorderSide(color: AppTheme.accentColor, width: 1),
                 ),
+                contentPadding:
+                    const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
               ),
-              onChanged: _filterAulas,
             ),
           ),
+
+          // ── Lista ───────────────────────────────────────────────────────
           Expanded(
             child: _isLoading
                 ? const Center(
-                    child: CircularProgressIndicator(
-                      valueColor:
-                          AlwaysStoppedAnimation<Color>(AppTheme.primaryColor),
-                    ),
+                    child:
+                        CircularProgressIndicator(color: AppTheme.accentColor),
                   )
                 : _filteredAulas.isEmpty
                     ? const Center(
-                        child: Text(
-                          "Nenhuma presença registrada.",
-                          style: TextStyle(color: AppTheme.textColor),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.event_busy_outlined,
+                              color: AppTheme.textMutedColor,
+                              size: 48,
+                            ),
+                            SizedBox(height: 12),
+                            Text(
+                              'Nenhuma presença registrada.',
+                              style: TextStyle(
+                                color: AppTheme.textMutedColor,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ],
                         ),
                       )
                     : RefreshIndicator(
                         onRefresh: _loadAulas,
-                        color: AppTheme.primaryColor,
+                        color: AppTheme.accentColor,
                         child: ListView.builder(
+                          padding: const EdgeInsets.symmetric(vertical: 8),
                           itemCount: _filteredAulas.length,
                           itemBuilder: (context, index) {
-                            var aula = _filteredAulas[index];
-                            String formattedDate =
+                            final aula = _filteredAulas[index];
+                            final formattedDate =
                                 DateFormat('dd/MM/yyyy').format(aula.data);
-                            String formattedTime =
+                            final formattedTime =
                                 DateFormat('HH:mm').format(aula.data);
-                            return Card(
-                              margin: const EdgeInsets.symmetric(
-                                  vertical: 8, horizontal: 16),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              color: AppTheme.primaryColor,
-                              child: ListTile(
-                                contentPadding: const EdgeInsets.symmetric(
-                                    vertical: 8, horizontal: 16),
-                                title: Text(
-                                  "Aula em $formattedDate às $formattedTime - Polo ${aula.poloId}",
-                                  style: const TextStyle(
-                                    color: AppTheme.textColor,
-                                    fontWeight: FontWeight.bold,
+
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 6, horizontal: 20),
+                              child: InkWell(
+                                onTap: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) =>
+                                        DetalhesPresencaPage(aula: aula),
                                   ),
                                 ),
-                                subtitle: Text(
-                                  "Presenças registradas",
-                                  style: TextStyle(
-                                    color: AppTheme.textColor.withOpacity(0.7),
-                                  ),
-                                ),
-                                trailing: const Icon(Icons.info,
-                                    color: AppTheme.textColor),
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          DetalhesPresencaPage(aula: aula),
+                                borderRadius: BorderRadius.circular(10),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 14, horizontal: 16),
+                                  decoration: BoxDecoration(
+                                    color: AppTheme.surfaceColor,
+                                    borderRadius: BorderRadius.circular(10),
+                                    border: Border.all(
+                                      color: AppTheme.borderColor,
+                                      width: 0.5,
                                     ),
-                                  );
-                                },
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      const Icon(
+                                        Icons.check_circle_outline,
+                                        color: Colors.green,
+                                        size: 20,
+                                      ),
+                                      const SizedBox(width: 14),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              '$formattedDate às $formattedTime',
+                                              style: const TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w500,
+                                                color: AppTheme.textColor,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 3),
+                                            Text(
+                                              'Polo ${aula.poloId}  ·  Turma ${aula.turma}',
+                                              style: const TextStyle(
+                                                fontSize: 12,
+                                                color: AppTheme.textMutedColor,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      const Icon(
+                                        Icons.chevron_right,
+                                        color: AppTheme.textMutedColor,
+                                        size: 20,
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               ),
                             );
                           },

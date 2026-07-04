@@ -31,13 +31,21 @@ class _PresencaPageState extends State<PresencaPage> {
   }
 
   Future<void> fetchAlunos(Aula aula, List<int> turma) async {
-    alunos = await ApiHandler<Aluno>(
-      baseUri: ApiRoutes.entity("aluno"),
-      fromJson: (json) => Aluno.fromJson(json),
-    ).getDataPorPolo(turma);
-    alunos.sort((a, b) => a.nome!.compareTo(b.nome!));
-    presencaMap = {for (var aluno in alunos) aluno.id: true};
-    setState(() {});
+    try {
+      alunos = await ApiHandler<Aluno>(
+        baseUri: ApiRoutes.entity("aluno"),
+        fromJson: (json) => Aluno.fromJson(json),
+      ).getDataPorPolo(turma);
+      alunos.sort((a, b) => a.nome.compareTo(b.nome));
+      presencaMap = {for (var aluno in alunos) aluno.id: true};
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erro ao carregar alunos: $e')),
+      );
+      selectedAula = null; // volta para a lista de aulas
+    }
+    if (mounted) setState(() {});
   }
 
   Future<void> savePresencas() async {
@@ -59,7 +67,8 @@ class _PresencaPageState extends State<PresencaPage> {
     }).toList();
 
     try {
-      final response = await ApiHandler<Presenca>(
+      // O batch/create já marca a aula como salva na mesma transação da API
+      await ApiHandler<Presenca>(
         baseUri: ApiRoutes.getAllUrl("presenca"),
         fromJson: (json) => Presenca.fromJson(json),
       ).post(
@@ -67,44 +76,22 @@ class _PresencaPageState extends State<PresencaPage> {
         body: presencas.map((p) => p.toJson()).toList(),
       );
 
-      if (response.statusCode == 200) {
-        await marcarAulaComPresencaSalva(selectedAula!);
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Presenças salvas com sucesso!')),
-        );
-        setState(() {
-          selectedAula!.presencaSalva = true;
-          selectedAula = null;
-        });
-      } else {
-        throw Exception('Erro ao salvar presenças.');
-      }
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Presenças salvas com sucesso!')),
+      );
+      setState(() {
+        selectedAula!.presencaSalva = true;
+        selectedAula = null;
+      });
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro: $e')),
+        SnackBar(content: Text('$e')),
       );
     } finally {
       setState(() => isSaving = false);
     }
-  }
-
-  Future<void> marcarAulaComPresencaSalva(Aula aula) async {
-    final aulaAtualizada = {
-      "id": aula.id,
-      "poloId": aula.poloId,
-      "data": aula.data.toIso8601String(),
-      'horaInicio': aula.horaInicio.toString(),
-      'horaFim': aula.horaFim.toString(),
-      "presencaSalva": true,
-      "turma": aula.turma,
-    };
-
-    await ApiHandler<Aula>(
-      baseUri: ApiRoutes.entity("aula"),
-      fromJson: (json) => Aula.fromJson(json),
-    ).put(endpoint: "aula", body: aulaAtualizada);
   }
 
   // ─── Card de aula (lista de seleção) ─────────────────────────────────────
@@ -242,7 +229,7 @@ class _PresencaPageState extends State<PresencaPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      aluno.nome ?? '',
+                      aluno.nome,
                       style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,

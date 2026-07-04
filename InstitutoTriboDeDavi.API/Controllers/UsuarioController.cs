@@ -1,10 +1,9 @@
-﻿using AutoMapper;
-using InstitutoTriboDeDavi.API.Utilities;
+using AutoMapper;
 using InstitutoTriboDeDavi.API.ViewModels.Result;
 using InstitutoTriboDeDavi.API.ViewModels.Usuario;
-using InstitutoTriboDeDavi.System.Core.Exceptions;
-using InstitutoTriboDeDavi.System.DTO;
-using InstitutoTriboDeDavi.System.Services.Interfaces;
+using InstitutoTriboDeDavi.Domain.Enums;
+using InstitutoTriboDeDavi.Application.DTO;
+using InstitutoTriboDeDavi.Application.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,45 +17,60 @@ namespace InstitutoTriboDeDavi.API.Controllers
         private readonly IUsuarioService _usuarioService;
         private readonly ILogger<UsuarioController> _logger;
 
-        public UsuarioController(IMapper mapper, IUsuarioService usuarioService, ILogger<UsuarioController> logger) : base(logger as ILogger<Controller>)
+        public UsuarioController(IMapper mapper, IUsuarioService usuarioService, ILogger<UsuarioController> logger) : base(logger)
         {
             _mapper = mapper;
             _usuarioService = usuarioService;
             _logger = logger;
         }
 
-        [HttpPost]
-        //[Authorize]
-        [Route("create")]
+        [HttpPost("create")]
+        [Authorize(Roles = nameof(UserRole.Administrador))]
         public async Task<IActionResult> Create([FromBody] UsuarioViewModel usuarioViewModel)
         {
-            try
+            return await ExecuteAsync(async () =>
             {
-                var usuarioDTO = _mapper.Map<UsuarioDTO>(usuarioViewModel);
-                var usuarioCreated = await _usuarioService.Create(usuarioDTO);
+                var usuarioCreated = await _usuarioService.Create(_mapper.Map<UsuarioDTO>(usuarioViewModel));
 
-                return Ok(new ResultViewModel {
+                return Ok(new ResultViewModel
+                {
                     Message = "Usuário criado com sucesso!",
                     Success = true,
                     Data = usuarioCreated
                 });
-            }
-            catch (DomainException ex)
-            {
-                return BadRequest(Responses.DomainErrorMessage(ex.Message, ex.Errors));
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, Responses.ApplicationErrorMessage());
-            }
+            });
         }
 
-        [HttpPut]
-        [Authorize]
-        [Route("update")]
-        public async Task<IActionResult> Update([FromBody] UsuarioDTO usuarioDTO)
+        // Endpoint público de bootstrap: só funciona enquanto não existe nenhum usuário
+        [HttpPost("setup")]
+        [AllowAnonymous]
+        public async Task<IActionResult> Setup([FromBody] UsuarioViewModel usuarioViewModel)
         {
-            try
+            return await ExecuteAsync(async () =>
+            {
+                var jaExisteUsuario = await _usuarioService.ExisteQualquerUsuario();
+
+                if (jaExisteUsuario)
+                    return Forbid();
+
+                usuarioViewModel.Role = UserRole.Administrador;
+
+                var usuarioCreated = await _usuarioService.Create(_mapper.Map<UsuarioDTO>(usuarioViewModel));
+
+                return Ok(new ResultViewModel
+                {
+                    Message = "Usuário administrador criado com sucesso!",
+                    Success = true,
+                    Data = usuarioCreated
+                });
+            });
+        }
+
+        [HttpPut("update")]
+        [Authorize(Roles = nameof(UserRole.Administrador))]
+        public async Task<IActionResult> Update([FromBody] UsuarioUpdateDTO usuarioDTO)
+        {
+            return await ExecuteAsync(async () =>
             {
                 var usuarioUpdated = await _usuarioService.Update(usuarioDTO);
 
@@ -66,35 +80,24 @@ namespace InstitutoTriboDeDavi.API.Controllers
                     Success = true,
                     Data = usuarioUpdated
                 });
-            }
-            catch (DomainException ex)
-            {
-                return BadRequest(Responses.DomainErrorMessage(ex.Message, ex.Errors));
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, Responses.ApplicationErrorMessage());
-            }
+            });
         }
 
-        [HttpDelete]
-        [Authorize]
-        [Route("delete/{id}")]
+        [HttpDelete("delete/{id}")]
+        [Authorize(Roles = nameof(UserRole.Administrador))]
         public async Task<IActionResult> Delete(long id)
         {
-            try
+            return await ExecuteAsync(async () =>
             {
                 var usuario = await _usuarioService.Get(id);
 
                 if (usuario == null)
-                {
                     return Ok(new ResultViewModel
                     {
                         Message = "Nenhum Usuário foi encontrado com o ID informado!",
                         Success = true,
-                        Data = usuario
+                        Data = null
                     });
-                }
 
                 await _usuarioService.Delete(id);
 
@@ -104,35 +107,24 @@ namespace InstitutoTriboDeDavi.API.Controllers
                     Success = true,
                     Data = null
                 });
-            }
-            catch (DomainException ex)
-            {
-                return BadRequest(Responses.DomainErrorMessage(ex.Message, ex.Errors));
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, Responses.ApplicationErrorMessage());
-            }
+            });
         }
 
-        [HttpGet]
-        [Authorize]
-        [Route("get/{id}")]
+        [HttpGet("get/{id}")]
+        [Authorize(Roles = nameof(UserRole.Administrador))]
         public async Task<IActionResult> Get(long id)
         {
-            try
+            return await ExecuteAsync(async () =>
             {
                 var usuario = await _usuarioService.Get(id);
 
                 if (usuario == null)
-                {
                     return Ok(new ResultViewModel
                     {
                         Message = "Nenhum Usuário foi encontrado com o ID informado!",
                         Success = true,
-                        Data = usuario
+                        Data = null
                     });
-                }
 
                 return Ok(new ResultViewModel
                 {
@@ -140,23 +132,14 @@ namespace InstitutoTriboDeDavi.API.Controllers
                     Success = true,
                     Data = usuario
                 });
-            }
-            catch (DomainException ex)
-            {
-                return BadRequest(Responses.DomainErrorMessage(ex.Message, ex.Errors));
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, Responses.ApplicationErrorMessage());
-            }
+            });
         }
 
-        [HttpGet]
-        [Authorize]
-        [Route("get-all")]
+        [HttpGet("get-all")]
+        [Authorize(Roles = nameof(UserRole.Administrador))]
         public async Task<IActionResult> GetAll()
         {
-            try
+            return await ExecuteAsync(async () =>
             {
                 var allUsuarios = await _usuarioService.GetAll();
 
@@ -166,35 +149,24 @@ namespace InstitutoTriboDeDavi.API.Controllers
                     Success = true,
                     Data = allUsuarios
                 });
-            }
-            catch (DomainException ex)
-            {
-                return BadRequest(Responses.DomainErrorMessage(ex.Message, ex.Errors));
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, Responses.ApplicationErrorMessage());
-            }
+            });
         }
 
-        [HttpGet]
-        [Authorize]
-        [Route("get-by-email")]
+        [HttpGet("get-by-email")]
+        [Authorize(Roles = nameof(UserRole.Administrador))]
         public async Task<IActionResult> GetByEmail([FromQuery] string email)
         {
-            try
+            return await ExecuteAsync(async () =>
             {
                 var usuario = await _usuarioService.GetByEmail(email);
 
                 if (usuario == null)
-                {
                     return Ok(new ResultViewModel
                     {
                         Message = "Nenhum Usuário foi encontrado com o Email informado!",
                         Success = true,
-                        Data = usuario
+                        Data = null
                     });
-                }
 
                 return Ok(new ResultViewModel
                 {
@@ -202,35 +174,24 @@ namespace InstitutoTriboDeDavi.API.Controllers
                     Success = true,
                     Data = usuario
                 });
-            }
-            catch (DomainException ex)
-            {
-                return BadRequest(Responses.DomainErrorMessage(ex.Message, ex.Errors));
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, Responses.ApplicationErrorMessage());
-            }
+            });
         }
 
-        [HttpGet]
-        [Authorize]
-        [Route("search-by-email")]
+        [HttpGet("search-by-email")]
+        [Authorize(Roles = nameof(UserRole.Administrador))]
         public async Task<IActionResult> SearchByEmail([FromQuery] string email)
         {
-            try
+            return await ExecuteAsync(async () =>
             {
                 var allUsuarios = await _usuarioService.SearchByEmail(email);
 
-                if (allUsuarios.Count() == 0)
-                {
+                if (!allUsuarios.Any())
                     return Ok(new ResultViewModel
                     {
                         Message = "Nenhum Usuário foi encontrado com o Email informado!",
                         Success = true,
                         Data = null
                     });
-                }
 
                 return Ok(new ResultViewModel
                 {
@@ -238,35 +199,24 @@ namespace InstitutoTriboDeDavi.API.Controllers
                     Success = true,
                     Data = allUsuarios
                 });
-            }
-            catch (DomainException ex)
-            {
-                return BadRequest(Responses.DomainErrorMessage(ex.Message, ex.Errors));
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, Responses.ApplicationErrorMessage());
-            }
+            });
         }
 
-        [HttpGet]
-        [Authorize]
-        [Route("get-by-nome")]
+        [HttpGet("get-by-nome")]
+        [Authorize(Roles = nameof(UserRole.Administrador))]
         public async Task<IActionResult> GetByNome([FromQuery] string nome)
         {
-            try
+            return await ExecuteAsync(async () =>
             {
                 var usuario = await _usuarioService.GetByNome(nome);
 
                 if (usuario == null)
-                {
                     return Ok(new ResultViewModel
                     {
                         Message = "Nenhum Usuário foi encontrado com o Nome informado!",
                         Success = true,
-                        Data = usuario
+                        Data = null
                     });
-                }
 
                 return Ok(new ResultViewModel
                 {
@@ -274,35 +224,24 @@ namespace InstitutoTriboDeDavi.API.Controllers
                     Success = true,
                     Data = usuario
                 });
-            }
-            catch (DomainException ex)
-            {
-                return BadRequest(Responses.DomainErrorMessage(ex.Message, ex.Errors));
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, Responses.ApplicationErrorMessage());
-            }
+            });
         }
 
-        [HttpGet]
-        [Authorize]
-        [Route("search-by-nome")]
+        [HttpGet("search-by-nome")]
+        [Authorize(Roles = nameof(UserRole.Administrador))]
         public async Task<IActionResult> SearchByNome([FromQuery] string nome)
         {
-            try
+            return await ExecuteAsync(async () =>
             {
                 var allUsuarios = await _usuarioService.SearchByNome(nome);
 
-                if (allUsuarios.Count() == 0)
-                {
+                if (!allUsuarios.Any())
                     return Ok(new ResultViewModel
                     {
                         Message = "Nenhum Usuário foi encontrado com o Nome informado!",
                         Success = true,
                         Data = null
                     });
-                }
 
                 return Ok(new ResultViewModel
                 {
@@ -310,15 +249,7 @@ namespace InstitutoTriboDeDavi.API.Controllers
                     Success = true,
                     Data = allUsuarios
                 });
-            }
-            catch (DomainException ex)
-            {
-                return BadRequest(Responses.DomainErrorMessage(ex.Message, ex.Errors));
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, Responses.ApplicationErrorMessage());
-            }
+            });
         }
 
         [HttpGet("get-por-polo")]
@@ -329,28 +260,19 @@ namespace InstitutoTriboDeDavi.API.Controllers
             {
                 var allUsuarios = await _usuarioService.ObterUsuariosPorTurmaAsync(UsuarioAutenticado, turmas);
 
-                var usuariosComDescricao = allUsuarios.Select(usuario => new
-                {
-                    Id = usuario.Id,
-                    Nome = usuario.Login,
-                    Turma = usuario.PoloNome
-                });
-
-                if (!usuariosComDescricao.Any())
-                {
+                if (!allUsuarios.Any())
                     return Ok(new ResultViewModel
                     {
                         Message = "Nenhum Usuário foi encontrado!",
                         Success = true,
                         Data = null
                     });
-                }
 
                 return Ok(new ResultViewModel
                 {
                     Message = "Usuários obtidos com sucesso!",
                     Success = true,
-                    Data = usuariosComDescricao
+                    Data = allUsuarios
                 });
             });
         }

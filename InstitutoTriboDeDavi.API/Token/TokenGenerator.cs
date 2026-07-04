@@ -1,5 +1,5 @@
 ﻿using InstitutoTriboDeDavi.API.Token.Interfaces;
-using InstitutoTriboDeDavi.System.DTO;
+using InstitutoTriboDeDavi.Application.DTO;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -34,6 +34,9 @@ namespace InstitutoTriboDeDavi.API.Token
             {
                 Subject = new ClaimsIdentity(claims),
                 Expires = DateTime.UtcNow.AddHours(int.Parse(_configuration["Jwt:HoursToExpire"])),
+                // Emitidos quando configurados (produção); validados no Startup
+                Issuer = _configuration["Jwt:Issuer"],
+                Audience = _configuration["Jwt:Audience"],
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
 

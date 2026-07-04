@@ -1,4 +1,4 @@
-﻿using InstitutoTriboDeDavi.System.DTO;
+﻿using InstitutoTriboDeDavi.Application.DTO;
 
 namespace InstitutoTriboDeDavi.API.Token.Interfaces
 {

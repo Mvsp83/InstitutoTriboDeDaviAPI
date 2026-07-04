@@ -172,10 +172,7 @@ class AlunosMaisFaltantesPageState extends State<AlunosMaisFaltantesPage> {
                                       borderRadius: BorderRadius.circular(5),
                                     ),
                                     child: Image.asset(
-                                      aluno.faixa != null
-                                          ? Faixa.fromDescricao(aluno.faixa)
-                                              .imagem
-                                          : 'lib/assets/images/faixa_default.png',
+                                      Faixa.fromDescricao(aluno.faixa.toString()).imagem,
                                       fit: BoxFit.contain,
                                     ),
                                   ),

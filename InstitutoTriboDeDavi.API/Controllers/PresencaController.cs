@@ -1,10 +1,9 @@
-﻿using AutoMapper;
 using InstitutoTriboDeDavi.API.Utilities;
+using AutoMapper;
 using InstitutoTriboDeDavi.API.ViewModels.Result;
-using InstitutoTriboDeDavi.System.Core.Exceptions;
-using InstitutoTriboDeDavi.System.Domain.Enums;
-using InstitutoTriboDeDavi.System.DTO.Business;
-using InstitutoTriboDeDavi.System.Services.Business.Interfaces;
+using InstitutoTriboDeDavi.Domain.Enums;
+using InstitutoTriboDeDavi.Application.DTO.Business;
+using InstitutoTriboDeDavi.Application.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,51 +17,36 @@ namespace InstitutoTriboDeDavi.API.Controllers
         private readonly IPresencaService _presencaService;
         private readonly ILogger<PresencaController> _logger;
 
-        public PresencaController(IPresencaService presencaService, IMapper mapper, ILogger<PresencaController> logger) : base(logger as ILogger<Controller>)
+        public PresencaController(IPresencaService presencaService, IMapper mapper, ILogger<PresencaController> logger) : base(logger)
         {
             _mapper = mapper;
             _presencaService = presencaService;
             _logger = logger;
         }
 
-        [HttpGet]
-        [Authorize]
-        [Route("get-all")]
+        [HttpGet("get-all")]
+        [Authorize(Roles = nameof(UserRole.Administrador))]
         public async Task<IActionResult> GetAll()
         {
-            try
+            return await ExecuteAsync(async () =>
             {
                 var allPresencas = await _presencaService.GetAll();
 
                 return Ok(new ResultViewModel
                 {
-                    Message = "Presenças encontrados com sucesso!",
+                    Message = "Presenças encontradas com sucesso!",
                     Success = true,
                     Data = allPresencas
                 });
-            }
-            catch (DomainException ex)
-            {
-                return BadRequest(Responses.DomainErrorMessage(ex.Message, ex.Errors));
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, Responses.ApplicationErrorMessage());
-            }
+            });
         }
 
-        [HttpPost]
-        [Authorize]
-        [Route("batch/create")]
+        [HttpPost("batch/create")]
+        [Authorize(Policy = AuthPolicies.ProfessorOuSuperior)]
         public async Task<IActionResult> CreateBatch([FromBody] List<PresencaDTO> presencaDTO)
         {
-            try
+            return await ExecuteAsync(async () =>
             {
-                if (UsuarioAutenticado.Role != UserRole.Professor)
-                {
-                    throw new UnauthorizedAccessException("Usuário não tem permissão para acessar esta informação.");
-                }
-
                 var presencasCreated = await _presencaService.CreateBatch(presencaDTO);
 
                 return Ok(new ResultViewModel
@@ -71,29 +55,16 @@ namespace InstitutoTriboDeDavi.API.Controllers
                     Success = true,
                     Data = presencasCreated
                 });
-            }
-            catch (DomainException ex)
-            {
-                return BadRequest(Responses.DomainErrorMessage(ex.Message, ex.Errors));
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, Responses.ApplicationErrorMessage());
-            }
+            });
         }
 
-        [HttpPut]
-        [Authorize]
-        [Route("update")]
+        [HttpPut("update")]
+        [Authorize(Policy = AuthPolicies.ProfessorOuSuperior)]
         public async Task<IActionResult> Update([FromBody] PresencaDTO presencaDTO)
         {
-            try
+            return await ExecuteAsync(async () =>
             {
-                if (UsuarioAutenticado.PoloId != presencaDTO.PoloId)
-                {
-                    throw new UnauthorizedAccessException("Usuário não tem permissão para acessar esta informação.");
-                }
-
+                ValidatePoloUsuario(presencaDTO.PoloId);
 
                 var presencaUpdated = await _presencaService.Update(presencaDTO);
 
@@ -103,41 +74,24 @@ namespace InstitutoTriboDeDavi.API.Controllers
                     Success = true,
                     Data = presencaUpdated
                 });
-            }
-            catch (DomainException ex)
-            {
-                return BadRequest(Responses.DomainErrorMessage(ex.Message, ex.Errors));
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, Responses.ApplicationErrorMessage());
-            }
+            });
         }
 
-        [HttpDelete]
-        [Authorize]
-        [Route("delete/{id}")]
+        [HttpDelete("delete/{id}")]
+        [Authorize(Roles = nameof(UserRole.Administrador))]
         public async Task<IActionResult> Delete(long id)
         {
-            try
+            return await ExecuteAsync(async () =>
             {
-                if (UsuarioAutenticado.Role != UserRole.Administrador)
-                {
-                    throw new UnauthorizedAccessException("Usuário não tem permissão para acessar esta informação.");
-                }
-
-
                 var presenca = await _presencaService.Get(id);
 
                 if (presenca == null)
-                {
                     return Ok(new ResultViewModel
                     {
                         Message = "Nenhuma Presença foi encontrada com o ID informado!",
                         Success = true,
-                        Data = presenca
+                        Data = null
                     });
-                }
 
                 await _presencaService.Delete(id);
 
@@ -147,41 +101,24 @@ namespace InstitutoTriboDeDavi.API.Controllers
                     Success = true,
                     Data = null
                 });
-            }
-            catch (DomainException ex)
-            {
-                return BadRequest(Responses.DomainErrorMessage(ex.Message, ex.Errors));
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, Responses.ApplicationErrorMessage());
-            }
+            });
         }
 
-        [HttpGet]
-        [Authorize]
-        [Route("get/{id}")]
+        [HttpGet("get/{id}")]
+        [Authorize(Roles = nameof(UserRole.Administrador))]
         public async Task<IActionResult> Get(long id)
         {
-            try
+            return await ExecuteAsync(async () =>
             {
-                if (UsuarioAutenticado.Role != UserRole.Administrador)
-                {
-                    throw new UnauthorizedAccessException("Usuário não tem permissão para acessar esta informação.");
-                }
-
-
                 var presenca = await _presencaService.Get(id);
 
                 if (presenca == null)
-                {
                     return Ok(new ResultViewModel
                     {
                         Message = "Nenhuma Presença foi encontrada com o ID informado!",
                         Success = true,
-                        Data = presenca
+                        Data = null
                     });
-                }
 
                 return Ok(new ResultViewModel
                 {
@@ -189,41 +126,24 @@ namespace InstitutoTriboDeDavi.API.Controllers
                     Success = true,
                     Data = presenca
                 });
-            }
-            catch (DomainException ex)
-            {
-                return BadRequest(Responses.DomainErrorMessage(ex.Message, ex.Errors));
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, Responses.ApplicationErrorMessage());
-            }
+            });
         }
 
-        [HttpGet]
-        [Authorize]
-        [Route("aula/{aulaId}")]
+        [HttpGet("aula/{aulaId}")]
+        [Authorize(Policy = AuthPolicies.ProfessorOuSuperior)]
         public async Task<IActionResult> GetPresencasPorAula(long aulaId)
         {
-            try
+            return await ExecuteAsync(async () =>
             {
-                if (UsuarioAutenticado.Role != UserRole.Professor)
-                {
-                    throw new UnauthorizedAccessException("Usuário não tem permissão para acessar esta informação.");
-                }
-
-
                 var presencas = await _presencaService.GetPresencasPorAula(aulaId);
 
                 if (presencas == null || !presencas.Any())
-                {
                     return Ok(new ResultViewModel
                     {
                         Message = "Nenhuma presença encontrada para a aula informada!",
                         Success = true,
-                        Data = presencas
+                        Data = null
                     });
-                }
 
                 return Ok(new ResultViewModel
                 {
@@ -231,15 +151,7 @@ namespace InstitutoTriboDeDavi.API.Controllers
                     Success = true,
                     Data = presencas
                 });
-            }
-            catch (DomainException ex)
-            {
-                return BadRequest(Responses.DomainErrorMessage(ex.Message, ex.Errors));
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, Responses.ApplicationErrorMessage());
-            }
+            });
         }
     }
 }

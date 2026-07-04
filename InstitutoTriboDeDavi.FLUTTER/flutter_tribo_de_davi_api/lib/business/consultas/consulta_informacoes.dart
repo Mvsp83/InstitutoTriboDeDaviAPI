@@ -35,10 +35,16 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   Future<void> _loadPolos() async {
-    polos = await apiPoloHandler.getData();
-    setState(() {
-      isLoading = false;
-    });
+    try {
+      polos = await apiPoloHandler.getData();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erro ao carregar polos: $e')),
+        );
+      }
+    }
+    if (mounted) setState(() => isLoading = false);
   }
 
   Future<Map<String, dynamic>> _fetchDashboardData() async {
@@ -159,11 +165,15 @@ class _DashboardPageState extends State<DashboardPage> {
                         }
 
                         if (snapshot.hasError) {
-                          return const Center(
-                            child: Text(
-                              "Erro ao carregar os dados",
-                              style: TextStyle(
-                                color: AppTheme.secondaryColor,
+                          return Center(
+                            child: Padding(
+                              padding: const EdgeInsets.all(24),
+                              child: Text(
+                                "${snapshot.error}",
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                  color: AppTheme.secondaryColor,
+                                ),
                               ),
                             ),
                           );

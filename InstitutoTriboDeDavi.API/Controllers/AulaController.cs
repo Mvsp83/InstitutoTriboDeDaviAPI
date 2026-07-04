@@ -1,13 +1,9 @@
-﻿using AutoMapper;
 using InstitutoTriboDeDavi.API.Utilities;
+using AutoMapper;
 using InstitutoTriboDeDavi.API.ViewModels.Result;
-using InstitutoTriboDeDavi.System.Core.Exceptions;
-using InstitutoTriboDeDavi.System.Domain.Entities;
-using InstitutoTriboDeDavi.System.Domain.Enums;
-using InstitutoTriboDeDavi.System.DTO;
-using InstitutoTriboDeDavi.System.DTO.Business;
-using InstitutoTriboDeDavi.System.Services.Business.Interfaces;
-using Microsoft.AspNet.Identity;
+using InstitutoTriboDeDavi.Domain.Enums;
+using InstitutoTriboDeDavi.Application.DTO.Business;
+using InstitutoTriboDeDavi.Application.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -21,21 +17,21 @@ namespace InstitutoTriboDeDavi.API.Controllers
         private readonly IAulaService _aulaService;
         private readonly ILogger<AulaController> _logger;
 
-        public AulaController(IAulaService aulaService, IMapper mapper, ILogger<AulaController> logger) : base(logger as ILogger<Controller>)
+        public AulaController(IAulaService aulaService, IMapper mapper, ILogger<AulaController> logger) : base(logger)
         {
             _mapper = mapper;
             _aulaService = aulaService;
             _logger = logger;
         }
 
-        [HttpGet]
-        [Authorize]
-        [Route("get-all")]
+        [HttpGet("get-all")]
+        [Authorize(Roles = nameof(UserRole.Administrador))]
         public async Task<IActionResult> GetAll()
         {
             return await ExecuteAsync(async () =>
             {
                 var allAulas = await _aulaService.GetAll();
+
                 return Ok(new ResultViewModel
                 {
                     Message = "Aulas encontradas com sucesso!",
@@ -45,15 +41,13 @@ namespace InstitutoTriboDeDavi.API.Controllers
             });
         }
 
-        [HttpPost]
-        [Authorize]
-        [Route("create")]
+        [HttpPost("create")]
+        [Authorize(Policy = AuthPolicies.ProfessorOuSuperior)]
         public async Task<IActionResult> Create([FromBody] AulaDTO aulaDTO)
         {
             return await ExecuteAsync(async () =>
             {
-                ValidatePoloUsuario(UsuarioAutenticado, aulaDTO.PoloId);
-                ValidateUserRole(UserRole.Professor);
+                ValidatePoloUsuario(aulaDTO.PoloId);
 
                 var aulaCreated = await _aulaService.Create(aulaDTO);
 
@@ -66,14 +60,13 @@ namespace InstitutoTriboDeDavi.API.Controllers
             });
         }
 
-        [HttpPut]
-        [Authorize]
-        [Route("update")]
+        [HttpPut("update")]
+        [Authorize(Policy = AuthPolicies.ProfessorOuSuperior)]
         public async Task<IActionResult> Update([FromBody] AulaDTO aulaDTO)
         {
             return await ExecuteAsync(async () =>
             {
-                ValidatePoloUsuario(UsuarioAutenticado, aulaDTO.PoloId);
+                ValidatePoloUsuario(aulaDTO.PoloId);
 
                 var aulaUpdated = await _aulaService.Update(aulaDTO);
 
@@ -86,26 +79,21 @@ namespace InstitutoTriboDeDavi.API.Controllers
             });
         }
 
-        [HttpDelete]
-        [Authorize]
-        [Route("delete/{id}")]
+        [HttpDelete("delete/{id}")]
+        [Authorize(Roles = nameof(UserRole.Administrador))]
         public async Task<IActionResult> Delete(long id)
         {
             return await ExecuteAsync(async () =>
             {
-                ValidateUserRole(UserRole.Administrador);
-
                 var aula = await _aulaService.Get(id);
 
                 if (aula == null)
-                {
                     return Ok(new ResultViewModel
                     {
                         Message = "Nenhuma Aula foi encontrada com o ID informado!",
                         Success = true,
-                        Data = aula
+                        Data = null
                     });
-                }
 
                 await _aulaService.Delete(id);
 
@@ -115,12 +103,11 @@ namespace InstitutoTriboDeDavi.API.Controllers
                     Success = true,
                     Data = null
                 });
-            });           
+            });
         }
 
-        [HttpGet]
+        [HttpGet("get/{id}")]
         [Authorize]
-        [Route("get/{id}")]
         public async Task<IActionResult> Get(long id)
         {
             return await ExecuteAsync(async () =>
@@ -128,14 +115,12 @@ namespace InstitutoTriboDeDavi.API.Controllers
                 var aula = await _aulaService.Get(id);
 
                 if (aula == null)
-                {
                     return Ok(new ResultViewModel
                     {
                         Message = "Nenhuma Aula foi encontrada com o ID informado!",
                         Success = true,
-                        Data = aula
+                        Data = null
                     });
-                }
 
                 return Ok(new ResultViewModel
                 {
@@ -146,23 +131,22 @@ namespace InstitutoTriboDeDavi.API.Controllers
             });
         }
 
-        [HttpGet]
+        [HttpGet("get-por-polo")]
         [Authorize]
-        [Route("get-por-polo")]
         public async Task<IActionResult> ObterAulas([FromQuery] IEnumerable<int> turmas)
         {
             return await ExecuteAsync(async () =>
             {
                 var allAulas = await _aulaService.ObterAulasTurmaAsync(UsuarioAutenticado, turmas);
-                if (allAulas.Count() == 0)
-                {
+
+                if (!allAulas.Any())
                     return Ok(new ResultViewModel
                     {
-                        Message = "Nenhum Aula foi encontrado!",
+                        Message = "Nenhuma Aula foi encontrada!",
                         Success = true,
                         Data = null
                     });
-                }
+
                 return Ok(new ResultViewModel
                 {
                     Message = "Aulas obtidas com sucesso!",
@@ -173,4 +157,3 @@ namespace InstitutoTriboDeDavi.API.Controllers
         }
     }
 }
-

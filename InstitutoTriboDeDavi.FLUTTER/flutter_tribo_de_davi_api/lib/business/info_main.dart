@@ -1,3 +1,4 @@
+import 'package:flutter_tribo_de_davi_api/widgets/action_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_tribo_de_davi_api/api/api_theme.dart';
 import 'package:flutter_tribo_de_davi_api/business/consultas/consulta_aniversariante.dart';
@@ -29,10 +30,9 @@ class InfoPage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _buildActionCard(
-              context,
+            ActionCard(
               title: "Faltas",
-              icon: Icons.add,
+              icon: Icons.flaky_outlined,
               color: AppTheme.primaryColor,
               onPressed: () {
                 Navigator.push(
@@ -43,8 +43,7 @@ class InfoPage extends StatelessWidget {
               },
             ),
             const SizedBox(height: 20),
-            _buildActionCard(
-              context,
+            ActionCard(
               title: "Aniversariantes do mês",
               icon: Icons.cake,
               color: AppTheme.primaryColor,
@@ -62,35 +61,4 @@ class InfoPage extends StatelessWidget {
     );
   }
 
-  Widget _buildActionCard(BuildContext context,
-      {required String title,
-      required IconData icon,
-      required Color color,
-      required VoidCallback onPressed}) {
-    return GestureDetector(
-      onTap: onPressed,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
-        decoration: AppTheme.cardDecoration.copyWith(
-          color: color,
-          border: Border.all(color: AppTheme.borderColor, width: 2),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, size: 40, color: AppTheme.iconColor),
-            const SizedBox(width: 15),
-            Text(
-              title,
-              style: AppTheme.bodyTextStyle.copyWith(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: AppTheme.textColor,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }

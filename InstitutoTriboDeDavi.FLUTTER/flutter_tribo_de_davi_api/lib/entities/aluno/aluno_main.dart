@@ -34,7 +34,7 @@ class _AlunoPageState extends State<AlunoPage> {
     setState(() => isLoading = true);
     try {
       final alunos = await apiHandler.getData();
-      alunos.sort((a, b) => a.nome!.compareTo(b.nome!));
+      alunos.sort((a, b) => a.nome.compareTo(b.nome));
       setState(() {
         data = alunos;
         filteredData = List.from(alunos);
@@ -56,8 +56,8 @@ class _AlunoPageState extends State<AlunoPage> {
       } else {
         filteredData = data.where((aluno) {
           final faixaNome =
-              aluno.faixa != null ? Faixa.fromId(aluno.faixa).descricao : '';
-          return aluno.nome!.toLowerCase().contains(query.toLowerCase()) ||
+              Faixa.fromId(aluno.faixa).descricao;
+          return aluno.nome.toLowerCase().contains(query.toLowerCase()) ||
               faixaNome.toLowerCase().contains(query.toLowerCase());
         }).toList();
       }
@@ -79,7 +79,7 @@ class _AlunoPageState extends State<AlunoPage> {
             final index = data.indexWhere((a) => a.id == alunoAtualizado.id);
             if (index != -1) {
               data[index] = alunoAtualizado;
-              data.sort((a, b) => a.nome!.compareTo(b.nome!));
+              data.sort((a, b) => a.nome.compareTo(b.nome));
               _filterAlunos(searchQuery);
             }
           });
@@ -110,9 +110,7 @@ class _AlunoPageState extends State<AlunoPage> {
                 shape: BoxShape.circle,
                 image: DecorationImage(
                   image: AssetImage(
-                    aluno.faixa != null
-                        ? Faixa.fromId(aluno.faixa).imagem
-                        : 'lib/assets/images/faixa_default.png',
+                    Faixa.fromId(aluno.faixa).imagem,
                   ),
                   fit: BoxFit.fill,
                 ),
@@ -124,7 +122,7 @@ class _AlunoPageState extends State<AlunoPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    aluno.nome!,
+                    aluno.nome,
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 18,

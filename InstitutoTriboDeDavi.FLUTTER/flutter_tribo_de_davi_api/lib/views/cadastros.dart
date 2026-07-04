@@ -1,24 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_tribo_de_davi_api/api/api_theme.dart';
 import 'package:flutter_tribo_de_davi_api/entities/aluno/aluno_main.dart';
 import 'package:flutter_tribo_de_davi_api/entities/polo/polo_main.dart';
 import 'package:flutter_tribo_de_davi_api/entities/usuario/usuario_main.dart';
-import 'package:flutter_tribo_de_davi_api/api/api_theme.dart';
-import 'package:flutter_tribo_de_davi_api/views/login.dart';
+import 'package:flutter_tribo_de_davi_api/widgets/action_card.dart';
 
-class CadastrosPage extends StatefulWidget {
+class CadastrosPage extends StatelessWidget {
   const CadastrosPage({super.key});
-
-  @override
-  State<CadastrosPage> createState() => _CadastrosPageState();
-}
-
-class _CadastrosPageState extends State<CadastrosPage> {
-  void _logout() {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const LoginPage()),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,11 +31,9 @@ class _CadastrosPageState extends State<CadastrosPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _buildActionCard(
-              context,
+            ActionCard(
               title: "Polos",
               icon: Icons.location_city,
-              color: AppTheme.primaryColor,
               onPressed: () {
                 Navigator.push(
                   context,
@@ -56,11 +42,9 @@ class _CadastrosPageState extends State<CadastrosPage> {
               },
             ),
             const SizedBox(height: 20),
-            _buildActionCard(
-              context,
+            ActionCard(
               title: "Alunos",
               icon: Icons.school,
-              color: AppTheme.primaryColor,
               onPressed: () {
                 Navigator.push(
                   context,
@@ -68,37 +52,16 @@ class _CadastrosPageState extends State<CadastrosPage> {
                 );
               },
             ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildActionCard(BuildContext context,
-      {required String title,
-      required IconData icon,
-      required Color color,
-      required VoidCallback onPressed}) {
-    return GestureDetector(
-      onTap: onPressed,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
-        decoration: AppTheme.cardDecoration.copyWith(
-          color: AppTheme.primaryColor,
-          border: Border.all(color: AppTheme.borderColor, width: 2),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, size: 40, color: AppTheme.iconColor),
-            const SizedBox(width: 15),
-            Text(
-              title,
-              style: AppTheme.bodyTextStyle.copyWith(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: AppTheme.textColor,
-              ),
+            const SizedBox(height: 20),
+            ActionCard(
+              title: "Usuários",
+              icon: Icons.manage_accounts,
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const UsuarioPage()),
+                );
+              },
             ),
           ],
         ),

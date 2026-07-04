@@ -1,10 +1,9 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_tribo_de_davi_api/api/api_base.dart';
 import 'package:flutter_tribo_de_davi_api/api/api_routes.dart';
+import 'package:flutter_tribo_de_davi_api/api/auth_service.dart';
 import 'package:flutter_tribo_de_davi_api/entities/models/aula.dart';
 import 'package:flutter_tribo_de_davi_api/api/api_theme.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class CriarAulaPage extends StatefulWidget {
   const CriarAulaPage({super.key});
@@ -31,33 +30,17 @@ class _CriarAulaPageState extends State<CriarAulaPage> {
   }
 
   Future<void> _loadPoloIdFromToken() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('auth_token');
+    final poloIdClaim = await AuthService.getClaim('PoloId');
+    poloId = int.tryParse(poloIdClaim ?? '');
 
-      if (token != null) {
-        final payload = _decodeJWT(token);
-        final poloIdString = payload['PoloId'];
-        poloId = int.tryParse(poloIdString.toString());
-        if (poloId == null) throw Exception("PoloId não encontrado no token.");
-      } else {
-        throw Exception("Token não encontrado.");
-      }
-    } catch (e) {
+    if (poloId == null) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro ao carregar PoloId: $e')),
+        const SnackBar(
+            content: Text('Não foi possível identificar o polo do usuário.')),
       );
     }
-    setState(() {});
-  }
-
-  Map<String, dynamic> _decodeJWT(String token) {
-    final parts = token.split('.');
-    if (parts.length != 3) throw Exception("Token inválido.");
-    final payload =
-        utf8.decode(base64Url.decode(base64Url.normalize(parts[1])));
-    return json.decode(payload) as Map<String, dynamic>;
+    if (mounted) setState(() {});
   }
 
   Future<void> saveAula() async {
@@ -329,8 +312,9 @@ class _CriarAulaPageState extends State<CriarAulaPage> {
                             firstDate: DateTime(2000),
                             lastDate: DateTime(2100),
                           );
-                          if (picked != null)
+                          if (picked != null) {
                             setState(() => selectedDate = picked);
+                          }
                         },
                       ),
                       _buildPickerField(
@@ -342,8 +326,9 @@ class _CriarAulaPageState extends State<CriarAulaPage> {
                             context: context,
                             initialTime: TimeOfDay.now(),
                           );
-                          if (picked != null)
+                          if (picked != null) {
                             setState(() => horaInicio = picked);
+                          }
                         },
                       ),
                       _buildPickerField(

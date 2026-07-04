@@ -1,25 +1,29 @@
 ﻿using AutoMapper;
+using InstitutoTriboDeDavi.API.BackgroundServices;
+using InstitutoTriboDeDavi.API.Utilities;
 using InstitutoTriboDeDavi.API.Token;
 using InstitutoTriboDeDavi.API.Token.Interfaces;
 using InstitutoTriboDeDavi.API.ViewModels.Create;
 using InstitutoTriboDeDavi.API.ViewModels.Usuario;
-using InstitutoTriboDeDavi.System.DataAccess;
-using InstitutoTriboDeDavi.System.DataAccess.Business;
-using InstitutoTriboDeDavi.System.DataAccess.Business.Interfaces;
-using InstitutoTriboDeDavi.System.DataAccess.Interfaces;
-using InstitutoTriboDeDavi.System.Domain.Entities;
-using InstitutoTriboDeDavi.System.Domain.Entities.Business;
-using InstitutoTriboDeDavi.System.Domain.Entities.Consultas;
-using InstitutoTriboDeDavi.System.DTO;
-using InstitutoTriboDeDavi.System.DTO.Business;
-using InstitutoTriboDeDavi.System.DTO.Queries;
-using InstitutoTriboDeDavi.System.Factory;
-using InstitutoTriboDeDavi.System.Infra.Context;
-using InstitutoTriboDeDavi.System.Services;
-using InstitutoTriboDeDavi.System.Services.Business;
-using InstitutoTriboDeDavi.System.Services.Business.Interfaces;
-using InstitutoTriboDeDavi.System.Services.Interfaces;
+using InstitutoTriboDeDavi.Infrastructure.Repositories;
+using InstitutoTriboDeDavi.Application.Repositories;
+using InstitutoTriboDeDavi.Domain.Entities;
+using InstitutoTriboDeDavi.Domain.Entities.Business;
+using InstitutoTriboDeDavi.Domain.Entities.Consultas;
+using InstitutoTriboDeDavi.Domain.Enums;
+using InstitutoTriboDeDavi.Application.DTO;
+using InstitutoTriboDeDavi.Application.DTO.Business;
+using InstitutoTriboDeDavi.Application.DTO.Queries;
+using InstitutoTriboDeDavi.Infrastructure.Import;
+using InstitutoTriboDeDavi.Application.Import;
+using InstitutoTriboDeDavi.Infrastructure.Configuration;
+using InstitutoTriboDeDavi.Infrastructure.Context;
+using InstitutoTriboDeDavi.Infrastructure.GoogleSheets;
+using InstitutoTriboDeDavi.Application.Services;
+using InstitutoTriboDeDavi.Application.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -44,6 +48,11 @@ namespace InstitutoTriboDeDavi.API
             #region Jwt
 
             var secretKey = Configuration["Jwt:Key"];
+            var issuer = Configuration["Jwt:Issuer"];
+            var audience = Configuration["Jwt:Audience"];
+            var isDevelopment = string.Equals(
+                Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"),
+                "Development", StringComparison.OrdinalIgnoreCase);
 
             services.AddAuthentication(x =>
             {
@@ -52,25 +61,49 @@ namespace InstitutoTriboDeDavi.API
             })
             .AddJwtBearer(x =>
             {
-                x.RequireHttpsMetadata = false;
+                // Em produção, metadata de autenticação só trafega por HTTPS
+                x.RequireHttpsMetadata = !isDevelopment;
                 x.SaveToken = true;
-                x.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+                x.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(secretKey)),
-                    ValidateIssuer = false,
-                    ValidateAudience = false
+                    // Issuer/Audience são validados quando configurados
+                    // (produção define Jwt:Issuer e Jwt:Audience; dev não)
+                    ValidateIssuer = !string.IsNullOrEmpty(issuer),
+                    ValidIssuer = issuer,
+                    ValidateAudience = !string.IsNullOrEmpty(audience),
+                    ValidAudience = audience
                 };
             });
 
             #endregion
 
+            #region Autorização
 
+            services.AddAuthorization(options =>
+            {
+                // Fallback: todo endpoint exige usuário autenticado por padrão;
+                // exceções (login, setup) usam [AllowAnonymous] explícito
+                options.FallbackPolicy = new AuthorizationPolicyBuilder()
+                    .RequireAuthenticatedUser()
+                    .Build();
+
+                options.AddPolicy(AuthPolicies.ProfessorOuSuperior, policy =>
+                    policy.RequireRole(
+                        nameof(UserRole.Administrador),
+                        nameof(UserRole.Supervisor),
+                        nameof(UserRole.Professor)));
+            });
+
+            #endregion
 
             #region Injeção de Dependência
 
-            services.AddSingleton(d => Configuration);
-            services.AddDbContext<TriboDeDaviContext>(options => options.UseSqlServer(Configuration["ConnectionStrings:TRIBODEDAVIAPI"]), ServiceLifetime.Transient);
+            services.AddDbContext<TriboDeDaviContext>(options => options.UseSqlServer(Configuration["ConnectionStrings:TRIBODEDAVIAPI"]));
+
+            // Health check com verificação do banco — usado pelo monitoramento do provedor
+            services.AddHealthChecks().AddDbContextCheck<TriboDeDaviContext>();
 
             services.AddScoped<IUsuarioService, UsuarioService>();
             services.AddScoped<IUsuarioRepository, UsuarioRepository>();
@@ -91,33 +124,44 @@ namespace InstitutoTriboDeDavi.API
             services.AddScoped<ITokenGenerator, TokenGenerator>();
 
             services.AddScoped<IPasswordHasher<UsuarioDTO>, PasswordHasher<UsuarioDTO>>();
+            // Configuração do Google Sheets
+            services.Configure<GoogleSheetsConfig>(Configuration.GetSection("GoogleSheets"));
 
+            // Serviços
+            services.AddScoped<IGoogleSheetsService, GoogleSheetsService>();
 
-            services.AddTransient<FactoryPlanilhaDB>(provider =>
-            new FactoryPlanilhaDB(Configuration.GetConnectionString("ConnectionStrings:TRIBODEDAVIAPI")));
+            // Background service de sincronização automática
+            services.AddHostedService<SincronizacaoHostedService>();
+
+            services.AddScoped<IFactoryPlanilhaDB, FactoryPlanilhaDB>();
+            services.AddScoped<ISincronizacaoHistoricoRepository, SincronizacaoHistoricoRepository>();
 
             #endregion
 
             #region AutoMapper
 
-            var autoMapperConfig = new MapperConfiguration(cfg =>
+            services.AddSingleton<IMapper>(sp =>
             {
-                cfg.CreateMap<Usuario, UsuarioDTO>().ReverseMap();
-                cfg.CreateMap<UsuarioViewModel, UsuarioDTO>().ReverseMap();
-                cfg.CreateMap<Aluno, AlunoDTO>().ReverseMap();
-                cfg.CreateMap<Polo, PoloDTO>().ReverseMap();
+                var config = new MapperConfiguration(cfg =>
+                {
+                    cfg.CreateMap<Usuario, UsuarioDTO>().ReverseMap();
+                    cfg.CreateMap<UsuarioViewModel, UsuarioDTO>().ReverseMap();
+                    cfg.CreateMap<Aluno, AlunoDTO>().ReverseMap();
+                    cfg.CreateMap<Polo, PoloDTO>().ReverseMap();
 
-                cfg.CreateMap<Presenca, PresencaDTO>().ReverseMap();
-                cfg.CreateMap<Aula, AulaDTO>().ReverseMap();                          
+                    cfg.CreateMap<Presenca, PresencaDTO>().ReverseMap();
+                    cfg.CreateMap<Aula, AulaDTO>().ReverseMap();
 
-                cfg.CreateMap<Frequencia, FrequenciaDTO>().ReverseMap();
-                cfg.CreateMap<Aniversariante, AniversarianteDTO>().ReverseMap();
+                    cfg.CreateMap<Frequencia, FrequenciaDTO>().ReverseMap();
+                    cfg.CreateMap<Aniversariante, AniversarianteDTO>().ReverseMap();
 
-                cfg.CreateMap<LoginViewModel, UsuarioDTO>().ReverseMap();
+                    cfg.CreateMap<LoginViewModel, UsuarioDTO>().ReverseMap();
+                    cfg.CreateMap<Aluno, AlunoPendenteDTO>().ReverseMap();
 
+                }, sp.GetRequiredService<ILoggerFactory>());
+
+                return config.CreateMapper();
             });
-
-            services.AddSingleton(autoMapperConfig.CreateMapper());
 
             #endregion
 
@@ -173,14 +217,30 @@ namespace InstitutoTriboDeDavi.API
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
+            else
+            {
+                // Atrás de proxy gerenciado (App Service, etc.) o TLS termina antes
+                // do Kestrel; os headers X-Forwarded-* preservam esquema e IP reais
+                var forwardedOptions = new ForwardedHeadersOptions
+                {
+                    ForwardedHeaders =
+                        ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+                };
+                forwardedOptions.KnownNetworks.Clear();
+                forwardedOptions.KnownProxies.Clear();
+                app.UseForwardedHeaders(forwardedOptions);
 
-            app.UseHttpsRedirection();
+                app.UseHttpsRedirection();
+            }
 
             app.UseAuthentication();
 
             app.UseAuthorization();
 
             app.MapControllers();
+
+            // Liveness/readiness anônimo para o monitoramento
+            app.MapHealthChecks("/health").AllowAnonymous();
         }
     }
     public interface IStartup
@@ -198,7 +258,25 @@ namespace InstitutoTriboDeDavi.API
 
             startup.ConfigureServices(builder.Services);
 
+            // CORS por ambiente: as origens permitidas vêm da configuração
+            // (Cors:AllowedOrigins). O app mobile não usa CORS — isso existe
+            // para um eventual front web; sem configuração, nada é liberado.
+            var allowedOrigins = builder.Configuration
+                .GetSection("Cors:AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
+
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("Default", policy =>
+                {
+                    if (allowedOrigins.Length > 0)
+                        policy.WithOrigins(allowedOrigins)
+                              .AllowAnyHeader()
+                              .AllowAnyMethod();
+                });
+            });
+
             var app = builder.Build();
+            app.UseCors("Default");
             startup.Configure(app, app.Environment);
 
             app.Run();

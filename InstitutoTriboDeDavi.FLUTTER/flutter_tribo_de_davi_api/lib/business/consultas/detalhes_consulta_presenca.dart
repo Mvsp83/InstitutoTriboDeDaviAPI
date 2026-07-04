@@ -10,17 +10,14 @@ class DetalhesPresencaPage extends StatelessWidget {
 
   const DetalhesPresencaPage({super.key, required this.aula});
 
-  Future<List<Presenca>> _getPresencasPorAula(int aulaId) async {
-    try {
-      final apiHandler = ApiHandler<Presenca>(
-        baseUri: ApiRoutes.entity("presenca/aula"),
-        fromJson: (json) => Presenca.fromJson(json),
-      );
+  // Erros propagam para o FutureBuilder, que exibe a mensagem da API
+  Future<List<Presenca>> _getPresencasPorAula(int aulaId) {
+    final apiHandler = ApiHandler<Presenca>(
+      baseUri: ApiRoutes.entity("presenca/aula"),
+      fromJson: (json) => Presenca.fromJson(json),
+    );
 
-      return await apiHandler.getDataListById(aulaId);
-    } catch (e) {
-      return [];
-    }
+    return apiHandler.getDataListById(aulaId);
   }
 
   @override

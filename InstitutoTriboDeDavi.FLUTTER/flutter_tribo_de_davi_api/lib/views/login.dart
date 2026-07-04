@@ -1,4 +1,5 @@
 import 'package:flutter_tribo_de_davi_api/api/api_base.dart';
+import 'package:flutter_tribo_de_davi_api/api/auth_service.dart';
 import '../api/api_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_tribo_de_davi_api/views/inicial.dart';
@@ -41,7 +42,7 @@ class LoginPageState extends State<LoginPage> {
           response['data'] != null &&
           response['data'].containsKey('token')) {
         final token = response['data']['token'];
-        await apiHandler.saveToken(token);
+        await AuthService.saveToken(token);
 
         Navigator.pushReplacement(
           context,
@@ -49,9 +50,15 @@ class LoginPageState extends State<LoginPage> {
             builder: (context) => HomePage(userName: login),
           ),
         );
+      } else if (response == null) {
+        _showErrorDialog("Sem conexão",
+            "Não foi possível conectar ao servidor. Verifique sua conexão.");
       } else {
+        // Mostra a mensagem enviada pela API (ex.: combinação incorreta)
         _showErrorDialog(
-            "Login Falhou", "Credenciais inválidas, tente novamente.");
+            "Login Falhou",
+            (response['message'] as String?) ??
+                "Credenciais inválidas, tente novamente.");
       }
     } catch (e) {
       _showErrorDialog("Erro",
@@ -107,13 +114,13 @@ class LoginPageState extends State<LoginPage> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const SizedBox(height: 16),
-            Text("Desenvolvido por:", style: AppTheme.bodyTextStyle),
+            const Text("Desenvolvido por:", style: AppTheme.bodyTextStyle),
             const SizedBox(height: 12),
             Image.asset('lib/assets/images/emeve83-2.png', height: 80),
             const SizedBox(height: 16),
-            Text("Versão: v.1.0.1", style: AppTheme.bodyTextStyle),
+            const Text("Versão: v.1.0.1", style: AppTheme.bodyTextStyle),
             const SizedBox(height: 12),
-            Text("Dúvidas e sugestões:", style: AppTheme.bodyTextStyle),
+            const Text("Dúvidas e sugestões:", style: AppTheme.bodyTextStyle),
             const Text(
               "marcusviniciussp.dev@gmail.com",
               style: TextStyle(color: AppTheme.textColor, fontSize: 12),
@@ -246,7 +253,7 @@ class LoginPageState extends State<LoginPage> {
           onTap: _showAboutDialog,
           child: Text(
             '${DateTime.now().year} · eMeVe ©',
-            style: TextStyle(color: AppTheme.textColor, fontSize: 12),
+            style: const TextStyle(color: AppTheme.textColor, fontSize: 12),
             textAlign: TextAlign.center,
           ),
         ),

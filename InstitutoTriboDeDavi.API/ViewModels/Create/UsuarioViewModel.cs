@@ -1,4 +1,4 @@
-﻿using InstitutoTriboDeDavi.System.Domain.Enums;
+﻿using InstitutoTriboDeDavi.Domain.Enums;
 
 namespace InstitutoTriboDeDavi.API.ViewModels.Usuario
 {

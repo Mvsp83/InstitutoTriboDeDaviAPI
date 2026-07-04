@@ -3,7 +3,8 @@ using InstitutoTriboDeDavi.API.Token.Interfaces;
 using InstitutoTriboDeDavi.API.Utilities;
 using InstitutoTriboDeDavi.API.ViewModels.Create;
 using InstitutoTriboDeDavi.API.ViewModels.Result;
-using InstitutoTriboDeDavi.System.Services.Interfaces;
+using InstitutoTriboDeDavi.Application.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InstitutoTriboDeDavi.API.Controllers
@@ -17,7 +18,7 @@ namespace InstitutoTriboDeDavi.API.Controllers
         private readonly IUsuarioService _usuarioService;
         private readonly ILogger<AuthController> _logger;
 
-        public AuthController(IConfiguration configuration, ITokenGenerator tokenGenerator, IMapper mapper, IUsuarioService usuarioService, ILogger<AuthController> logger) : base(logger as ILogger<Controller>)
+        public AuthController(IConfiguration configuration, ITokenGenerator tokenGenerator, IMapper mapper, IUsuarioService usuarioService, ILogger<AuthController> logger) : base(logger)
         {
             _configuration = configuration;
             _tokenGenerator = tokenGenerator;
@@ -28,6 +29,7 @@ namespace InstitutoTriboDeDavi.API.Controllers
 
         [HttpPost]
         [Route("/api/v1/auth/login")]
+        [AllowAnonymous]
         public async Task<IActionResult> Login([FromBody] LoginViewModel loginViewModel)
         {
             return await ExecuteAsync(async () =>
@@ -35,7 +37,7 @@ namespace InstitutoTriboDeDavi.API.Controllers
                 var usuario = await _usuarioService.ValidarUsuarioAsync(loginViewModel.Login, loginViewModel.Password);
 
                 if (usuario == null)
-                    return StatusCode(401, Responses.UnathorizedErrorMessage());
+                    return StatusCode(401, Responses.UnauthorizedErrorMessage());
 
                 var token = _tokenGenerator.GenerateToken(usuario);
 

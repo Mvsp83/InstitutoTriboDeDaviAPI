@@ -1,7 +1,7 @@
 class Frequencia {
   final int alunoId;
   final String nome;
-  final String faixa;
+  final int faixa;
   final int totalAulas;
   final int totalFaltas;
 
@@ -15,7 +15,7 @@ class Frequencia {
   const Frequencia.empty(
       {this.alunoId = 0,
       this.nome = '',
-      this.faixa = '',
+      this.faixa = 0,
       this.totalAulas = 0,
       this.totalFaltas = 0});
 

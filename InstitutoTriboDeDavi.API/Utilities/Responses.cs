@@ -34,11 +34,11 @@ namespace InstitutoTriboDeDavi.API.Utilities
             };
         }
 
-        public static ResultViewModel UnathorizedErrorMessage() 
+        public static ResultViewModel UnauthorizedErrorMessage()
         {
             return new ResultViewModel
             {
-                Message = "A comn]binação de login e senha está incorreta!",
+                Message = "A combinação de login e senha está incorreta!",
                 Success = false,
                 Data = null
             };

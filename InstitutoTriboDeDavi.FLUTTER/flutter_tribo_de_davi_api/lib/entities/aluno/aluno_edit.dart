@@ -270,9 +270,7 @@ class _AlunoUpdatePageState extends State<AlunoUpdatePage> {
         child: FormBuilder(
           key: _formKey,
           initialValue: {
-            'peso': widget.aluno.peso != null
-                ? widget.aluno.peso!.toStringAsFixed(2)
-                : null,
+            'peso': widget.aluno.peso?.toStringAsFixed(2),
             'faixa': widget.aluno.faixa.toInt(),
             'turma': widget.aluno.turma?.toString(),
           },
@@ -281,7 +279,7 @@ class _AlunoUpdatePageState extends State<AlunoUpdatePage> {
             children: [
               // ── Dados pessoais (somente leitura) ──
               _buildSectionHeader('DADOS PESSOAIS'),
-              _buildReadOnlyField('Nome', widget.aluno.nome ?? ''),
+              _buildReadOnlyField('Nome', widget.aluno.nome),
               _buildReadOnlyField(
                 'Data de Nascimento',
                 widget.aluno.dataNascimento != null

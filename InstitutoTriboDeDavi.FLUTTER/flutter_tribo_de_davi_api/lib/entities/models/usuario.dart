@@ -21,13 +21,15 @@ class Usuario {
         id: json['id'],
         email: json['email'],
         login: json['login'],
-        password: json['password'],
+        // A API não retorna a senha nos responses
+        password: json['password'] ?? '',
       );
 
   Map<String, dynamic> toJson() => {
         "id": id,
         "email": email,
         "login": login,
-        "password": password,
+        // Senha vazia é omitida: no update significa "manter a senha atual"
+        if (password.isNotEmpty) "password": password,
       };
 }

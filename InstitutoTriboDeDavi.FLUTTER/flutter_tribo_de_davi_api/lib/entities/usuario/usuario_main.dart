@@ -116,7 +116,7 @@ class _UsuarioPageState extends State<UsuarioPage> {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: AppTheme.primaryColor),
+                  borderSide: const BorderSide(color: AppTheme.primaryColor),
                   borderRadius: BorderRadius.circular(8),
                 ),
               ),

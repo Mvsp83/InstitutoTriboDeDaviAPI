@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using InstitutoTriboDeDavi.API.Utilities;
 using InstitutoTriboDeDavi.API.ViewModels.Result;
-using InstitutoTriboDeDavi.System.Services.Business.Interfaces;
+using InstitutoTriboDeDavi.Application.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,7 +15,7 @@ namespace InstitutoTriboDeDavi.API.Controllers
         private readonly IAniversarianteService _aniversarianteService;
         private readonly ILogger<AniversarianteController> _logger;
 
-        public AniversarianteController(IMapper mapper, IAniversarianteService aniversarianteService, ILogger<AniversarianteController> logger) : base(logger as ILogger<Controller>)
+        public AniversarianteController(IMapper mapper, IAniversarianteService aniversarianteService, ILogger<AniversarianteController> logger) : base(logger)
         {
             _mapper = mapper;
             _aniversarianteService = aniversarianteService;

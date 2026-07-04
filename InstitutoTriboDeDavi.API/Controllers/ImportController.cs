@@ -1,74 +1,49 @@
-﻿using InstitutoTriboDeDavi.System.Domain.Enums;
-using InstitutoTriboDeDavi.System.Factory;
+using InstitutoTriboDeDavi.API.ViewModels.Result;
+using InstitutoTriboDeDavi.Domain.Enums;
+using InstitutoTriboDeDavi.Application.Import;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InstitutoTriboDeDavi.API.Controllers
 {
+    [ApiController]
+    [Route("api/[controller]")]
     public class ImportController : BaseController
     {
-        private readonly FactoryPlanilhaDB _excelImporter;
-        private ILogger<ImportController> logger;
+        private readonly IFactoryPlanilhaDB _factory;
+        private readonly ILogger<ImportController> _logger;
 
-        public ImportController(FactoryPlanilhaDB excelImporter, ILogger<ImportController> logger) : base(logger as ILogger<Controller>)
+        public ImportController(IFactoryPlanilhaDB factory, ILogger<ImportController> logger) : base(logger)
         {
-            _excelImporter = excelImporter;
-            this.logger = logger;
+            _factory = factory;
+            _logger = logger;
         }
 
-        [HttpPost]
-        [Authorize]
-        [Route("import/upload")]
-        public async Task<IActionResult> UploadFile(IFormFile file)
+        [HttpPost("alunos")]
+        [Authorize(Roles = nameof(UserRole.Administrador))]
+        public async Task<IActionResult> ImportarAlunos(IFormFile arquivo, [FromQuery] long poloIdPadrao = 1)
         {
             return await ExecuteAsync(async () =>
             {
-                ValidateUserRole(UserRole.Administrador);
+                if (arquivo == null || arquivo.Length == 0)
+                    return BadRequest(new ResultViewModel
+                    {
+                        Message = "Nenhum arquivo enviado.",
+                        Success = false,
+                        Data = null
+                    });
 
-                if (file == null || file.Length == 0)
+                using var stream = arquivo.OpenReadStream();
+                var resultado = await _factory.ImportarAlunosAsync(stream, poloIdPadrao);
+
+                return Ok(new ResultViewModel
                 {
-                    return BadRequest("Nenhum arquivo enviado.");
-                }
-
-                var filePath = Path.Combine(Path.GetTempPath(), file.FileName);
-
-                using (var stream = new FileStream(filePath, FileMode.Create))
-                {
-                    await file.CopyToAsync(stream);
-                }
-
-                _excelImporter.ImportDataAlunos(filePath);
-
-                return Ok("Arquivo processado com sucesso.");
-            });          
-        }
-
-        [HttpPost]
-        [Authorize]
-        [Route("import/upload2")]
-        public async Task<IActionResult> UploadFile2(IFormFile file)
-        {
-            return await ExecuteAsync(async () =>
-            {
-                ValidateUserRole(UserRole.Administrador);
-
-                if (file == null || file.Length == 0)
-                {
-                    return BadRequest("Nenhum arquivo enviado.");
-                }
-
-                var filePath = Path.Combine(Path.GetTempPath(), file.FileName);
-
-                using (var stream = new FileStream(filePath, FileMode.Create))
-                {
-                    await file.CopyToAsync(stream);
-                }
-
-                _excelImporter.ImportDataPolos(filePath);
-
-                return Ok("Arquivo processado com sucesso.");
+                    Message = $"Importação concluída: {resultado.Inseridos} inseridos, " +
+                              $"{resultado.Atualizados} atualizados, {resultado.Ignorados} ignorados.",
+                    Success = true,
+                    Data = resultado
+                });
             });
         }
     }
 }
-

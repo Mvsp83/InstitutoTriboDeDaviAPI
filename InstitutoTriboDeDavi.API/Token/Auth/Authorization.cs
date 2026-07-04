@@ -1,5 +1,5 @@
-﻿using InstitutoTriboDeDavi.System.Domain.Enums;
-using InstitutoTriboDeDavi.System.DTO;
+﻿using InstitutoTriboDeDavi.Domain.Enums;
+using InstitutoTriboDeDavi.Application.DTO;
 using System.Security.Claims;
 
 namespace InstitutoTriboDeDavi.API.Token.Auth

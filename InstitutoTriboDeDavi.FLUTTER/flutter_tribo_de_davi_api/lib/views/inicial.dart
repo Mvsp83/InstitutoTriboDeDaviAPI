@@ -1,14 +1,15 @@
+import 'package:flutter_tribo_de_davi_api/widgets/action_card.dart';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_tribo_de_davi_api/api/api_base.dart';
+import 'package:flutter_tribo_de_davi_api/api/auth_service.dart';
 import 'package:flutter_tribo_de_davi_api/business/consultas/consulta_informacoes.dart';
+import 'package:flutter_tribo_de_davi_api/entities/aluno/aluno_pendentes.dart';
 import 'package:flutter_tribo_de_davi_api/entities/biblia/biblia_find.dart';
 import 'package:flutter_tribo_de_davi_api/entities/aula/aula_main.dart';
 import 'package:flutter_tribo_de_davi_api/business/info_main.dart';
 import 'package:flutter_tribo_de_davi_api/api/api_theme.dart';
 import 'package:flutter_tribo_de_davi_api/views/cadastros.dart';
-import 'package:flutter_tribo_de_davi_api/views/login.dart';
 
 class HomePage extends StatefulWidget {
   final String userName;
@@ -22,18 +23,29 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   Bible? _bible;
   String _selectedVerse = "";
+  bool _isAdmin = false;
 
   @override
   void initState() {
     super.initState();
     _loadBibleXml();
     _loadPoloName();
+    _loadRole();
   }
 
   String _poloName = 'Carregando polo...';
 
+  // A role vem do token; usada só para esconder áreas que a API
+  // bloquearia de qualquer forma (a defesa real fica no servidor)
+  Future<void> _loadRole() async {
+    final isAdmin = await AuthService.isAdministrador();
+    if (!mounted) return;
+    setState(() => _isAdmin = isAdmin);
+  }
+
   Future<void> _loadPoloName() async {
-    final poloName = await ApiHandler.getPoloName();
+    final poloName = await AuthService.getPoloName();
+    if (!mounted) return;
     setState(() {
       _poloName = poloName ?? 'Polo não encontrado';
     });
@@ -50,37 +62,36 @@ class _HomePageState extends State<HomePage> {
         _drawRandomVerse();
       });
     } catch (error) {
-      print('Erro ao carregar a Bíblia: $error');
+      debugPrint('Erro ao carregar a Bíblia: $error');
     }
   }
 
   void _drawRandomVerse() {
-    if (_bible != null) {
-      final book = _bible!.getRandomBook();
-      final chapter = book.getRandomChapter();
+    if (_bible == null) return;
 
-      final randomIndex = Random().nextInt(chapter.verses.length - 2);
+    final book = _bible!.getRandomBook();
+    final chapter = book.getRandomChapter();
 
-      final verse1 = chapter.verses[randomIndex];
-      final verse2 = chapter.verses[randomIndex + 1];
-      final verse3 = chapter.verses[randomIndex + 2];
+    // Capítulos curtos (ex.: Salmo 117 tem 2 versículos) mostram o que houver
+    final total = chapter.verses.length;
+    if (total == 0) return;
 
-      setState(() {
-        _selectedVerse =
-            '${book.name} - Cap.: ${chapter.number} - Vers.: ${verse1.number} : ${verse3.number}\n'
-            '\n'
-            '${verse1.number} - ${verse1.text}\n'
-            '${verse2.number} - ${verse2.text}\n'
-            '${verse3.number} - ${verse3.text}';
-      });
-    }
+    final quantidade = total >= 3 ? 3 : total;
+    final maxInicio = total - quantidade;
+    final inicio = maxInicio > 0 ? Random().nextInt(maxInicio + 1) : 0;
+    final versos = chapter.verses.sublist(inicio, inicio + quantidade);
+
+    setState(() {
+      _selectedVerse =
+          '${book.name} - Cap.: ${chapter.number} - Vers.: ${versos.first.number} : ${versos.last.number}\n'
+          '\n'
+          '${versos.map((v) => '${v.number} - ${v.text}').join('\n')}';
+    });
   }
 
+  // Apaga o token e volta ao login limpando a pilha de navegação
   void _logout() {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const LoginPage()),
-    );
+    AuthService.logout();
   }
 
   void _confirmLogout() {
@@ -201,7 +212,7 @@ class _HomePageState extends State<HomePage> {
                       child: Text(
                         'Bem-vindo(a), ${widget.userName}!',
                         style:
-                            TextStyle(color: AppTheme.textColor, fontSize: 24),
+                            const TextStyle(color: AppTheme.textColor, fontSize: 24),
                       ),
                     ),
                     //),
@@ -215,7 +226,7 @@ class _HomePageState extends State<HomePage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    const Text(
                       'Medite na Palavra',
                       style:
                           TextStyle(color: AppTheme.accentColor, fontSize: 24),
@@ -223,18 +234,30 @@ class _HomePageState extends State<HomePage> {
                     const SizedBox(height: 10),
                     Text(
                       _selectedVerse,
-                      style: TextStyle(color: AppTheme.textColor, fontSize: 14),
+                      style: const TextStyle(color: AppTheme.textColor, fontSize: 14),
                     ),
                   ],
                 ),
               ),
               const SizedBox(height: 20),
+              ActionCard(
+                title: "Alunos Novos",
+                icon: Icons.person_add_sharp,
+                color: AppTheme.primaryColor,
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const AlunoPendentesPage()),
+                  );
+                },
+              ),
+              const SizedBox(height: 20),
               Column(
                 children: [
-                  _buildActionCard(
-                    context,
+                  ActionCard(
                     title: "Aulas",
-                    icon: Icons.check_rounded,
+                    icon: Icons.diversity_1_sharp,
                     color: AppTheme.primaryColor,
                     onPressed: () {
                       Navigator.push(
@@ -245,10 +268,9 @@ class _HomePageState extends State<HomePage> {
                     },
                   ),
                   const SizedBox(height: 20),
-                  _buildActionCard(
-                    context,
+                  ActionCard(
                     title: "Consultas",
-                    icon: Icons.dashboard,
+                    icon: Icons.manage_search_sharp,
                     color: AppTheme.primaryColor,
                     onPressed: () {
                       Navigator.push(
@@ -259,22 +281,23 @@ class _HomePageState extends State<HomePage> {
                     },
                   ),
                   const SizedBox(height: 20),
-                  _buildActionCard(
-                    context,
-                    title: "Cadastros",
-                    icon: Icons.person,
-                    color: AppTheme.primaryColor,
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const CadastrosPage()),
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 20),
-                  _buildActionCard(
-                    context,
+                  // Gerenciamento de cadastros é área de administrador
+                  if (_isAdmin) ...[
+                    ActionCard(
+                      title: "Cadastros",
+                      icon: Icons.portrait_sharp,
+                      color: AppTheme.primaryColor,
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const CadastrosPage()),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 20),
+                  ],
+                  ActionCard(
                     title: "Informações",
                     icon: Icons.info_outline_rounded,
                     color: AppTheme.primaryColor,
@@ -295,35 +318,4 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildActionCard(BuildContext context,
-      {required String title,
-      required IconData icon,
-      required Color color,
-      required VoidCallback onPressed}) {
-    return GestureDetector(
-      onTap: onPressed,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
-        decoration: AppTheme.cardDecoration.copyWith(
-          color: AppTheme.primaryColor,
-          border: Border.all(color: AppTheme.borderColor, width: 2),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, size: 40, color: AppTheme.iconColor),
-            const SizedBox(width: 15),
-            Text(
-              title,
-              style: AppTheme.bodyTextStyle.copyWith(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: AppTheme.textColor,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }

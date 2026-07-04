@@ -4,11 +4,13 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>fde8778c-cb34-448e-9401-1fc14e905885</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.11" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="8.0.11" />
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" Version="8.0.11" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.8">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -18,10 +20,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\InstitutoTriboDeDavi.System.DataAccess.Business\InstitutoTriboDeDavi.System.DataAccess.Business.csproj" />
-    <ProjectReference Include="..\InstitutoTriboDeDavi.System.Factory\InstitutoTriboDeDavi.System.Factory.csproj" />
-    <ProjectReference Include="..\InstitutoTriboDeDavi.System.Services.Business\InstitutoTriboDeDavi.System.Services.Business.csproj" />
-    <ProjectReference Include="..\InstitutoTriboDeDavi.System.Services\InstitutoTriboDeDavi.System.Services.csproj" />
+    <ProjectReference Include="..\InstitutoTriboDeDavi.Application\InstitutoTriboDeDavi.Application.csproj" />
+    <ProjectReference Include="..\InstitutoTriboDeDavi.Infrastructure\InstitutoTriboDeDavi.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

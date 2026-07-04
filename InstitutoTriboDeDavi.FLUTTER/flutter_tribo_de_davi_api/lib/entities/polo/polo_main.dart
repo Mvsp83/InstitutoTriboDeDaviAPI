@@ -3,7 +3,6 @@ import 'package:flutter_tribo_de_davi_api/api/api_base.dart';
 import 'package:flutter_tribo_de_davi_api/api/api_routes.dart';
 import 'package:flutter_tribo_de_davi_api/api/api_theme.dart';
 import 'package:flutter_tribo_de_davi_api/entities/models/polo.dart';
-import 'package:flutter_tribo_de_davi_api/entities/polo/polo_add.dart';
 import 'package:flutter_tribo_de_davi_api/entities/polo/polo_edit.dart';
 
 class PoloPage extends StatefulWidget {

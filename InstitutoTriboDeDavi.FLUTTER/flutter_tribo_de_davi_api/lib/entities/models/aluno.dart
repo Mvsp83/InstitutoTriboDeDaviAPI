@@ -69,7 +69,7 @@ class Aluno {
       dataNascimento: json['dataNascimento'] != null
           ? DateTime.parse(json['dataNascimento'])
           : null,
-      peso: json['peso'],
+      peso: (json['peso'] as num?)?.toDouble(),
       faixa: (json['faixa'] ?? 0),
       endereco: json['endereco'],
       bairro: json['bairro'],

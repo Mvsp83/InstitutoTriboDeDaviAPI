@@ -34,7 +34,7 @@ class _EditUsuarioState extends State<EditUsuario> {
         id: widget.usuario.id,
         email: data['email'],
         login: data['login'],
-        password: data['password'],
+        password: data['password'] ?? '',
       );
 
       response =
@@ -118,10 +118,13 @@ class _EditUsuarioState extends State<EditUsuario> {
               ),
               _buildTextField(
                 name: 'password',
-                labelText: 'Senha',
+                labelText: 'Nova senha (deixe em branco para manter a atual)',
                 icon: Icons.lock,
                 obscureText: true,
-                validator: FormBuilderValidators.required(),
+                validator: FormBuilderValidators.conditional(
+                  (value) => value != null && value.toString().isNotEmpty,
+                  FormBuilderValidators.minLength(3),
+                ),
               ),
             ],
           ),

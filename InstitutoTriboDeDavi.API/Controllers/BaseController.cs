@@ -1,38 +1,34 @@
-﻿using InstitutoTriboDeDavi.API.Token.Auth;
+using InstitutoTriboDeDavi.API.Token.Auth;
 using InstitutoTriboDeDavi.API.Utilities;
-using InstitutoTriboDeDavi.System.Core.Exceptions;
-using InstitutoTriboDeDavi.System.Domain.Enums;
-using InstitutoTriboDeDavi.System.DTO;
-using InstitutoTriboDeDavi.System.DTO.Business;
+using InstitutoTriboDeDavi.Domain.Exceptions;
+using InstitutoTriboDeDavi.Domain.Enums;
+using InstitutoTriboDeDavi.Application.DTO;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InstitutoTriboDeDavi.API.Controllers
 {
     public class BaseController : ControllerBase
     {
-        private readonly ILogger<Controller> _logger;
+        private readonly ILogger _logger;
 
-        public BaseController(ILogger<Controller> logger)
+        public BaseController(ILogger logger)
         {
             _logger = logger;
         }
 
         protected UsuarioDTO UsuarioAutenticado => Authorization.ObterUsuarioAutenticado(User);
 
-        protected void ValidateUserRole(UserRole requiredRole)
-        {
-            if (UsuarioAutenticado.Role != requiredRole)
-            {
-                throw new UnauthorizedAccessException("Usuário não tem permissão para acessar esta informação.");
-            }
-        }
+        // Autorização por role é feita via [Authorize(Roles/Policy)] nos endpoints.
+        // Aqui fica só a autorização baseada em recurso (polo), que atributo não cobre.
 
-        protected void ValidatePoloUsuario(UsuarioDTO user, long poloId)
+        // Verifica se o usuário pertence ao polo — Administrador tem bypass
+        protected void ValidatePoloUsuario(long poloId)
         {
+            if (UsuarioAutenticado.Role == UserRole.Administrador)
+                return;
+
             if (UsuarioAutenticado.PoloId != poloId)
-            {
                 throw new UnauthorizedAccessException("Usuário não tem permissão para acessar esta informação.");
-            }
         }
 
         protected async Task<IActionResult> ExecuteAsync(Func<Task<IActionResult>> action)
@@ -49,7 +45,7 @@ namespace InstitutoTriboDeDavi.API.Controllers
             catch (UnauthorizedAccessException ex)
             {
                 _logger.LogError(ex, ex.Message);
-                return Forbid(ex.Message);
+                return StatusCode(StatusCodes.Status403Forbidden, Responses.DomainErrorMessage(ex.Message));
             }
             catch (Exception ex)
             {

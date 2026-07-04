@@ -1,4 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Necessária em builds de release; em debug o Flutter injeta automaticamente -->
+    <uses-permission android:name="android.permission.INTERNET"/>
     <application
         android:label="flutter_tribo_de_davi_api"
         android:name="${applicationName}"

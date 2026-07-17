@@ -32,9 +32,9 @@ namespace InstitutoTriboDeDavi.Application.Services
             }
 
             // Política de senha validada sobre o texto, antes do hash
-            if (string.IsNullOrWhiteSpace(usuarioDTO.Password) || usuarioDTO.Password.Length < 3 || usuarioDTO.Password.Length > 20)
+            if (string.IsNullOrWhiteSpace(usuarioDTO.Password) || usuarioDTO.Password.Length < 8 || usuarioDTO.Password.Length > 100)
             {
-                throw new DomainException("O Password deve ter entre 3 e 20 caracteres.");
+                throw new DomainException("O Password deve ter entre 8 e 100 caracteres.");
             }
 
             var usuario = _mapper.Map<Usuario>(usuarioDTO);
@@ -106,8 +106,8 @@ namespace InstitutoTriboDeDavi.Application.Services
             // Senha só é alterada se uma nova for enviada; SenhaHash é preservado
             if (!string.IsNullOrWhiteSpace(userDTO.Password))
             {
-                if (userDTO.Password.Length < 3 || userDTO.Password.Length > 20)
-                    throw new DomainException("O Password deve ter entre 3 e 20 caracteres.");
+                if (userDTO.Password.Length < 8 || userDTO.Password.Length > 100)
+                    throw new DomainException("O Password deve ter entre 8 e 100 caracteres.");
 
                 usuarioExists.SenhaHash = _passwordHasher.HashPassword(_mapper.Map<UsuarioDTO>(usuarioExists), userDTO.Password);
             }
@@ -163,7 +163,8 @@ namespace InstitutoTriboDeDavi.Application.Services
                 return _mapper.Map<List<UsuarioDTO>>(listaTodos);
             }
 
-            if (usuarioDTO.Role == UserRole.Professor && usuarioDTO.PoloId.HasValue)
+            // Supervisor e Professor enxergam apenas o próprio polo
+            if ((usuarioDTO.Role == UserRole.Professor || usuarioDTO.Role == UserRole.Supervisor) && usuarioDTO.PoloId.HasValue)
             {
                 var listaPorPolo = await _usuarioRepository.ObterPorPoloTurmaAsync(usuarioDTO.PoloId.Value, turmas);
 

@@ -96,7 +96,8 @@ namespace InstitutoTriboDeDavi.Application.Services
                 return _mapper.Map<List<AlunoDTO>>(listaTodos);
             }
 
-            if (usuarioDTO.Role == UserRole.Professor && usuarioDTO.PoloId.HasValue)
+            // Supervisor e Professor enxergam apenas o próprio polo
+            if ((usuarioDTO.Role == UserRole.Professor || usuarioDTO.Role == UserRole.Supervisor) && usuarioDTO.PoloId.HasValue)
             {
                 var listaPorPolo = await _alunoRepository.ObterPorPoloTurmaAsync(usuarioDTO.PoloId.Value, turmas);
 
@@ -114,7 +115,7 @@ namespace InstitutoTriboDeDavi.Application.Services
             {
                 pendentes = await _alunoRepository.ObterTodosPendentesAsync();
             }
-            else if (usuarioDTO.Role == UserRole.Professor && usuarioDTO.PoloId.HasValue)
+            else if ((usuarioDTO.Role == UserRole.Professor || usuarioDTO.Role == UserRole.Supervisor) && usuarioDTO.PoloId.HasValue)
             {
                 pendentes = await _alunoRepository.ObterPendentesPorPoloAsync(usuarioDTO.PoloId.Value);
             }

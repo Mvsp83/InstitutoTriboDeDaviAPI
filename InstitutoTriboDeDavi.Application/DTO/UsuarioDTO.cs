@@ -13,8 +13,8 @@ namespace InstitutoTriboDeDavi.Application.DTO
         public string Login { get; set; }
 
         [Required(ErrorMessage = "O Password não pode ser vazio.")]
-        [MinLength(3, ErrorMessage = "O Password deve ter no mínimo 3 caracteres.")]
-        [MaxLength(20, ErrorMessage = "O Password deve ter no máximo 20 caracteres.")]
+        [MinLength(8, ErrorMessage = "O Password deve ter no mínimo 8 caracteres.")]
+        [MaxLength(100, ErrorMessage = "O Password deve ter no máximo 100 caracteres.")]
         public string Password { get; set; }
 
         [Required(ErrorMessage = "O Email não pode ser vazio.")]

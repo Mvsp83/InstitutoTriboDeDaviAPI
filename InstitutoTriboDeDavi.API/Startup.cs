@@ -25,10 +25,12 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using System.Threading.RateLimiting;
 
 namespace InstitutoTriboDeDavi.API
 {
@@ -50,6 +52,17 @@ namespace InstitutoTriboDeDavi.API
             var secretKey = Configuration["Jwt:Key"];
             var issuer = Configuration["Jwt:Issuer"];
             var audience = Configuration["Jwt:Audience"];
+
+            // Fail-fast: sem chave (ou com chave fraca) a API não deve subir —
+            // melhor um erro claro no deploy do que um 500 obscuro no primeiro login
+            if (string.IsNullOrWhiteSpace(secretKey) || Encoding.ASCII.GetByteCount(secretKey) < 32)
+                throw new InvalidOperationException(
+                    "Jwt:Key ausente ou com menos de 32 bytes. " +
+                    "Dev: dotnet user-secrets set \"Jwt:Key\" \"<chave>\". Produção: variável de ambiente Jwt__Key.");
+
+            if (!int.TryParse(Configuration["Jwt:HoursToExpire"], out var hoursToExpire) || hoursToExpire <= 0)
+                throw new InvalidOperationException("Jwt:HoursToExpire ausente ou inválido (esperado um inteiro positivo).");
+
             var isDevelopment = string.Equals(
                 Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"),
                 "Development", StringComparison.OrdinalIgnoreCase);
@@ -75,6 +88,27 @@ namespace InstitutoTriboDeDavi.API
                     ValidateAudience = !string.IsNullOrEmpty(audience),
                     ValidAudience = audience
                 };
+            });
+
+            #endregion
+
+            #region Rate Limiting
+
+            // Proteção contra força bruta no login: 5 tentativas por minuto por IP.
+            // O IP real chega via X-Forwarded-For (tratado pelo UseForwardedHeaders).
+            services.AddRateLimiter(options =>
+            {
+                options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+                options.AddPolicy(AuthPolicies.LoginRateLimit, context =>
+                    RateLimitPartition.GetFixedWindowLimiter(
+                        context.Connection.RemoteIpAddress?.ToString() ?? "desconhecido",
+                        _ => new FixedWindowRateLimiterOptions
+                        {
+                            Window = TimeSpan.FromMinutes(1),
+                            PermitLimit = 5,
+                            QueueLimit = 0
+                        }));
             });
 
             #endregion
@@ -116,6 +150,14 @@ namespace InstitutoTriboDeDavi.API
             services.AddScoped<IPresencaService, PresencaService>();
             services.AddScoped<IAulaRepository, AulaRepository>();
             services.AddScoped<IAulaService, AulaService>();
+            services.AddScoped<IPlanoDeAulaRepository, PlanoDeAulaRepository>();
+            services.AddScoped<IPlanoDeAulaService, PlanoDeAulaService>();
+            services.AddScoped<IModeloDeAulaRepository, ModeloDeAulaRepository>();
+            services.AddScoped<IModeloDeAulaService, ModeloDeAulaService>();
+            services.AddScoped<IAtividadeRepository, AtividadeRepository>();
+            services.AddScoped<IAtividadeService, AtividadeService>();
+            services.AddScoped<IRelatorioSalvoRepository, RelatorioSalvoRepository>();
+            services.AddScoped<IRelatorioSalvoService, RelatorioSalvoService>();
             services.AddScoped<IFrequenciaRepository, FrequenciaRepository>();
             services.AddScoped<IFrequenciaService, FrequenciaService>();
             services.AddScoped<IAniversarianteRepository, AniversarianteRepository>();
@@ -151,6 +193,15 @@ namespace InstitutoTriboDeDavi.API
 
                     cfg.CreateMap<Presenca, PresencaDTO>().ReverseMap();
                     cfg.CreateMap<Aula, AulaDTO>().ReverseMap();
+
+                    cfg.CreateMap<PlanoDeAula, PlanoDeAulaDTO>().ReverseMap();
+                    cfg.CreateMap<BlocoDoPlano, BlocoDoPlanoDTO>().ReverseMap();
+                    cfg.CreateMap<ModeloDeAula, ModeloDeAulaDTO>().ReverseMap();
+                    cfg.CreateMap<BlocoDoModelo, BlocoDoModeloDTO>().ReverseMap();
+                    cfg.CreateMap<Atividade, AtividadeDTO>().ReverseMap();
+                    cfg.CreateMap<AtividadeDoBloco, AtividadeDoBlocoDTO>().ReverseMap();
+                    cfg.CreateMap<RelatorioSalvo, RelatorioSalvoDTO>().ReverseMap();
+                    cfg.CreateMap<HistoricoAtividade, HistoricoAtividadeDTO>().ReverseMap();
 
                     cfg.CreateMap<Frequencia, FrequenciaDTO>().ReverseMap();
                     cfg.CreateMap<Aniversariante, AniversarianteDTO>().ReverseMap();
@@ -230,8 +281,11 @@ namespace InstitutoTriboDeDavi.API
                 forwardedOptions.KnownProxies.Clear();
                 app.UseForwardedHeaders(forwardedOptions);
 
+                app.UseHsts();
                 app.UseHttpsRedirection();
             }
+
+            app.UseRateLimiter();
 
             app.UseAuthentication();
 

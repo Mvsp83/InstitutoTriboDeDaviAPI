@@ -24,6 +24,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InstitutoTriboDeDavi.Applic
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InstitutoTriboDeDavi.Infrastructure", "InstitutoTriboDeDavi.Infrastructure\InstitutoTriboDeDavi.Infrastructure.csproj", "{C7A986B5-0982-4374-A9EC-59C77E210759}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InstitutoTriboDeDavi.Web", "InstitutoTriboDeDavi.Web\InstitutoTriboDeDavi.Web.csproj", "{32986741-5312-4611-A72D-0B026024E7F6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -94,6 +96,18 @@ Global
 		{C7A986B5-0982-4374-A9EC-59C77E210759}.Release|x64.Build.0 = Release|Any CPU
 		{C7A986B5-0982-4374-A9EC-59C77E210759}.Release|x86.ActiveCfg = Release|Any CPU
 		{C7A986B5-0982-4374-A9EC-59C77E210759}.Release|x86.Build.0 = Release|Any CPU
+		{32986741-5312-4611-A72D-0B026024E7F6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{32986741-5312-4611-A72D-0B026024E7F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{32986741-5312-4611-A72D-0B026024E7F6}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{32986741-5312-4611-A72D-0B026024E7F6}.Debug|x64.Build.0 = Debug|Any CPU
+		{32986741-5312-4611-A72D-0B026024E7F6}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{32986741-5312-4611-A72D-0B026024E7F6}.Debug|x86.Build.0 = Debug|Any CPU
+		{32986741-5312-4611-A72D-0B026024E7F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{32986741-5312-4611-A72D-0B026024E7F6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{32986741-5312-4611-A72D-0B026024E7F6}.Release|x64.ActiveCfg = Release|Any CPU
+		{32986741-5312-4611-A72D-0B026024E7F6}.Release|x64.Build.0 = Release|Any CPU
+		{32986741-5312-4611-A72D-0B026024E7F6}.Release|x86.ActiveCfg = Release|Any CPU
+		{32986741-5312-4611-A72D-0B026024E7F6}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

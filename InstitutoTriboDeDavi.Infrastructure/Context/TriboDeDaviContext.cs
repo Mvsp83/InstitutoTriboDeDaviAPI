@@ -25,6 +25,13 @@ namespace InstitutoTriboDeDavi.Infrastructure.Context
             builder.ApplyConfiguration(new PoloMap());
             builder.ApplyConfiguration(new AulaMap());
             builder.ApplyConfiguration(new PresencaMap());
+            builder.ApplyConfiguration(new PlanoDeAulaMap());
+            builder.ApplyConfiguration(new BlocoDoPlanoMap());
+            builder.ApplyConfiguration(new ModeloDeAulaMap());
+            builder.ApplyConfiguration(new BlocoDoModeloMap());
+            builder.ApplyConfiguration(new AtividadeMap());
+            builder.ApplyConfiguration(new AtividadeDoBlocoMap());
+            builder.ApplyConfiguration(new RelatorioSalvoMap());
             builder.Entity<SincronizacaoHistorico>(entity =>
             {
                 entity.ToTable("SINCRONIZACAO_HISTORICO");
@@ -41,5 +48,12 @@ namespace InstitutoTriboDeDavi.Infrastructure.Context
         public DbSet<Aula> Aulas { get; set; }
         public DbSet<Presenca> Presencas { get; set; }
         public DbSet<SincronizacaoHistorico> SincronizacaoHistoricos { get; set; }
+        public DbSet<PlanoDeAula> PlanosDeAula { get; set; }
+        public DbSet<BlocoDoPlano> BlocosDoPlano { get; set; }
+        public DbSet<ModeloDeAula> ModelosDeAula { get; set; }
+        public DbSet<BlocoDoModelo> BlocosDoModelo { get; set; }
+        public DbSet<Atividade> Atividades { get; set; }
+        public DbSet<AtividadeDoBloco> AtividadesDoBloco { get; set; }
+        public DbSet<RelatorioSalvo> RelatoriosSalvos { get; set; }
     }
 }

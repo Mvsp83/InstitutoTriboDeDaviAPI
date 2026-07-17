@@ -4,6 +4,7 @@ using InstitutoTriboDeDavi.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace InstitutoTriboDeDavi.Infrastructure.Migrations
 {
     [DbContext(typeof(TriboDeDaviContext))]
-    partial class TriboDeDaviContextModelSnapshot : ModelSnapshot
+    [Migration("20260706233835_AddPlanejamentoDeAulas")]
+    partial class AddPlanejamentoDeAulas
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -90,69 +93,6 @@ namespace InstitutoTriboDeDavi.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("ALUNOS", (string)null);
-                });
-
-            modelBuilder.Entity("InstitutoTriboDeDavi.Domain.Entities.Business.Atividade", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("BIGINT");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("Descricao")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Nome")
-                        .IsRequired()
-                        .HasMaxLength(120)
-                        .HasColumnType("nvarchar(120)");
-
-                    b.Property<string>("Principio")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<string>("ReferenciaBiblica")
-                        .HasMaxLength(120)
-                        .HasColumnType("nvarchar(120)");
-
-                    b.Property<string>("Tags")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<int>("Tipo")
-                        .HasColumnType("int");
-
-                    b.Property<string>("VideoUrl")
-                        .HasMaxLength(300)
-                        .HasColumnType("nvarchar(300)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ATIVIDADES", (string)null);
-                });
-
-            modelBuilder.Entity("InstitutoTriboDeDavi.Domain.Entities.Business.AtividadeDoBloco", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("BIGINT");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<long>("AtividadeId")
-                        .HasColumnType("BIGINT");
-
-                    b.Property<long>("BlocoDoPlanoId")
-                        .HasColumnType("BIGINT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AtividadeId");
-
-                    b.HasIndex("BlocoDoPlanoId");
-
-                    b.ToTable("ATIVIDADES_DO_BLOCO", (string)null);
                 });
 
             modelBuilder.Entity("InstitutoTriboDeDavi.Domain.Entities.Business.Aula", b =>
@@ -359,47 +299,6 @@ namespace InstitutoTriboDeDavi.Infrastructure.Migrations
                     b.ToTable("PRESENCAS", (string)null);
                 });
 
-            modelBuilder.Entity("InstitutoTriboDeDavi.Domain.Entities.Business.RelatorioSalvo", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("BIGINT");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("Colunas")
-                        .IsRequired()
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
-                    b.Property<string>("FonteId")
-                        .IsRequired()
-                        .HasMaxLength(40)
-                        .HasColumnType("nvarchar(40)");
-
-                    b.Property<string>("Nome")
-                        .IsRequired()
-                        .HasMaxLength(120)
-                        .HasColumnType("nvarchar(120)");
-
-                    b.Property<long?>("PoloId")
-                        .HasColumnType("bigint");
-
-                    b.Property<int?>("Turma")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UsuarioLogin")
-                        .IsRequired()
-                        .HasMaxLength(120)
-                        .HasColumnType("nvarchar(120)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UsuarioLogin");
-
-                    b.ToTable("RELATORIOS_SALVOS", (string)null);
-                });
-
             modelBuilder.Entity("InstitutoTriboDeDavi.Domain.Entities.Business.SincronizacaoHistorico", b =>
                 {
                     b.Property<long>("Id")
@@ -518,21 +417,6 @@ namespace InstitutoTriboDeDavi.Infrastructure.Migrations
                     b.ToTable("USUARIOS", (string)null);
                 });
 
-            modelBuilder.Entity("InstitutoTriboDeDavi.Domain.Entities.Business.AtividadeDoBloco", b =>
-                {
-                    b.HasOne("InstitutoTriboDeDavi.Domain.Entities.Business.Atividade", null)
-                        .WithMany()
-                        .HasForeignKey("AtividadeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("InstitutoTriboDeDavi.Domain.Entities.Business.BlocoDoPlano", null)
-                        .WithMany("Atividades")
-                        .HasForeignKey("BlocoDoPlanoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("InstitutoTriboDeDavi.Domain.Entities.Business.BlocoDoModelo", b =>
                 {
                     b.HasOne("InstitutoTriboDeDavi.Domain.Entities.Business.ModeloDeAula", null)
@@ -549,11 +433,6 @@ namespace InstitutoTriboDeDavi.Infrastructure.Migrations
                         .HasForeignKey("PlanoDeAulaId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("InstitutoTriboDeDavi.Domain.Entities.Business.BlocoDoPlano", b =>
-                {
-                    b.Navigation("Atividades");
                 });
 
             modelBuilder.Entity("InstitutoTriboDeDavi.Domain.Entities.Business.ModeloDeAula", b =>

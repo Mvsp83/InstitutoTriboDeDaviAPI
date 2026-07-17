@@ -6,6 +6,7 @@ using InstitutoTriboDeDavi.API.ViewModels.Result;
 using InstitutoTriboDeDavi.Application.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace InstitutoTriboDeDavi.API.Controllers
 {
@@ -30,6 +31,7 @@ namespace InstitutoTriboDeDavi.API.Controllers
         [HttpPost]
         [Route("/api/v1/auth/login")]
         [AllowAnonymous]
+        [EnableRateLimiting(AuthPolicies.LoginRateLimit)]
         public async Task<IActionResult> Login([FromBody] LoginViewModel loginViewModel)
         {
             return await ExecuteAsync(async () =>
@@ -37,7 +39,11 @@ namespace InstitutoTriboDeDavi.API.Controllers
                 var usuario = await _usuarioService.ValidarUsuarioAsync(loginViewModel.Login, loginViewModel.Password);
 
                 if (usuario == null)
+                {
+                    // Auditoria de tentativas falhas (força bruta, senha errada)
+                    _logger.LogWarning("Tentativa de login malsucedida para o login {Login}", loginViewModel.Login);
                     return StatusCode(401, Responses.UnauthorizedErrorMessage());
+                }
 
                 var token = _tokenGenerator.GenerateToken(usuario);
 

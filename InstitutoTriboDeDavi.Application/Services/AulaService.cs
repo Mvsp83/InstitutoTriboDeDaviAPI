@@ -77,7 +77,8 @@ namespace InstitutoTriboDeDavi.Application.Services
                 return _mapper.Map<List<AulaDTO>>(listaTodos);
             }
 
-            if (usuarioDTO.Role == UserRole.Professor && usuarioDTO.PoloId.HasValue)
+            // Supervisor e Professor enxergam apenas o próprio polo
+            if ((usuarioDTO.Role == UserRole.Professor || usuarioDTO.Role == UserRole.Supervisor) && usuarioDTO.PoloId.HasValue)
             {
                 var listaPorPolo = await _aulaRepository.ObterPorPoloTurmaAsync(usuarioDTO.PoloId.Value, turmas);
 

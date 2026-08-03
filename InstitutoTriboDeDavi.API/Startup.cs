@@ -18,6 +18,7 @@ using InstitutoTriboDeDavi.Infrastructure.Import;
 using InstitutoTriboDeDavi.Application.Import;
 using InstitutoTriboDeDavi.Infrastructure.Configuration;
 using InstitutoTriboDeDavi.Infrastructure.Context;
+using InstitutoTriboDeDavi.Infrastructure.GoogleDrive;
 using InstitutoTriboDeDavi.Infrastructure.GoogleSheets;
 using InstitutoTriboDeDavi.Application.Services;
 using InstitutoTriboDeDavi.Application.Services.Interfaces;
@@ -169,8 +170,12 @@ namespace InstitutoTriboDeDavi.API
             // Configuração do Google Sheets
             services.Configure<GoogleSheetsConfig>(Configuration.GetSection("GoogleSheets"));
 
+            // Configuração do Google Drive (documentos contábeis)
+            services.Configure<GoogleDriveConfig>(Configuration.GetSection("GoogleDrive"));
+
             // Serviços
             services.AddScoped<IGoogleSheetsService, GoogleSheetsService>();
+            services.AddScoped<IDocumentoDriveService, GoogleDriveDocumentoService>();
 
             // Background service de sincronização automática
             services.AddHostedService<SincronizacaoHostedService>();

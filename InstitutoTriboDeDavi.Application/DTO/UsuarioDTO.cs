@@ -25,5 +25,6 @@ namespace InstitutoTriboDeDavi.Application.DTO
         public UserRole Role { get; set; }
         public long? PoloId { get; set; }
         public string PoloNome { get; set; }
+        public string? Avatar { get; set; }
     }
 }

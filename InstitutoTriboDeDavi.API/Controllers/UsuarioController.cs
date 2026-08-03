@@ -252,6 +252,41 @@ namespace InstitutoTriboDeDavi.API.Controllers
             });
         }
 
+        // Avatar do próprio usuário autenticado (qualquer papel).
+        [HttpGet("meu-avatar")]
+        [Authorize]
+        public async Task<IActionResult> ObterMeuAvatar()
+        {
+            return await ExecuteAsync(async () =>
+            {
+                var avatar = await _usuarioService.ObterAvatarAsync(UsuarioAutenticado.Login);
+
+                return Ok(new ResultViewModel
+                {
+                    Message = "Avatar obtido com sucesso!",
+                    Success = true,
+                    Data = new { avatar }
+                });
+            });
+        }
+
+        [HttpPut("meu-avatar")]
+        [Authorize]
+        public async Task<IActionResult> AtualizarMeuAvatar([FromBody] AtualizarAvatarViewModel model)
+        {
+            return await ExecuteAsync(async () =>
+            {
+                await _usuarioService.AtualizarAvatarAsync(UsuarioAutenticado.Login, model.Avatar);
+
+                return Ok(new ResultViewModel
+                {
+                    Message = "Avatar atualizado com sucesso!",
+                    Success = true,
+                    Data = null
+                });
+            });
+        }
+
         [HttpGet("get-por-polo")]
         [Authorize]
         public async Task<IActionResult> ObterUsuarios([FromQuery] List<int> turmas)

@@ -16,5 +16,7 @@ namespace InstitutoTriboDeDavi.Application.Services.Interfaces
         Task<UsuarioDTO> ValidarUsuarioAsync(string login, string password);
         Task<List<UsuarioDTO>> ObterUsuariosPorTurmaAsync(UsuarioDTO usuario, List<int> turmas);
         Task<bool> ExisteQualquerUsuario();
+        Task<string?> ObterAvatarAsync(string login);
+        Task AtualizarAvatarAsync(string login, string? avatar);
     }
 }

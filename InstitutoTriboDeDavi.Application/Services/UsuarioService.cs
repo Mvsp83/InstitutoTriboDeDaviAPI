@@ -178,5 +178,62 @@ namespace InstitutoTriboDeDavi.Application.Services
         {
             return await _usuarioRepository.ExisteQualquerUsuario();
         }
+
+        // Máximo de presets disponíveis no front (preset:1..preset:12).
+        private const int TotalPresets = 12;
+        // Limite do data URI (~40 KB de imagem em base64). Mantém o banco leve.
+        private const int TamanhoMaximoAvatar = 55_000;
+
+        public async Task<string?> ObterAvatarAsync(string login)
+        {
+            var usuario = await _usuarioRepository.ObterUsuarioPorLoginAsync(login);
+            return usuario?.Avatar;
+        }
+
+        public async Task AtualizarAvatarAsync(string login, string? avatar)
+        {
+            var usuario = await _usuarioRepository.ObterUsuarioPorLoginAsync(login)
+                ?? throw new DomainException("Usuário não encontrado.");
+
+            usuario.Avatar = NormalizarAvatar(avatar);
+
+            await _usuarioRepository.UpdateAsync(usuario);
+        }
+
+        // Aceita apenas: vazio (limpa), "preset:N" dentro do intervalo, ou um
+        // data URI de imagem dentro do limite. URLs externas são recusadas.
+        private static string? NormalizarAvatar(string? avatar)
+        {
+            if (string.IsNullOrWhiteSpace(avatar))
+                return null;
+
+            avatar = avatar.Trim();
+
+            if (avatar.StartsWith("preset:", StringComparison.OrdinalIgnoreCase))
+            {
+                var numero = avatar["preset:".Length..];
+                if (int.TryParse(numero, out var n) && n >= 1 && n <= TotalPresets)
+                    return $"preset:{n}";
+
+                throw new DomainException("Avatar de preset inválido.");
+            }
+
+            var prefixosValidos = new[]
+            {
+                "data:image/png;base64,",
+                "data:image/jpeg;base64,",
+                "data:image/webp;base64,"
+            };
+
+            if (prefixosValidos.Any(p => avatar.StartsWith(p, StringComparison.OrdinalIgnoreCase)))
+            {
+                if (avatar.Length > TamanhoMaximoAvatar)
+                    throw new DomainException("A imagem do avatar é grande demais. Escolha uma foto menor.");
+
+                return avatar;
+            }
+
+            throw new DomainException("Formato de avatar não suportado.");
+        }
     }
 }

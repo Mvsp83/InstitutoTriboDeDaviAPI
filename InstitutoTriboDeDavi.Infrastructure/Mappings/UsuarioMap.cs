@@ -31,6 +31,13 @@ namespace InstitutoTriboDeDavi.Infrastructure.Mappings
                 .IsRequired()
                 .HasColumnName("Email")
                 .HasColumnType("VARCHAR(180)");
+
+            // Preset ("preset:7") ou miniatura em data URI. O limite de tamanho
+            // real é imposto na aplicação (AtualizarAvatarAsync).
+            builder.Property(x => x.Avatar)
+                .IsRequired(false)
+                .HasColumnName("Avatar")
+                .HasColumnType("VARCHAR(MAX)");
         }
     }
 }

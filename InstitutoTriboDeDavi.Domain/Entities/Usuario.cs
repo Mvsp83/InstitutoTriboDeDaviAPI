@@ -14,6 +14,10 @@ namespace InstitutoTriboDeDavi.Domain.Entities
         public long? PoloId { get; set; }
         public string PoloNome { get; set; }
 
+        // Avatar do usuário: chave curta de preset ("preset:7") ou miniatura em
+        // data URI. Anulável = sem avatar (a UI cai nas iniciais).
+        public string? Avatar { get; set; }
+
         public override bool Validate()
         {
             var validator = new UsuarioValidator();

@@ -24,6 +24,25 @@ namespace InstitutoTriboDeDavi.Infrastructure.Repositories
             return aluno.FirstOrDefault();
         }
 
+        // Busca por CPF (identidade forte — evita que homônimos se sobrescrevam
+        // na sincronização). Compara pelo valor da planilha, que é a mesma
+        // origem/formatação com que o CPF foi gravado. Se o formato do CPF no
+        // formulário mudar, o import cai no fallback por nome (comportamento
+        // anterior), nunca pior que hoje.
+        public async Task<Aluno> GetByCpf(string cpf)
+        {
+            if (string.IsNullOrWhiteSpace(cpf))
+                return null;
+
+            var alvo = cpf.Trim();
+            var alunos = await _context.Alunos
+                .Where(a => a.CPF == alvo)
+                .AsNoTracking()
+                .ToListAsync();
+
+            return alunos.FirstOrDefault();
+        }
+
         public async Task<List<Aluno>> SearchByNome(string nome)
         {
             var allAlunos = await _context.Alunos

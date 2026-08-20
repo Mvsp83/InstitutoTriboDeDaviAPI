@@ -213,5 +213,157 @@ namespace InstitutoTriboDeDavi.Tests
             Assert.Single(resultado.Erros);
             Assert.Equal(1, resultado.Inseridos);
         }
+
+        [Fact]
+        public async Task Import_CasaPorCpf_AtualizaMesmoComNomeDiferente()
+        {
+            // Aluno já cadastrado; na planilha o nome veio com grafia diferente,
+            // mas o CPF é o mesmo → deve ATUALIZAR, não criar duplicata.
+            var existente = new Aluno { Id = 42, Nome = "João da Silva", CPF = "111.222.333-44", Turma = 1 };
+            _alunoRepositorio.Setup(r => r.GetByCpf("111.222.333-44")).ReturnsAsync(existente);
+
+            var rows = new List<IList<object>>
+            {
+                Cabecalho(),
+                Linha(nome: "Joao Silva", cpf: "111.222.333-44"),
+            };
+
+            var resultado = await _factory.ImportarAlunosDeSheetsAsync(rows, poloId: 1);
+
+            Assert.Equal(1, resultado.Atualizados);
+            Assert.Equal(0, resultado.Inseridos);
+            Assert.Equal(42, _alunoSalvo!.Id);
+            _alunoRepositorio.Verify(r => r.CreateAsync(It.IsAny<Aluno>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task Import_Cpf_TemPrioridadeSobreNome_NaoSobrescreveHomonimo()
+        {
+            // Dois homônimos: por nome acharíamos o A; por CPF, o B correto.
+            var alunoA = new Aluno { Id = 1, Nome = "Maria Souza", CPF = "111", Turma = 1 };
+            var alunoB = new Aluno { Id = 2, Nome = "Maria Souza", CPF = "222", Turma = 2 };
+            _alunoRepositorio.Setup(r => r.GetByNome("Maria Souza")).ReturnsAsync(alunoA);
+            _alunoRepositorio.Setup(r => r.GetByCpf("222")).ReturnsAsync(alunoB);
+
+            var rows = new List<IList<object>>
+            {
+                Cabecalho(),
+                Linha(nome: "Maria Souza", cpf: "222"),
+            };
+
+            await _factory.ImportarAlunosDeSheetsAsync(rows, poloId: 1);
+
+            Assert.Equal(2, _alunoSalvo!.Id); // atualizou o homônimo certo, pelo CPF
+        }
+
+        [Fact]
+        public async Task Import_CabecalhoDeslocado_AbortaSemGravar()
+        {
+            // Coluna de nome (índice 4) não parece 'Nome' → estrutura mudou.
+            var rows = new List<IList<object>>
+            {
+                Linha(nome: "Telefone"), // cabeçalho deslocado
+                Linha(nome: "João da Silva", cpf: "123"),
+            };
+
+            var resultado = await _factory.ImportarAlunosDeSheetsAsync(rows, poloId: 1);
+
+            Assert.Equal(0, resultado.Inseridos);
+            Assert.Equal(0, resultado.Atualizados);
+            Assert.Single(resultado.Erros);
+            _alunoRepositorio.Verify(r => r.CreateAsync(It.IsAny<Aluno>()), Times.Never);
+            _alunoRepositorio.Verify(r => r.UpdateAsync(It.IsAny<Aluno>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task Import_DataNascimento_InterpretadaComoBrasileira()
+        {
+            _alunoRepositorio.Setup(r => r.GetByNome(It.IsAny<string>())).ReturnsAsync((Aluno?)null);
+
+            var rows = new List<IList<object>>
+            {
+                Cabecalho(),
+                Linha(nome: "Ana", dataNasc: "03/04/2015"), // 3 de abril, não 4 de março
+            };
+
+            await _factory.ImportarAlunosDeSheetsAsync(rows, poloId: 1);
+
+            Assert.Equal(3, _alunoSalvo!.DataNascimento.Day);
+            Assert.Equal(4, _alunoSalvo.DataNascimento.Month);
+            Assert.Equal(2015, _alunoSalvo.DataNascimento.Year);
+        }
+
+        [Fact]
+        public async Task Import_ValoresDeNaoInformado_ViramNull()
+        {
+            _alunoRepositorio.Setup(r => r.GetByNome(It.IsAny<string>())).ReturnsAsync((Aluno?)null);
+
+            var rows = new List<IList<object>>
+            {
+                Cabecalho(),
+                Linha(nome: "Bia", rg: "Não tenho", cpf: "N/A"),
+            };
+
+            await _factory.ImportarAlunosDeSheetsAsync(rows, poloId: 1);
+
+            Assert.Null(_alunoSalvo!.RG);
+            Assert.Null(_alunoSalvo.CPF);
+        }
+
+        [Fact]
+        public async Task Import_SemMudanca_NaoRegravaEContaComoIgnorado()
+        {
+            var existente = new Aluno
+            {
+                Id = 5,
+                Nome = "Zé",
+                PoloId = 1,
+                Turma = 1,
+                Endereco = "",
+                Faixa = Faixa.Branca
+            };
+            _alunoRepositorio.Setup(r => r.GetByNome("Zé")).ReturnsAsync(existente);
+
+            var rows = new List<IList<object>>
+            {
+                Cabecalho(),
+                Linha(nome: "Zé"), // nada mudou em relação ao cadastro
+            };
+
+            var resultado = await _factory.ImportarAlunosDeSheetsAsync(rows, poloId: 1);
+
+            Assert.Equal(1, resultado.Ignorados);
+            Assert.Equal(0, resultado.Atualizados);
+            _alunoRepositorio.Verify(r => r.UpdateAsync(It.IsAny<Aluno>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task Import_ComMudanca_AtualizaUmaVez()
+        {
+            var existente = new Aluno
+            {
+                Id = 6,
+                Nome = "Ana",
+                PoloId = 1,
+                Turma = 1,
+                Endereco = "",
+                Faixa = Faixa.Branca,
+                Celular = "(47) 1111-1111"
+            };
+            _alunoRepositorio.Setup(r => r.GetByNome("Ana")).ReturnsAsync(existente);
+
+            var rows = new List<IList<object>>
+            {
+                Cabecalho(),
+                Linha(nome: "Ana", celular: "(47) 2222-2222"),
+            };
+
+            var resultado = await _factory.ImportarAlunosDeSheetsAsync(rows, poloId: 1);
+
+            Assert.Equal(1, resultado.Atualizados);
+            Assert.Equal(0, resultado.Ignorados);
+            Assert.Equal("(47) 2222-2222", _alunoSalvo!.Celular);
+            _alunoRepositorio.Verify(r => r.UpdateAsync(It.IsAny<Aluno>()), Times.Once);
+        }
     }
 }

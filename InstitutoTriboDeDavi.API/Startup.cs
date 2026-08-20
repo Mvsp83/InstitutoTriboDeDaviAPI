@@ -20,6 +20,7 @@ using InstitutoTriboDeDavi.Infrastructure.Configuration;
 using InstitutoTriboDeDavi.Infrastructure.Context;
 using InstitutoTriboDeDavi.Infrastructure.GoogleDrive;
 using InstitutoTriboDeDavi.Infrastructure.GoogleSheets;
+using InstitutoTriboDeDavi.Infrastructure.Email;
 using InstitutoTriboDeDavi.Application.Services;
 using InstitutoTriboDeDavi.Application.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -165,6 +166,10 @@ namespace InstitutoTriboDeDavi.API
             services.AddScoped<IAniversarianteService, AniversarianteService>();
             services.AddScoped<IConfiguracaoDocumentoRepository, ConfiguracaoDocumentoRepository>();
             services.AddScoped<IConfiguracaoDocumentoService, ConfiguracaoDocumentoService>();
+            services.AddScoped<IEventoCalendarioRepository, EventoCalendarioRepository>();
+            services.AddScoped<IEventoCalendarioService, EventoCalendarioService>();
+            services.AddScoped<IDocumentoOficialRepository, DocumentoOficialRepository>();
+            services.AddScoped<IDocumentoOficialService, DocumentoOficialService>();
 
             services.AddScoped<ITokenGenerator, TokenGenerator>();
 
@@ -175,12 +180,19 @@ namespace InstitutoTriboDeDavi.API
             // Configuração do Google Drive (documentos contábeis)
             services.Configure<GoogleDriveConfig>(Configuration.GetSection("GoogleDrive"));
 
+            // Configuração de email (avisos do calendário)
+            services.Configure<SmtpConfig>(Configuration.GetSection("Smtp"));
+
             // Serviços
             services.AddScoped<IGoogleSheetsService, GoogleSheetsService>();
             services.AddScoped<IDocumentoDriveService, GoogleDriveDocumentoService>();
+            services.AddScoped<IEmailService, EmailService>();
 
             // Background service de sincronização automática
             services.AddHostedService<SincronizacaoHostedService>();
+
+            // Background service dos avisos do calendário por email
+            services.AddHostedService<NotificacaoCalendarioHostedService>();
 
             services.AddScoped<IFactoryPlanilhaDB, FactoryPlanilhaDB>();
             services.AddScoped<ISincronizacaoHistoricoRepository, SincronizacaoHistoricoRepository>();
@@ -198,6 +210,8 @@ namespace InstitutoTriboDeDavi.API
                     cfg.CreateMap<Aluno, AlunoDTO>().ReverseMap();
                     cfg.CreateMap<Polo, PoloDTO>().ReverseMap();
                     cfg.CreateMap<ConfiguracaoDocumento, ConfiguracaoDocumentoDTO>().ReverseMap();
+                    cfg.CreateMap<EventoCalendario, EventoCalendarioDTO>().ReverseMap();
+                    cfg.CreateMap<DocumentoOficial, DocumentoOficialDTO>().ReverseMap();
 
                     cfg.CreateMap<Presenca, PresencaDTO>().ReverseMap();
                     cfg.CreateMap<Aula, AulaDTO>().ReverseMap();

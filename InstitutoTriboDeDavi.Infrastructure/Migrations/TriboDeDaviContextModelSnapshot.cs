@@ -475,6 +475,103 @@ namespace InstitutoTriboDeDavi.Infrastructure.Migrations
                     b.ToTable("CONFIGURACAO_DOCUMENTO", (string)null);
                 });
 
+            modelBuilder.Entity("InstitutoTriboDeDavi.Domain.Entities.DocumentoOficial", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("BIGINT");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<int>("Ano")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Conteudo")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("DataAprovacao")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("DataDocumento")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Numero")
+                        .HasColumnType("int");
+
+                    b.Property<string>("NumeroFormatado")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Tipo")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Titulo")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Tipo", "Ano", "Numero")
+                        .IsUnique()
+                        .HasFilter("[Status] = 1");
+
+                    b.ToTable("DOCUMENTO_OFICIAL", (string)null);
+                });
+
+            modelBuilder.Entity("InstitutoTriboDeDavi.Domain.Entities.EventoCalendario", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("BIGINT");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<int>("Ano")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Data")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DataFim")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Descricao")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<int>("DiasAntecedencia")
+                        .HasColumnType("int");
+
+                    b.Property<string>("EmailsNotificacao")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<bool>("NotificacaoEnviada")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("Notificar")
+                        .HasColumnType("bit");
+
+                    b.Property<long?>("PoloId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("Tipo")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Titulo")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("EVENTO_CALENDARIO", (string)null);
+                });
+
             modelBuilder.Entity("InstitutoTriboDeDavi.Domain.Entities.Polo", b =>
                 {
                     b.Property<long>("Id")

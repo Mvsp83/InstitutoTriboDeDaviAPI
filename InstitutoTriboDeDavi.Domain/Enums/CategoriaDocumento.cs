@@ -2,7 +2,7 @@ using System.ComponentModel;
 
 namespace InstitutoTriboDeDavi.Domain.Enums
 {
-    // Categorias de documentos contábeis armazenados no Google Drive.
+    // Categorias de documentos armazenados no Google Drive.
     // O Description é o nome da subpasta criada dentro da pasta raiz.
     public enum CategoriaDocumento
     {
@@ -11,6 +11,8 @@ namespace InstitutoTriboDeDavi.Domain.Enums
         [Description("Balanço")]
         Balanco,
         [Description("Relatório de Atividades")]
-        RelatorioAtividades
+        RelatorioAtividades,
+        [Description("Modelos de Documentos")]
+        Modelos
     }
 }

@@ -163,6 +163,8 @@ namespace InstitutoTriboDeDavi.API
             services.AddScoped<IFrequenciaService, FrequenciaService>();
             services.AddScoped<IAniversarianteRepository, AniversarianteRepository>();
             services.AddScoped<IAniversarianteService, AniversarianteService>();
+            services.AddScoped<IConfiguracaoDocumentoRepository, ConfiguracaoDocumentoRepository>();
+            services.AddScoped<IConfiguracaoDocumentoService, ConfiguracaoDocumentoService>();
 
             services.AddScoped<ITokenGenerator, TokenGenerator>();
 
@@ -195,6 +197,7 @@ namespace InstitutoTriboDeDavi.API
                     cfg.CreateMap<UsuarioViewModel, UsuarioDTO>().ReverseMap();
                     cfg.CreateMap<Aluno, AlunoDTO>().ReverseMap();
                     cfg.CreateMap<Polo, PoloDTO>().ReverseMap();
+                    cfg.CreateMap<ConfiguracaoDocumento, ConfiguracaoDocumentoDTO>().ReverseMap();
 
                     cfg.CreateMap<Presenca, PresencaDTO>().ReverseMap();
                     cfg.CreateMap<Aula, AulaDTO>().ReverseMap();

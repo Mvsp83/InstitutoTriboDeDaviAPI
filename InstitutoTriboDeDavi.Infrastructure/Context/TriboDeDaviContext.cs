@@ -32,6 +32,7 @@ namespace InstitutoTriboDeDavi.Infrastructure.Context
             builder.ApplyConfiguration(new AtividadeMap());
             builder.ApplyConfiguration(new AtividadeDoBlocoMap());
             builder.ApplyConfiguration(new RelatorioSalvoMap());
+            builder.ApplyConfiguration(new ConfiguracaoDocumentoMap());
             builder.Entity<SincronizacaoHistorico>(entity =>
             {
                 entity.ToTable("SINCRONIZACAO_HISTORICO");
@@ -55,5 +56,6 @@ namespace InstitutoTriboDeDavi.Infrastructure.Context
         public DbSet<Atividade> Atividades { get; set; }
         public DbSet<AtividadeDoBloco> AtividadesDoBloco { get; set; }
         public DbSet<RelatorioSalvo> RelatoriosSalvos { get; set; }
+        public DbSet<ConfiguracaoDocumento> ConfiguracoesDocumento { get; set; }
     }
 }

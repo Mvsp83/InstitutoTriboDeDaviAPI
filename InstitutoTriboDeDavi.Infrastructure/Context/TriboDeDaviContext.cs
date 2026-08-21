@@ -44,6 +44,8 @@ namespace InstitutoTriboDeDavi.Infrastructure.Context
             builder.ApplyConfiguration(new InscricaoMap());
             builder.ApplyConfiguration(new MatriculaMap());
             builder.ApplyConfiguration(new GraduacaoMap());
+            builder.ApplyConfiguration(new DoadorMap());
+            builder.ApplyConfiguration(new DoacaoMap());
             builder.Entity<SincronizacaoHistorico>(entity =>
             {
                 entity.ToTable("SINCRONIZACAO_HISTORICO");
@@ -79,5 +81,7 @@ namespace InstitutoTriboDeDavi.Infrastructure.Context
         public DbSet<Inscricao> Inscricoes { get; set; }
         public DbSet<Matricula> Matriculas { get; set; }
         public DbSet<Graduacao> Graduacoes { get; set; }
+        public DbSet<Doador> Doadores { get; set; }
+        public DbSet<Doacao> Doacoes { get; set; }
     }
 }

@@ -33,6 +33,7 @@ namespace InstitutoTriboDeDavi.Infrastructure.Context
             builder.ApplyConfiguration(new AtividadeDoBlocoMap());
             builder.ApplyConfiguration(new RelatorioSalvoMap());
             builder.ApplyConfiguration(new ConfiguracaoDocumentoMap());
+            builder.ApplyConfiguration(new ConfiguracaoDashboardMap());
             builder.ApplyConfiguration(new EventoCalendarioMap());
             builder.ApplyConfiguration(new DocumentoOficialMap());
             builder.ApplyConfiguration(new BemPatrimonialMap());
@@ -62,6 +63,7 @@ namespace InstitutoTriboDeDavi.Infrastructure.Context
         public DbSet<AtividadeDoBloco> AtividadesDoBloco { get; set; }
         public DbSet<RelatorioSalvo> RelatoriosSalvos { get; set; }
         public DbSet<ConfiguracaoDocumento> ConfiguracoesDocumento { get; set; }
+        public DbSet<ConfiguracaoDashboard> ConfiguracoesDashboard { get; set; }
         public DbSet<EventoCalendario> EventosCalendario { get; set; }
         public DbSet<DocumentoOficial> DocumentosOficiais { get; set; }
         public DbSet<BemPatrimonial> BensPatrimoniais { get; set; }

@@ -87,7 +87,10 @@ namespace InstitutoTriboDeDavi.Infrastructure.Repositories
             }
             await _context.SaveChangesAsync();
 
+            // Só agora a matrícula está completa: o aluno novo acabou de ganhar
+            // o Id no banco. Validar antes disso reprovaria toda aprovação.
             matricula.AlunoId = aluno.Id;
+            matricula.Validate();
 
             // Rematrícula no mesmo ano atualiza a existente em vez de duplicar.
             var existente = await _context.Matriculas

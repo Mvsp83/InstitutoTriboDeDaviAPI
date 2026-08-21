@@ -116,6 +116,8 @@ namespace InstitutoTriboDeDavi.Application.Services
             PreencherAluno(aluno, inscricao, poloId, turma);
             aluno.Validate();
 
+            // A matrícula é validada no repositório, depois que o aluno é
+            // gravado: só ali existe o AlunoId de um cadastro novo.
             var matricula = new Matricula
             {
                 Ano = inscricao.Ano,
@@ -125,7 +127,6 @@ namespace InstitutoTriboDeDavi.Application.Services
                 DataMatricula = DateTime.UtcNow,
                 Ativa = true,
             };
-            matricula.Validate();
 
             inscricao.Status = (int)StatusInscricao.Aprovada;
             inscricao.DataRevisao = DateTime.UtcNow;

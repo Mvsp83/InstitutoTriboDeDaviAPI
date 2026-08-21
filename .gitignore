@@ -366,3 +366,6 @@ credentials/
 # Backups e IDE
 *.zip
 .idea/
+
+# Configuracao local de ferramentas de desenvolvimento
+.claude/

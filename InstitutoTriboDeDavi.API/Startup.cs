@@ -118,6 +118,18 @@ namespace InstitutoTriboDeDavi.API
                             PermitLimit = 5,
                             QueueLimit = 0
                         }));
+
+                // Inscrição pública: o formulário é longo e legítimo, então o
+                // limite é folgado — serve contra robô, não contra família.
+                options.AddPolicy(AuthPolicies.InscricaoRateLimit, context =>
+                    RateLimitPartition.GetFixedWindowLimiter(
+                        context.Connection.RemoteIpAddress?.ToString() ?? "desconhecido",
+                        _ => new FixedWindowRateLimiterOptions
+                        {
+                            Window = TimeSpan.FromMinutes(10),
+                            PermitLimit = 20,
+                            QueueLimit = 0
+                        }));
             });
 
             #endregion
@@ -177,6 +189,8 @@ namespace InstitutoTriboDeDavi.API
             services.AddScoped<IConfiguracaoDashboardService, ConfiguracaoDashboardService>();
             services.AddScoped<IFinanceiroRepository, FinanceiroRepository>();
             services.AddScoped<IFinanceiroService, FinanceiroService>();
+            services.AddScoped<IInscricaoRepository, InscricaoRepository>();
+            services.AddScoped<IInscricaoService, InscricaoService>();
             services.AddScoped<IEventoCalendarioRepository, EventoCalendarioRepository>();
             services.AddScoped<IEventoCalendarioService, EventoCalendarioService>();
             services.AddScoped<IDocumentoOficialRepository, DocumentoOficialRepository>();
@@ -228,6 +242,8 @@ namespace InstitutoTriboDeDavi.API
                     cfg.CreateMap<ConfiguracaoDashboard, ConfiguracaoDashboardDTO>().ReverseMap();
                     cfg.CreateMap<ContaFinanceira, ContaFinanceiraDTO>().ReverseMap();
                     cfg.CreateMap<MovimentacaoFinanceira, MovimentacaoFinanceiraDTO>().ReverseMap();
+                    cfg.CreateMap<Inscricao, InscricaoDTO>().ReverseMap();
+                    cfg.CreateMap<Matricula, MatriculaDTO>().ReverseMap();
                     cfg.CreateMap<EventoCalendario, EventoCalendarioDTO>().ReverseMap();
                     cfg.CreateMap<DocumentoOficial, DocumentoOficialDTO>().ReverseMap();
                     cfg.CreateMap<BemPatrimonial, BemPatrimonialDTO>().ReverseMap();

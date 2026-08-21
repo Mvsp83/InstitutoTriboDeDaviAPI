@@ -163,14 +163,32 @@ namespace InstitutoTriboDeDavi.Tests
             Assert.Equal("Maria da Silva", _alunoSalvo.Nome);
             Assert.Equal(1, _alunoSalvo.PoloId);
             Assert.Equal(2, _alunoSalvo.Turma);
-            // Endereço da ficha vem separado e é juntado numa linha só.
-            Assert.Equal("Rua A, 10, casa 2", _alunoSalvo.Endereco);
+            // Endereço vai para campos separados, como veio da ficha.
+            Assert.Equal("Rua A", _alunoSalvo.Endereco);
+            Assert.Equal("10", _alunoSalvo.Numero);
+            Assert.Equal("casa 2", _alunoSalvo.Complemento);
 
             Assert.Equal(DateTime.Today.Year, _matriculaSalva.Ano);
             Assert.Equal(2, _matriculaSalva.Turma);
             Assert.True(_matriculaSalva.Ativa);
             Assert.Equal(1, _matriculaSalva.InscricaoId);
             Assert.NotNull(matricula);
+        }
+
+        [Fact]
+        public async Task Aprovar_LevaOsCamposNovosParaOAluno()
+        {
+            var ficha = Pendente();
+            ficha.Altura = 1.42m;
+            ficha.Serie = "5o ano";
+            ficha.Telefone2 = "4733334444";
+            _inscricoes.Setup(r => r.ObterAsync(1)).ReturnsAsync(ficha);
+
+            await _service.Aprovar(1, new RevisaoInscricaoDTO { PoloId = 1, Turma = 1 }, "admin");
+
+            Assert.Equal(1.42, _alunoSalvo.Altura);
+            Assert.Equal("5o ano", _alunoSalvo.Serie);
+            Assert.Equal("4733334444", _alunoSalvo.Telefone2);
         }
 
         [Fact]

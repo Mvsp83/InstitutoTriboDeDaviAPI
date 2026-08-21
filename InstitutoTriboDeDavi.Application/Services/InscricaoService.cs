@@ -192,13 +192,19 @@ namespace InstitutoTriboDeDavi.Application.Services
             aluno.RG = i.Rg;
             aluno.CPF = i.Cpf;
             aluno.Peso = i.Peso.HasValue ? (double?)i.Peso.Value : null;
+            aluno.Altura = i.Altura.HasValue ? (double?)i.Altura.Value : null;
             aluno.Faixa = (Faixa)i.Faixa;
             aluno.Escola = i.Escola;
+            aluno.Serie = i.Serie;
             aluno.Periodo = i.Periodo;
             aluno.Responsavel = i.NomeResponsavel;
             aluno.RGResponsavel = i.RgResponsavel;
             aluno.CPFResponsavel = i.CpfResponsavel;
             aluno.Celular = i.WhatsApp;
+            aluno.Telefone2 = i.Telefone2;
+            aluno.Endereco = i.Rua;
+            aluno.Numero = i.Numero;
+            aluno.Complemento = i.Complemento;
             aluno.Bairro = i.Bairro;
             aluno.Cidade = i.Cidade;
             aluno.PoloId = poloId;
@@ -206,11 +212,6 @@ namespace InstitutoTriboDeDavi.Application.Services
 
             if (Enum.IsDefined(typeof(Parentesco), i.Parentesco))
                 aluno.Parentesco = (Parentesco)i.Parentesco;
-
-            // O cadastro guarda o endereço numa linha só; a ficha vem separada.
-            var partes = new[] { i.Rua, i.Numero, i.Complemento }
-                .Where(p => !string.IsNullOrWhiteSpace(p));
-            aluno.Endereco = string.Join(", ", partes);
         }
     }
 }

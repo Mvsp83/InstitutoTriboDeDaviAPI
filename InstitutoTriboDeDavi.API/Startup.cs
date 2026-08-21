@@ -170,6 +170,8 @@ namespace InstitutoTriboDeDavi.API
             services.AddScoped<IEventoCalendarioService, EventoCalendarioService>();
             services.AddScoped<IDocumentoOficialRepository, DocumentoOficialRepository>();
             services.AddScoped<IDocumentoOficialService, DocumentoOficialService>();
+            services.AddScoped<IBemPatrimonialRepository, BemPatrimonialRepository>();
+            services.AddScoped<IBemPatrimonialService, BemPatrimonialService>();
 
             services.AddScoped<ITokenGenerator, TokenGenerator>();
 
@@ -212,6 +214,7 @@ namespace InstitutoTriboDeDavi.API
                     cfg.CreateMap<ConfiguracaoDocumento, ConfiguracaoDocumentoDTO>().ReverseMap();
                     cfg.CreateMap<EventoCalendario, EventoCalendarioDTO>().ReverseMap();
                     cfg.CreateMap<DocumentoOficial, DocumentoOficialDTO>().ReverseMap();
+                    cfg.CreateMap<BemPatrimonial, BemPatrimonialDTO>().ReverseMap();
 
                     cfg.CreateMap<Presenca, PresencaDTO>().ReverseMap();
                     cfg.CreateMap<Aula, AulaDTO>().ReverseMap();

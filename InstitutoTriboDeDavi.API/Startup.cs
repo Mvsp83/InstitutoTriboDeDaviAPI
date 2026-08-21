@@ -46,7 +46,14 @@ namespace InstitutoTriboDeDavi.API
         public IConfiguration Configuration { get; }
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers();
+            services.AddControllers(options =>
+            {
+                // Não trata string não-anulável como [Required] implícito. Os DTOs
+                // têm campos preenchidos pelo servidor (ex.: CriadoPor,
+                // NumeroFormatado) que o cliente não envia — sem isso, a validação
+                // automática do model rejeitaria a requisição com 400.
+                options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true;
+            });
             services.AddEndpointsApiExplorer();            
 
             #region Jwt

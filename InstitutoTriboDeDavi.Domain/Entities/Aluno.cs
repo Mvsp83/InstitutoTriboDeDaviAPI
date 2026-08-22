@@ -46,6 +46,9 @@ namespace InstitutoTriboDeDavi.Domain.Entities
         // true = autoriza, false = não autoriza. Só se pode publicar a imagem
         // da criança quando for true.
         public bool? AutorizaImagem { get; set; }
+        // Quando o responsável definiu a autorização pelo portal — a data do
+        // consentimento/revogação, para demonstrar quando foi dado.
+        public DateTime? AutorizaImagemEm { get; set; }
 
         public override bool Validate()
         {

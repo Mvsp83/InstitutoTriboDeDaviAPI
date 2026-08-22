@@ -92,5 +92,31 @@ namespace InstitutoTriboDeDavi.API.Controllers
                 });
             });
         }
+
+        // O responsável autoriza ou revoga o uso de imagem/voz do próprio filho.
+        [HttpPost("autorizar-imagem")]
+        [Authorize(Roles = "Responsavel")]
+        public async Task<IActionResult> AutorizarImagem([FromBody] AutorizarImagemViewModel model)
+        {
+            return await ExecuteAsync(async () =>
+            {
+                var claim = User.FindFirst("AlunoId")?.Value;
+                if (!long.TryParse(claim, out var alunoId))
+                    return StatusCode(401, Responses.UnauthorizedErrorMessage());
+
+                var estado = await _responsavelService.AtualizarAutorizacaoImagemAsync(alunoId, model.Autoriza);
+
+                _logger.LogInformation(
+                    "Responsável do aluno #{Id} {Acao} o uso de imagem.",
+                    alunoId, estado ? "autorizou" : "revogou");
+
+                return Ok(new ResultViewModel
+                {
+                    Message = estado ? "Uso de imagem autorizado." : "Uso de imagem revogado.",
+                    Success = true,
+                    Data = new { autorizaImagem = estado }
+                });
+            });
+        }
     }
 }

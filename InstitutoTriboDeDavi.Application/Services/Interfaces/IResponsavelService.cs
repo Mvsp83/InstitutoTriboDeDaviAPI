@@ -12,5 +12,9 @@ namespace InstitutoTriboDeDavi.Application.Services.Interfaces
 
         // Monta o painel só-leitura do aluno. Null se o aluno não existe.
         Task<PainelResponsavelDTO> ObterPainelAsync(long alunoId);
+
+        // O responsável autoriza (ou revoga) o uso de imagem/voz do aluno,
+        // registrando a data do consentimento. Retorna o novo estado.
+        Task<bool> AtualizarAutorizacaoImagemAsync(long alunoId, bool autoriza);
     }
 }

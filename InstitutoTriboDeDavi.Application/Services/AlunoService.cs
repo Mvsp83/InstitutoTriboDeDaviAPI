@@ -85,6 +85,7 @@ namespace InstitutoTriboDeDavi.Application.Services
             // não traz estes campos, preserva-os para não os zerar.
             aluno.CodigoResponsavel = alunoExists.CodigoResponsavel;
             aluno.AnonimizadoEm = alunoExists.AnonimizadoEm;
+            aluno.AutorizaImagemEm = alunoExists.AutorizaImagemEm;
             // Autorização de imagem: usa o valor enviado, ou preserva o atual.
             aluno.AutorizaImagem = alunoDTO.AutorizaImagem ?? alunoExists.AutorizaImagem;
 

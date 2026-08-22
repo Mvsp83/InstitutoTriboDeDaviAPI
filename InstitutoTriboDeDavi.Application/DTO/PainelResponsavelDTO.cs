@@ -33,6 +33,9 @@ namespace InstitutoTriboDeDavi.Application.DTO
         public int Faixa { get; set; }
         public string Polo { get; set; } = string.Empty;
         public int Turma { get; set; }
+        // Uso de imagem: null = não informado, true/false = decisão do responsável.
+        public bool? AutorizaImagem { get; set; }
+        public DateTime? AutorizaImagemEm { get; set; }
     }
 
     public class FrequenciaResumoDTO

@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using InstitutoTriboDeDavi.Application.DTO;
 using InstitutoTriboDeDavi.Application.Repositories;
 using InstitutoTriboDeDavi.Application.Services.Interfaces;
+using InstitutoTriboDeDavi.Domain.Exceptions;
 
 namespace InstitutoTriboDeDavi.Application.Services
 {
@@ -81,6 +82,8 @@ namespace InstitutoTriboDeDavi.Application.Services
                     Faixa = (int)aluno.Faixa,
                     Polo = await NomeDoPoloAsync(aluno.PoloId),
                     Turma = aluno.Turma,
+                    AutorizaImagem = aluno.AutorizaImagem,
+                    AutorizaImagemEm = aluno.AutorizaImagemEm,
                 },
                 Frequencia = new FrequenciaResumoDTO
                 {
@@ -122,6 +125,18 @@ namespace InstitutoTriboDeDavi.Application.Services
                         Tipo = e.Tipo,
                     }).ToList(),
             };
+        }
+
+        public async Task<bool> AtualizarAutorizacaoImagemAsync(long alunoId, bool autoriza)
+        {
+            var aluno = await _alunoRepository.GetByIdAsync(alunoId)
+                ?? throw new DomainException("Aluno não encontrado.");
+
+            aluno.AutorizaImagem = autoriza;
+            aluno.AutorizaImagemEm = DateTime.Now;
+            await _alunoRepository.UpdateAsync(aluno);
+
+            return autoriza;
         }
 
         private async Task<string> NomeDoPoloAsync(long poloId)

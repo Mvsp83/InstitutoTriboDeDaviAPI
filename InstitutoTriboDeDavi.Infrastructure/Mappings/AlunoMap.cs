@@ -43,6 +43,7 @@ namespace InstitutoTriboDeDavi.Infrastructure.Mappings
 
             // Autorização de imagem (LGPD): null = não informado.
             builder.Property(x => x.AutorizaImagem).IsRequired(false);
+            builder.Property(x => x.AutorizaImagemEm).IsRequired(false);
         }
     }
 }

@@ -108,7 +108,9 @@ namespace InstitutoTriboDeDavi.Infrastructure.Auditoria
 
             var logs = _pendentes.Select(p => new LogAuditoria
             {
-                Data = DateTime.UtcNow,
+                // Horário local: a coluna datetime2 não preserva o fuso, e o
+                // sistema é de fuso único — assim a hora exibida é a correta.
+                Data = DateTime.Now,
                 UsuarioLogin = p.Login,
                 Acao = p.Acao,
                 Entidade = p.Entidade,

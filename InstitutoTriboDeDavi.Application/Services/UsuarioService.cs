@@ -14,12 +14,14 @@ namespace InstitutoTriboDeDavi.Application.Services
         private readonly IMapper _mapper;
         private readonly IUsuarioRepository _usuarioRepository;
         private readonly IPasswordHasher<UsuarioDTO> _passwordHasher;
+        private readonly ITotpService _totpService;
 
-        public UsuarioService(IMapper mapper, IUsuarioRepository usuarioRepository, IPasswordHasher<UsuarioDTO> passwordHasher)
+        public UsuarioService(IMapper mapper, IUsuarioRepository usuarioRepository, IPasswordHasher<UsuarioDTO> passwordHasher, ITotpService totpService)
         {
             _mapper = mapper;
             _usuarioRepository = usuarioRepository;
             _passwordHasher = passwordHasher;
+            _totpService = totpService;
         }
 
         public async Task<UsuarioDTO> Create(UsuarioDTO usuarioDTO)
@@ -146,12 +148,86 @@ namespace InstitutoTriboDeDavi.Application.Services
 
             return new UsuarioDTO
             {
+                Id = usuario.Id,
                 Login = usuario.Login,
                 Email = usuario.Email,
                 Role = usuario.Role,
                 PoloId = usuario.PoloId,
-                PoloNome = usuario.PoloNome
+                PoloNome = usuario.PoloNome,
+                TotpConfirmado = usuario.TotpConfirmado
             };
+        }
+
+        // ── 2FA (TOTP) ──────────────────────────────────────────────────────
+
+        public async Task<Setup2FADTO> Iniciar2FAAsync(string login)
+        {
+            var usuario = await _usuarioRepository.ObterUsuarioPorLoginAsync(login)
+                ?? throw new DomainException("Usuário não encontrado.");
+
+            if (usuario.TotpConfirmado)
+                throw new DomainException("O 2FA já está ativo. Desative-o antes de gerar um novo.");
+
+            // Gera (ou regenera) um secret ainda não confirmado. Só passa a valer
+            // no login depois que o usuário confirmar o primeiro código.
+            var secret = _totpService.GerarSecret();
+            usuario.TotpSecret = secret;
+            usuario.TotpConfirmado = false;
+            await _usuarioRepository.UpdateAsync(usuario);
+
+            return new Setup2FADTO
+            {
+                Secret = secret,
+                Uri = _totpService.GerarUri(secret, usuario.Login, "Instituto Tribo de Davi"),
+            };
+        }
+
+        public async Task Confirmar2FAAsync(string login, string codigo)
+        {
+            var usuario = await _usuarioRepository.ObterUsuarioPorLoginAsync(login)
+                ?? throw new DomainException("Usuário não encontrado.");
+
+            if (string.IsNullOrWhiteSpace(usuario.TotpSecret))
+                throw new DomainException("Inicie a configuração do 2FA antes de confirmar.");
+
+            if (!_totpService.Validar(usuario.TotpSecret, codigo))
+                throw new DomainException("Código inválido. Confira o app autenticador e tente de novo.");
+
+            usuario.TotpConfirmado = true;
+            await _usuarioRepository.UpdateAsync(usuario);
+        }
+
+        public async Task Desativar2FAAsync(string login, string codigo)
+        {
+            var usuario = await _usuarioRepository.ObterUsuarioPorLoginAsync(login)
+                ?? throw new DomainException("Usuário não encontrado.");
+
+            if (!usuario.TotpConfirmado || string.IsNullOrWhiteSpace(usuario.TotpSecret))
+                throw new DomainException("O 2FA não está ativo.");
+
+            // Exige um código válido para desligar — evita que uma sessão
+            // sequestrada desative a proteção sem o app autenticador.
+            if (!_totpService.Validar(usuario.TotpSecret, codigo))
+                throw new DomainException("Código inválido.");
+
+            usuario.TotpSecret = null;
+            usuario.TotpConfirmado = false;
+            await _usuarioRepository.UpdateAsync(usuario);
+        }
+
+        public async Task<bool> Status2FAAsync(string login)
+        {
+            var usuario = await _usuarioRepository.ObterUsuarioPorLoginAsync(login);
+            return usuario?.TotpConfirmado ?? false;
+        }
+
+        public async Task<bool> ValidarCodigo2FAAsync(string login, string codigo)
+        {
+            var usuario = await _usuarioRepository.ObterUsuarioPorLoginAsync(login);
+            if (usuario == null || !usuario.TotpConfirmado || string.IsNullOrWhiteSpace(usuario.TotpSecret))
+                return false;
+
+            return _totpService.Validar(usuario.TotpSecret, codigo);
         }
 
         public async Task<List<UsuarioDTO>> ObterUsuariosPorTurmaAsync(UsuarioDTO usuarioDTO, List<int> turmas)

@@ -192,5 +192,130 @@ namespace InstitutoTriboDeDavi.API.Controllers
                 });
             });
         }
+
+        // ── LGPD (art. 18) ────────────────────────────────────────────────
+
+        // Direito de acesso/portabilidade: baixa tudo que o sistema guarda
+        // sobre o aluno num único pacote legível.
+        [HttpGet("{id}/exportar-dados")]
+        [Authorize(Roles = nameof(UserRole.Administrador))]
+        public async Task<IActionResult> ExportarDados(long id)
+        {
+            return await ExecuteAsync(async () =>
+            {
+                var dados = await _alunoService.ExportarDadosAsync(id, UsuarioAutenticado?.Login);
+
+                if (dados == null)
+                    return Ok(new ResultViewModel
+                    {
+                        Message = "Nenhum aluno foi encontrado com o ID informado!",
+                        Success = true,
+                        Data = null
+                    });
+
+                return Ok(new ResultViewModel
+                {
+                    Message = "Dados do aluno reunidos com sucesso!",
+                    Success = true,
+                    Data = dados
+                });
+            });
+        }
+
+        // Direito de eliminação: apaga os dados pessoais do aluno mantendo os
+        // registros operacionais anonimizados (prestação de contas).
+        [HttpPost("{id}/anonimizar")]
+        [Authorize(Roles = nameof(UserRole.Administrador))]
+        public async Task<IActionResult> Anonimizar(long id)
+        {
+            return await ExecuteAsync(async () =>
+            {
+                var aluno = await _alunoService.AnonimizarAsync(id);
+
+                if (aluno == null)
+                    return Ok(new ResultViewModel
+                    {
+                        Message = "Nenhum aluno foi encontrado com o ID informado!",
+                        Success = true,
+                        Data = null
+                    });
+
+                _logger.LogWarning("Dados pessoais do aluno #{Id} anonimizados por {Usuario}.", id, UsuarioAutenticado?.Login);
+
+                return Ok(new ResultViewModel
+                {
+                    Message = "Dados pessoais do aluno anonimizados com sucesso!",
+                    Success = true,
+                    Data = aluno
+                });
+            });
+        }
+
+        // Apoio à política de retenção: lista alunos sem atividade há mais de
+        // 'mesesInativo' meses — candidatos à eliminação.
+        [HttpGet("candidatos-retencao")]
+        [Authorize(Roles = nameof(UserRole.Administrador))]
+        public async Task<IActionResult> CandidatosRetencao([FromQuery] int mesesInativo = 18)
+        {
+            return await ExecuteAsync(async () =>
+            {
+                if (mesesInativo < 1)
+                    mesesInativo = 1;
+
+                var candidatos = await _alunoService.ObterCandidatosRetencaoAsync(mesesInativo);
+
+                return Ok(new ResultViewModel
+                {
+                    Message = $"{candidatos.Count} aluno(s) sem atividade há mais de {mesesInativo} meses.",
+                    Success = true,
+                    Data = candidatos
+                });
+            });
+        }
+
+        // ── Código de acesso do responsável ─────────────────────────────────
+
+        [HttpGet("{id}/codigo-responsavel")]
+        [Authorize(Policy = AuthPolicies.ProfessorOuSuperior)]
+        public async Task<IActionResult> ObterCodigoResponsavel(long id)
+        {
+            return await ExecuteAsync(async () =>
+            {
+                var codigo = await _alunoService.ObterCodigoResponsavelAsync(id);
+
+                return Ok(new ResultViewModel
+                {
+                    Message = codigo == null ? "Nenhum código gerado ainda." : "Código obtido.",
+                    Success = true,
+                    Data = new { codigo }
+                });
+            });
+        }
+
+        // (Re)gera o código e o devolve para o admin compartilhar com a família.
+        [HttpPost("{id}/codigo-responsavel")]
+        [Authorize(Policy = AuthPolicies.ProfessorOuSuperior)]
+        public async Task<IActionResult> GerarCodigoResponsavel(long id)
+        {
+            return await ExecuteAsync(async () =>
+            {
+                var codigo = await _alunoService.GerarCodigoResponsavelAsync(id);
+
+                if (codigo == null)
+                    return Ok(new ResultViewModel
+                    {
+                        Message = "Nenhum aluno foi encontrado com o ID informado!",
+                        Success = true,
+                        Data = null
+                    });
+
+                return Ok(new ResultViewModel
+                {
+                    Message = "Código de acesso gerado com sucesso!",
+                    Success = true,
+                    Data = new { codigo }
+                });
+            });
+        }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using InstitutoTriboDeDavi.Infrastructure.Repositories;
 using InstitutoTriboDeDavi.Application.Repositories;
 using InstitutoTriboDeDavi.Domain.Entities;
+using InstitutoTriboDeDavi.Domain.Entities.Business;
 using InstitutoTriboDeDavi.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
 
@@ -87,6 +88,173 @@ namespace InstitutoTriboDeDavi.Infrastructure.Repositories
                 .ThenBy(a => a.Nome)
                 .AsNoTracking()
                 .ToListAsync();
+        }
+
+        // ── LGPD ──────────────────────────────────────────────────────────
+
+        public async Task<DadosPessoaisAluno> ColetarDadosPessoaisAsync(long alunoId)
+        {
+            var aluno = await _context.Alunos.AsNoTracking()
+                .FirstOrDefaultAsync(a => a.Id == alunoId);
+
+            if (aluno == null)
+                return null;
+
+            var matriculas = await _context.Matriculas.AsNoTracking()
+                .Where(m => m.AlunoId == alunoId)
+                .OrderByDescending(m => m.Ano)
+                .ToListAsync();
+
+            var graduacoes = await _context.Graduacoes.AsNoTracking()
+                .Where(g => g.AlunoId == alunoId)
+                .OrderByDescending(g => g.Data)
+                .ToListAsync();
+
+            var presencas = await _context.Presencas.AsNoTracking()
+                .Where(p => p.AlunoId == alunoId)
+                .OrderByDescending(p => p.Data)
+                .ToListAsync();
+
+            var inscricoes = await _context.Inscricoes.AsNoTracking()
+                .Where(i => i.AlunoId == alunoId)
+                .OrderByDescending(i => i.DataEnvio)
+                .ToListAsync();
+
+            return new DadosPessoaisAluno(aluno, matriculas, graduacoes, presencas, inscricoes);
+        }
+
+        public async Task<Aluno> AnonimizarAsync(long alunoId)
+        {
+            var aluno = await _context.Alunos.FirstOrDefaultAsync(a => a.Id == alunoId);
+
+            if (aluno == null)
+                return null;
+
+            // Idempotente: reexecutar não muda nada nem gera novo log.
+            if (aluno.AnonimizadoEm != null)
+                return aluno;
+
+            var marcador = $"Aluno anonimizado #{aluno.Id}";
+
+            // Aluno — apaga os identificadores diretos. Mantém polo, turma,
+            // faixa e data de nascimento: sem nome/CPF eles deixam de
+            // identificar a pessoa e ainda alimentam as estatísticas de editais.
+            aluno.Nome = marcador;
+            aluno.RG = null;
+            aluno.CPF = null;
+            aluno.Endereco = null;
+            aluno.Numero = null;
+            aluno.Complemento = null;
+            aluno.Bairro = null;
+            aluno.Cidade = null;
+            aluno.Celular = null;
+            aluno.Telefone2 = null;
+            aluno.Responsavel = null;
+            aluno.Parentesco = null;
+            aluno.RGResponsavel = null;
+            aluno.CPFResponsavel = null;
+            aluno.Escola = null;
+            aluno.Serie = null;
+            aluno.Periodo = null;
+            aluno.AnonimizadoEm = DateTime.Now;
+
+            // Presenças copiam o nome do aluno — o nome precisa sumir aqui também.
+            var presencas = await _context.Presencas
+                .Where(p => p.AlunoId == alunoId)
+                .ToListAsync();
+            foreach (var p in presencas)
+            {
+                p.NomeAluno = marcador;
+            }
+
+            // Inscrições — apaga a PII, mas preserva os aceites, a versão dos
+            // termos e a data como prova de que houve consentimento (registro
+            // das operações de tratamento).
+            var inscricoes = await _context.Inscricoes
+                .Where(i => i.AlunoId == alunoId)
+                .ToListAsync();
+            foreach (var i in inscricoes)
+            {
+                i.Nome = marcador;
+                i.Rg = string.Empty;
+                i.Cpf = string.Empty;
+                i.Escola = string.Empty;
+                i.Serie = string.Empty;
+                i.Periodo = string.Empty;
+                i.NomeResponsavel = string.Empty;
+                i.RgResponsavel = string.Empty;
+                i.CpfResponsavel = string.Empty;
+                i.ParentescoOutro = string.Empty;
+                i.Rua = string.Empty;
+                i.Numero = string.Empty;
+                i.Complemento = string.Empty;
+                i.Bairro = string.Empty;
+                i.Cidade = string.Empty;
+                i.WhatsApp = string.Empty;
+                i.Telefone2 = string.Empty;
+                i.Medicamentos = string.Empty;
+                i.RespostasSaudeJson = string.Empty;
+                i.RespostasFamiliarJson = string.Empty;
+                i.NomeAssinatura = marcador;
+            }
+
+            // Uma só transação (SaveChanges) cobre aluno + presenças + inscrições.
+            await _context.SaveChangesAsync();
+
+            return aluno;
+        }
+
+        public async Task<List<CandidatoRetencao>> ObterCandidatosRetencaoAsync(int mesesInativo)
+        {
+            var limite = DateTime.Now.AddMonths(-mesesInativo);
+            var candidatos = new List<CandidatoRetencao>();
+
+            var alunos = await _context.Alunos.AsNoTracking()
+                .Where(a => a.AnonimizadoEm == null)
+                .ToListAsync();
+
+            foreach (var a in alunos)
+            {
+                DateTime? ultimaPresenca = await _context.Presencas.AsNoTracking()
+                    .Where(p => p.AlunoId == a.Id)
+                    .OrderByDescending(p => p.Data)
+                    .Select(p => (DateTime?)p.Data)
+                    .FirstOrDefaultAsync();
+
+                int? ultimoAno = await _context.Matriculas.AsNoTracking()
+                    .Where(m => m.AlunoId == a.Id)
+                    .OrderByDescending(m => m.Ano)
+                    .Select(m => (int?)m.Ano)
+                    .FirstOrDefaultAsync();
+
+                // Ativo se teve presença após o limite, ou matrícula num ano cujo
+                // encerramento (31/12) ainda é posterior ao limite.
+                var ativoPorPresenca = ultimaPresenca.HasValue && ultimaPresenca.Value >= limite;
+                var ativoPorMatricula = ultimoAno.HasValue && new DateTime(ultimoAno.Value, 12, 31) >= limite;
+                if (ativoPorPresenca || ativoPorMatricula)
+                    continue;
+
+                var referencia = ultimaPresenca
+                    ?? (ultimoAno.HasValue ? new DateTime(ultimoAno.Value, 12, 31) : (DateTime?)null);
+                var meses = referencia.HasValue
+                    ? (int)((DateTime.Now - referencia.Value).TotalDays / 30)
+                    : mesesInativo;
+
+                candidatos.Add(new CandidatoRetencao(a, ultimaPresenca, ultimoAno, meses));
+            }
+
+            return candidatos.OrderByDescending(c => c.MesesInativo).ToList();
+        }
+
+        public async Task<Aluno> ObterPorCodigoResponsavelAsync(string codigo)
+        {
+            if (string.IsNullOrWhiteSpace(codigo))
+                return null;
+
+            var alvo = codigo.Trim();
+            return await _context.Alunos
+                .AsNoTracking()
+                .FirstOrDefaultAsync(a => a.CodigoResponsavel == alvo && a.AnonimizadoEm == null);
         }
     }
 }

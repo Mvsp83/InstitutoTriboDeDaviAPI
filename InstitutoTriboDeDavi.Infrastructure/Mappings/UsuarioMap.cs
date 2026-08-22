@@ -38,6 +38,16 @@ namespace InstitutoTriboDeDavi.Infrastructure.Mappings
                 .IsRequired(false)
                 .HasColumnName("Avatar")
                 .HasColumnType("VARCHAR(MAX)");
+
+            // 2FA (TOTP). Secret base32 curto; nulo enquanto o usuário não ativa.
+            builder.Property(x => x.TotpSecret)
+                .IsRequired(false)
+                .HasMaxLength(64)
+                .HasColumnType("VARCHAR(64)");
+
+            builder.Property(x => x.TotpConfirmado)
+                .IsRequired()
+                .HasDefaultValue(false);
         }
     }
 }

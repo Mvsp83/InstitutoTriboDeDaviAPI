@@ -31,6 +31,15 @@ namespace InstitutoTriboDeDavi.Infrastructure.Repositories
             return lista;
         }
 
+        public async Task<List<Presenca>> ObterPorAlunoAsync(long alunoId)
+        {
+            return await _context.Presencas
+                .Where(p => p.AlunoId == alunoId)
+                .OrderByDescending(p => p.Data)
+                .AsNoTracking()
+                .ToListAsync();
+        }
+
         public async Task<List<Presenca>> GetPresencasPorAula(long aulaId)
         {
             var query = from presenca in _context.Presencas

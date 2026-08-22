@@ -19,6 +19,7 @@ using InstitutoTriboDeDavi.Application.Import;
 using InstitutoTriboDeDavi.Infrastructure.Configuration;
 using InstitutoTriboDeDavi.Infrastructure.Auditoria;
 using InstitutoTriboDeDavi.Infrastructure.Context;
+using InstitutoTriboDeDavi.Infrastructure.Seguranca;
 using InstitutoTriboDeDavi.Infrastructure.GoogleDrive;
 using InstitutoTriboDeDavi.Infrastructure.GoogleSheets;
 using InstitutoTriboDeDavi.Infrastructure.Email;
@@ -32,6 +33,7 @@ using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Serilog;
 using System.Text;
 using System.Threading.RateLimiting;
 
@@ -171,6 +173,14 @@ namespace InstitutoTriboDeDavi.API
 
             services.AddScoped<IUsuarioService, UsuarioService>();
             services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+
+            // Autenticação: 2FA (TOTP) + refresh tokens com revogação.
+            services.AddScoped<ITotpService, TotpService>();
+            services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+            services.AddScoped<IRefreshTokenService, RefreshTokenService>();
+
+            // Portal do responsável (leitura escopada a um aluno).
+            services.AddScoped<IResponsavelService, ResponsavelService>();
             services.AddScoped<IAlunoRepository, AlunoRepository>();
             services.AddScoped<IAlunoService, AlunoService>();
             services.AddScoped<IPoloRepository, PoloRepository>();
@@ -362,6 +372,10 @@ namespace InstitutoTriboDeDavi.API
                 app.UseHttpsRedirection();
             }
 
+            // Um log estruturado por requisição (método, rota, status, tempo),
+            // após os forwarded headers para registrar o esquema/IP reais.
+            app.UseSerilogRequestLogging();
+
             app.UseRateLimiter();
 
             app.UseAuthentication();
@@ -386,6 +400,21 @@ namespace InstitutoTriboDeDavi.API
         {
             var startup = Activator.CreateInstance(typeof(TStartup), builder.Configuration) as IStartup;
             if (startup == null) throw new ArgumentException("Classe Startup.cs inválida!");
+
+            // Observabilidade — Serilog governa o logging (console + arquivo
+            // rotativo), lido da seção "Serilog" do appsettings. Substitui os
+            // providers padrão; os ILogger<T> existentes passam a fluir por aqui.
+            builder.Host.UseSerilog((context, services, configuration) => configuration
+                .ReadFrom.Configuration(context.Configuration)
+                .ReadFrom.Services(services)
+                .Enrich.FromLogContext());
+
+            // Sentry (monitor de erros) só liga quando há DSN configurado
+            // (Sentry:Dsn via env/user-secrets). Sem DSN, nada é enviado — o
+            // custo segue zero até existir uma conta.
+            var sentryDsn = builder.Configuration["Sentry:Dsn"];
+            if (!string.IsNullOrWhiteSpace(sentryDsn))
+                builder.WebHost.UseSentry();
 
             startup.ConfigureServices(builder.Services);
 

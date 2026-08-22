@@ -18,5 +18,13 @@ namespace InstitutoTriboDeDavi.Application.Services.Interfaces
         Task<bool> ExisteQualquerUsuario();
         Task<string?> ObterAvatarAsync(string login);
         Task AtualizarAvatarAsync(string login, string? avatar);
+
+        // ── 2FA (TOTP) ──────────────────────────────────────────────────────
+        Task<Setup2FADTO> Iniciar2FAAsync(string login);
+        Task Confirmar2FAAsync(string login, string codigo);
+        Task Desativar2FAAsync(string login, string codigo);
+        Task<bool> Status2FAAsync(string login);
+        // Usado no login: valida o segundo fator do usuário.
+        Task<bool> ValidarCodigo2FAAsync(string login, string codigo);
     }
 }

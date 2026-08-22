@@ -5,6 +5,7 @@ using InstitutoTriboDeDavi.Domain.Entities;
 using InstitutoTriboDeDavi.Domain.Enums;
 using InstitutoTriboDeDavi.Application.DTO;
 using InstitutoTriboDeDavi.Application.Services;
+using InstitutoTriboDeDavi.Infrastructure.Seguranca;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
@@ -40,7 +41,7 @@ namespace InstitutoTriboDeDavi.Tests
                 .Callback<Usuario>(u => _usuarioSalvo = u)
                 .ReturnsAsync((Usuario u) => u);
 
-            _service = new UsuarioService(mapper, _repositorio.Object, _hasher);
+            _service = new UsuarioService(mapper, _repositorio.Object, _hasher, new TotpService());
         }
 
         private Usuario UsuarioExistente() => new()

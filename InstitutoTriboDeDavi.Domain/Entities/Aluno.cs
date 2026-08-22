@@ -33,6 +33,14 @@ namespace InstitutoTriboDeDavi.Domain.Entities
         public string? Periodo { get; set; }
         public long PoloId { get; set; }
         public int Turma { get; set; }
+        // Marca a eliminação dos dados pessoais (LGPD). Quando preenchida, os
+        // identificadores diretos foram apagados e o registro só permanece,
+        // anonimizado, para sustentar a prestação de contas (art. 16).
+        public DateTime? AnonimizadoEm { get; set; }
+
+        // Código de acesso do responsável ao portal de acompanhamento. Gerado
+        // pelo admin e compartilhado com a família; nulo = sem acesso liberado.
+        public string? CodigoResponsavel { get; set; }
 
         public override bool Validate()
         {

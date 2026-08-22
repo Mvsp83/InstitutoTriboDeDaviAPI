@@ -18,6 +18,12 @@ namespace InstitutoTriboDeDavi.Domain.Entities
         // data URI. Anulável = sem avatar (a UI cai nas iniciais).
         public string? Avatar { get; set; }
 
+        // Autenticação em dois fatores (TOTP). Secret em base32; nulo = sem 2FA.
+        // Confirmado só depois que o usuário valida o primeiro código — antes
+        // disso o secret existe mas o login ainda não exige o segundo fator.
+        public string? TotpSecret { get; set; }
+        public bool TotpConfirmado { get; set; }
+
         public override bool Validate()
         {
             var validator = new UsuarioValidator();

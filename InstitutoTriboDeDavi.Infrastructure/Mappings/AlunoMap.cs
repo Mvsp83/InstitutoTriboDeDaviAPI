@@ -29,6 +29,17 @@ namespace InstitutoTriboDeDavi.Infrastructure.Mappings
             builder.Property(x => x.Complemento).HasMaxLength(80).IsRequired(false);
             builder.Property(x => x.Telefone2).HasMaxLength(30).IsRequired(false);
             builder.Property(x => x.Serie).HasMaxLength(40).IsRequired(false);
+
+            // Eliminação de dados pessoais (LGPD). Nulo = cadastro ativo.
+            builder.Property(x => x.AnonimizadoEm).IsRequired(false);
+
+            // Código de acesso do responsável ao portal (nulo = não liberado).
+            builder.Property(x => x.CodigoResponsavel)
+                .IsRequired(false)
+                .HasMaxLength(16)
+                .HasColumnType("VARCHAR(16)");
+
+            builder.HasIndex(x => x.CodigoResponsavel);
         }
     }
 }

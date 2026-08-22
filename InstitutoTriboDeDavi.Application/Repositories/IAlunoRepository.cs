@@ -1,5 +1,6 @@
-﻿using InstitutoTriboDeDavi.Application.Repositories;
+using InstitutoTriboDeDavi.Application.Repositories;
 using InstitutoTriboDeDavi.Domain.Entities;
+using InstitutoTriboDeDavi.Domain.Entities.Business;
 
 namespace InstitutoTriboDeDavi.Application.Repositories
 {
@@ -13,5 +14,35 @@ namespace InstitutoTriboDeDavi.Application.Repositories
         Task<List<Aluno>> ObterPorPoloTurmaAsync(long poloId, List<int> turmas);
         Task<List<Aluno>> ObterPendentesPorPoloAsync(long poloId);
         Task<List<Aluno>> ObterTodosPendentesAsync();
+
+        // ── LGPD ──────────────────────────────────────────────────────────
+        // Reúne, num só objeto, tudo que o sistema guarda sobre o aluno.
+        Task<DadosPessoaisAluno> ColetarDadosPessoaisAsync(long alunoId);
+        // Apaga os identificadores diretos do aluno e dos registros que os
+        // copiam (presenças, inscrições), preservando os registros operacionais
+        // ligados ao aluno anonimizado. Retorna o aluno atualizado, ou null se
+        // o id não existe. Já anonimizado é no-op idempotente.
+        Task<Aluno> AnonimizarAsync(long alunoId);
+        // Alunos sem atividade (presença/matrícula) há mais de N meses e ainda
+        // não anonimizados — candidatos à eliminação por retenção.
+        Task<List<CandidatoRetencao>> ObterCandidatosRetencaoAsync(int mesesInativo);
+
+        // Portal do responsável: localiza o aluno pelo código de acesso.
+        Task<Aluno> ObterPorCodigoResponsavelAsync(string codigo);
     }
+
+    // Pacote bruto (entidades de domínio) devolvido pela coleta LGPD; o serviço
+    // é quem monta o DTO de exportação.
+    public record DadosPessoaisAluno(
+        Aluno Aluno,
+        List<Matricula> Matriculas,
+        List<Graduacao> Graduacoes,
+        List<Presenca> Presencas,
+        List<Inscricao> Inscricoes);
+
+    public record CandidatoRetencao(
+        Aluno Aluno,
+        DateTime? UltimaPresenca,
+        int? UltimoAnoMatricula,
+        int MesesInativo);
 }

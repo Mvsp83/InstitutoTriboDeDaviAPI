@@ -15,12 +15,14 @@ namespace InstitutoTriboDeDavi.API.Controllers
     {
         private readonly IMapper _mapper;
         private readonly IUsuarioService _usuarioService;
+        private readonly IRefreshTokenService _refreshTokenService;
         private readonly ILogger<UsuarioController> _logger;
 
-        public UsuarioController(IMapper mapper, IUsuarioService usuarioService, ILogger<UsuarioController> logger) : base(logger)
+        public UsuarioController(IMapper mapper, IUsuarioService usuarioService, IRefreshTokenService refreshTokenService, ILogger<UsuarioController> logger) : base(logger)
         {
             _mapper = mapper;
             _usuarioService = usuarioService;
+            _refreshTokenService = refreshTokenService;
             _logger = logger;
         }
 
@@ -308,6 +310,102 @@ namespace InstitutoTriboDeDavi.API.Controllers
                     Message = "Usuários obtidos com sucesso!",
                     Success = true,
                     Data = allUsuarios
+                });
+            });
+        }
+
+        // ── 2FA (TOTP) do próprio usuário autenticado ───────────────────────
+
+        [HttpGet("2fa/status")]
+        [Authorize]
+        public async Task<IActionResult> Status2FA()
+        {
+            return await ExecuteAsync(async () =>
+            {
+                var ativo = await _usuarioService.Status2FAAsync(UsuarioAutenticado.Login);
+
+                return Ok(new ResultViewModel
+                {
+                    Message = "Status do 2FA obtido.",
+                    Success = true,
+                    Data = new { ativo }
+                });
+            });
+        }
+
+        // Gera o secret e a URI para o QR. O 2FA só passa a valer após confirmar.
+        [HttpPost("2fa/iniciar")]
+        [Authorize]
+        public async Task<IActionResult> Iniciar2FA()
+        {
+            return await ExecuteAsync(async () =>
+            {
+                var setup = await _usuarioService.Iniciar2FAAsync(UsuarioAutenticado.Login);
+
+                return Ok(new ResultViewModel
+                {
+                    Message = "Escaneie o QR no app autenticador e confirme com um código.",
+                    Success = true,
+                    Data = setup
+                });
+            });
+        }
+
+        [HttpPost("2fa/confirmar")]
+        [Authorize]
+        public async Task<IActionResult> Confirmar2FA([FromBody] Codigo2FAViewModel model)
+        {
+            return await ExecuteAsync(async () =>
+            {
+                await _usuarioService.Confirmar2FAAsync(UsuarioAutenticado.Login, model.Codigo);
+
+                _logger.LogInformation("2FA ativado para {Login}", UsuarioAutenticado.Login);
+
+                return Ok(new ResultViewModel
+                {
+                    Message = "2FA ativado com sucesso!",
+                    Success = true,
+                    Data = null
+                });
+            });
+        }
+
+        [HttpPost("2fa/desativar")]
+        [Authorize]
+        public async Task<IActionResult> Desativar2FA([FromBody] Codigo2FAViewModel model)
+        {
+            return await ExecuteAsync(async () =>
+            {
+                await _usuarioService.Desativar2FAAsync(UsuarioAutenticado.Login, model.Codigo);
+
+                _logger.LogWarning("2FA desativado para {Login}", UsuarioAutenticado.Login);
+
+                return Ok(new ResultViewModel
+                {
+                    Message = "2FA desativado.",
+                    Success = true,
+                    Data = null
+                });
+            });
+        }
+
+        // Revoga todas as sessões (refresh tokens) de um usuário — "sair de
+        // todos os aparelhos" / ao desativar alguém. Só Administrador.
+        [HttpPost("{id}/revogar-sessoes")]
+        [Authorize(Roles = nameof(UserRole.Administrador))]
+        public async Task<IActionResult> RevogarSessoes(long id)
+        {
+            return await ExecuteAsync(async () =>
+            {
+                var quantidade = await _refreshTokenService.RevogarUsuarioAsync(id);
+
+                _logger.LogWarning("{Quantidade} sessão(ões) do usuário #{Id} revogada(s) por {Admin}.", quantidade, id, UsuarioAutenticado.Login);
+
+                return Ok(new ResultViewModel
+                {
+                    Message = $"{quantidade} sessão(ões) revogada(s).",
+                    Success = true,
+                    Data = new { revogadas = quantidade }
                 });
             });
         }

@@ -4,6 +4,7 @@ using InstitutoTriboDeDavi.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace InstitutoTriboDeDavi.Infrastructure.Migrations
 {
     [DbContext(typeof(TriboDeDaviContext))]
-    partial class TriboDeDaviContextModelSnapshot : ModelSnapshot
+    [Migration("20260822025347_AddAuth2FAeRefreshToken")]
+    partial class AddAuth2FAeRefreshToken
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -50,10 +53,6 @@ namespace InstitutoTriboDeDavi.Infrastructure.Migrations
 
                     b.Property<string>("Cidade")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("CodigoResponsavel")
-                        .HasMaxLength(16)
-                        .HasColumnType("VARCHAR(16)");
 
                     b.Property<string>("Complemento")
                         .HasMaxLength(80)
@@ -114,8 +113,6 @@ namespace InstitutoTriboDeDavi.Infrastructure.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CodigoResponsavel");
 
                     b.ToTable("ALUNOS", (string)null);
                 });

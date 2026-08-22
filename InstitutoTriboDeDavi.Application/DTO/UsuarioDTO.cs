@@ -26,5 +26,7 @@ namespace InstitutoTriboDeDavi.Application.DTO
         public long? PoloId { get; set; }
         public string PoloNome { get; set; }
         public string? Avatar { get; set; }
+        // 2FA ativo e confirmado — usado no login para decidir se exige o código.
+        public bool TotpConfirmado { get; set; }
     }
 }

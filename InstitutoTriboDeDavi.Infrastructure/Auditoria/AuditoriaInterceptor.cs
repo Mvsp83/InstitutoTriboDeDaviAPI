@@ -137,8 +137,23 @@ namespace InstitutoTriboDeDavi.Infrastructure.Auditoria
             return valor is long l ? l : Convert.ToInt64(valor ?? 0);
         }
 
+        // Trechos de nome que marcam um campo como dado pessoal — o log guarda
+        // que o campo mudou, mas nunca o valor (senão a própria auditoria
+        // conservaria o CPF/RG que a anonimização acabou de apagar).
+        private static readonly string[] TrechosPii =
+        {
+            "CPF", "RG", "Nome", "Endereco", "Rua", "Bairro", "Cidade", "Numero",
+            "Complemento", "Celular", "Telefone", "WhatsApp", "Email", "Responsavel",
+            "Escola", "Serie", "Periodo", "Nascimento", "Medicament", "Assinatura",
+            "Documento", "Contato",
+        };
+
+        private static bool EhPii(string nome) =>
+            TrechosPii.Any(t => nome.Contains(t, StringComparison.OrdinalIgnoreCase));
+
         // Só os campos que mudaram, para o log ser legível e enxuto. Senhas e
-        // hashes nunca entram no registro.
+        // hashes nunca entram no registro; dados pessoais entram só como
+        // "campo alterado", sem os valores.
         private static string Diferencas(EntityEntry entry)
         {
             if (entry.State == EntityState.Added || entry.State == EntityState.Deleted)
@@ -153,6 +168,13 @@ namespace InstitutoTriboDeDavi.Infrastructure.Auditoria
                     nome.Contains("Hash", StringComparison.OrdinalIgnoreCase) ||
                     nome.Contains("Password", StringComparison.OrdinalIgnoreCase))
                     continue;
+
+                // Dado pessoal: registra a mudança sem expor os valores.
+                if (EhPii(nome))
+                {
+                    mudancas[nome] = new { alterado = true };
+                    continue;
+                }
 
                 mudancas[nome] = new { de = prop.OriginalValue, para = prop.CurrentValue };
             }

@@ -44,5 +44,34 @@ namespace InstitutoTriboDeDavi.API.Token
             return tokenHandler.WriteToken(token);
         }
 
+        public string GenerateResponsavelToken(long alunoId, string nomeAluno)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"]);
+
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, $"responsavel:{alunoId}"),
+                // Papel próprio: não casa com Administrador/Supervisor/Professor,
+                // então este token é inerte contra os endpoints internos.
+                new Claim(ClaimTypes.Role, "Responsavel"),
+                new Claim("AlunoId", alunoId.ToString()),
+                new Claim("NomeAluno", nomeAluno ?? string.Empty),
+            };
+
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(claims),
+                // Sessão curta: o portal é de consulta pontual.
+                Expires = DateTime.UtcNow.AddHours(4),
+                Issuer = _configuration["Jwt:Issuer"],
+                Audience = _configuration["Jwt:Audience"],
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            };
+
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            return tokenHandler.WriteToken(token);
+        }
+
     }
 }

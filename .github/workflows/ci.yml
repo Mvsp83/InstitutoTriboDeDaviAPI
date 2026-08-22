@@ -1,0 +1,35 @@
+name: CI
+
+# Build e testes da API a cada push no master e em pull requests.
+# Os testes usam banco InMemory — não precisam de SQL Server nem de segredos.
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # O projeto tem como alvo net8.0; instalamos os dois SDKs (8 e 10) para
+      # cobrir tanto o targeting pack quanto os pacotes mais novos (Serilog 10).
+      - name: Configurar .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            10.0.x
+
+      - name: Restaurar
+        run: dotnet restore
+
+      - name: Build (Release)
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Testes
+        run: dotnet test --configuration Release --no-build --verbosity normal
+
+  # Deploy: pendente da decisão de hospedagem da API (ver GUIA_DEPLOY.md).
+  # Quando definido, adicionar um job "deploy" que publica após build-test.

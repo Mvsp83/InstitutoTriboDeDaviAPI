@@ -17,6 +17,7 @@ using InstitutoTriboDeDavi.Application.DTO.Queries;
 using InstitutoTriboDeDavi.Infrastructure.Import;
 using InstitutoTriboDeDavi.Application.Import;
 using InstitutoTriboDeDavi.Infrastructure.Configuration;
+using InstitutoTriboDeDavi.Infrastructure.Auditoria;
 using InstitutoTriboDeDavi.Infrastructure.Context;
 using InstitutoTriboDeDavi.Infrastructure.GoogleDrive;
 using InstitutoTriboDeDavi.Infrastructure.GoogleSheets;
@@ -155,7 +156,15 @@ namespace InstitutoTriboDeDavi.API
 
             #region Injeção de Dependência
 
-            services.AddDbContext<TriboDeDaviContext>(options => options.UseSqlServer(Configuration["ConnectionStrings:TRIBODEDAVIAPI"]));
+            // Auditoria: o interceptor precisa do usuário logado (HttpContext) e
+            // é scoped, pois acumula estado por requisição/DbContext.
+            services.AddHttpContextAccessor();
+            services.AddScoped<AuditoriaInterceptor>();
+
+            services.AddDbContext<TriboDeDaviContext>((sp, options) =>
+                options
+                    .UseSqlServer(Configuration["ConnectionStrings:TRIBODEDAVIAPI"])
+                    .AddInterceptors(sp.GetRequiredService<AuditoriaInterceptor>()));
 
             // Health check com verificação do banco — usado pelo monitoramento do provedor
             services.AddHealthChecks().AddDbContextCheck<TriboDeDaviContext>();
@@ -195,6 +204,8 @@ namespace InstitutoTriboDeDavi.API
             services.AddScoped<IGraduacaoService, GraduacaoService>();
             services.AddScoped<IDoacaoRepository, DoacaoRepository>();
             services.AddScoped<IDoacaoService, DoacaoService>();
+            services.AddScoped<ILogAuditoriaRepository, LogAuditoriaRepository>();
+            services.AddScoped<ILogAuditoriaService, LogAuditoriaService>();
             services.AddScoped<IEventoCalendarioRepository, EventoCalendarioRepository>();
             services.AddScoped<IEventoCalendarioService, EventoCalendarioService>();
             services.AddScoped<IDocumentoOficialRepository, DocumentoOficialRepository>();
@@ -251,6 +262,7 @@ namespace InstitutoTriboDeDavi.API
                     cfg.CreateMap<Graduacao, GraduacaoDTO>().ReverseMap();
                     cfg.CreateMap<Doador, DoadorDTO>().ReverseMap();
                     cfg.CreateMap<Doacao, DoacaoDTO>().ReverseMap();
+                    cfg.CreateMap<LogAuditoria, LogAuditoriaDTO>().ReverseMap();
                     cfg.CreateMap<EventoCalendario, EventoCalendarioDTO>().ReverseMap();
                     cfg.CreateMap<DocumentoOficial, DocumentoOficialDTO>().ReverseMap();
                     cfg.CreateMap<BemPatrimonial, BemPatrimonialDTO>().ReverseMap();

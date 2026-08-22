@@ -124,6 +124,29 @@ namespace InstitutoTriboDeDavi.Tests
         }
 
         [Fact]
+        public async Task Enviar_GeraCodigoDeAcessoDoResponsavel()
+        {
+            var resultado = await _service.Enviar(FichaValida());
+
+            // A família recebe o código no fim, e ele fica gravado na inscrição.
+            Assert.False(string.IsNullOrEmpty(resultado.CodigoResponsavel));
+            _inscricoes.Verify(r => r.CriarAsync(It.Is<Inscricao>(i =>
+                !string.IsNullOrEmpty(i.CodigoResponsavel))), Times.Once);
+        }
+
+        [Fact]
+        public async Task Aprovar_HerdaOCodigoGeradoNaInscricao()
+        {
+            var ficha = Pendente();
+            ficha.CodigoResponsavel = "ABCD2345";
+            _inscricoes.Setup(r => r.ObterAsync(1)).ReturnsAsync(ficha);
+
+            await _service.Aprovar(1, new RevisaoInscricaoDTO { PoloId = 1, Turma = 1 }, "admin");
+
+            Assert.Equal("ABCD2345", _alunoSalvo.CodigoResponsavel);
+        }
+
+        [Fact]
         public async Task Enviar_SemConsentimentoLgpd_Recusa()
         {
             var dto = FichaValida();

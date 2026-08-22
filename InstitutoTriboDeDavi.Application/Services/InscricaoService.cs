@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using InstitutoTriboDeDavi.Application.Common;
 using InstitutoTriboDeDavi.Application.DTO;
 using InstitutoTriboDeDavi.Application.Repositories;
 using InstitutoTriboDeDavi.Application.Services.Interfaces;
@@ -36,7 +37,7 @@ namespace InstitutoTriboDeDavi.Application.Services
             _poloRepository = poloRepository;
         }
 
-        public async Task<long> Enviar(InscricaoDTO dto)
+        public async Task<EnvioInscricaoResultado> Enviar(InscricaoDTO dto)
         {
             var inscricao = _mapper.Map<Inscricao>(dto);
 
@@ -49,6 +50,8 @@ namespace InstitutoTriboDeDavi.Application.Services
             inscricao.DataRevisao = null;
             inscricao.RevisadoPor = string.Empty;
             inscricao.ObservacaoRevisao = string.Empty;
+            // Código de acesso ao portal, entregue à família no fim do formulário.
+            inscricao.CodigoResponsavel = CodigoAcesso.Gerar();
 
             inscricao.Validate();
 
@@ -63,7 +66,7 @@ namespace InstitutoTriboDeDavi.Application.Services
                     "Aguarde alguns minutos antes de enviar outra.");
 
             var criada = await _repository.CriarAsync(inscricao);
-            return criada.Id;
+            return new EnvioInscricaoResultado(criada.Id, criada.CodigoResponsavel);
         }
 
         public async Task<List<InscricaoDTO>> Listar(int? status, int? ano, long? poloId)
@@ -209,6 +212,13 @@ namespace InstitutoTriboDeDavi.Application.Services
             aluno.Cidade = i.Cidade;
             aluno.PoloId = poloId;
             aluno.Turma = turma;
+
+            // Herda o código gerado na inscrição, para a família seguir usando o
+            // mesmo. Se faltar (aluno antigo/edição manual), gera um agora.
+            if (string.IsNullOrEmpty(aluno.CodigoResponsavel))
+                aluno.CodigoResponsavel = string.IsNullOrEmpty(i.CodigoResponsavel)
+                    ? CodigoAcesso.Gerar()
+                    : i.CodigoResponsavel;
 
             if (Enum.IsDefined(typeof(Parentesco), i.Parentesco))
                 aluno.Parentesco = (Parentesco)i.Parentesco;

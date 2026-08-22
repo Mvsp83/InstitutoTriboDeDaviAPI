@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using InstitutoTriboDeDavi.Application.Common;
 using InstitutoTriboDeDavi.Domain.Exceptions;
 using InstitutoTriboDeDavi.Application.Repositories;
 using InstitutoTriboDeDavi.Domain.Entities;
@@ -252,17 +253,13 @@ namespace InstitutoTriboDeDavi.Application.Services
 
         // ── Portal do responsável ───────────────────────────────────────────
 
-        // Alfabeto sem caracteres ambíguos (0/O, 1/I/L) — o código é ditado/
-        // digitado pela família, então precisa ser legível.
-        private const string AlfabetoCodigo = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
-
         public async Task<string> GerarCodigoResponsavelAsync(long id)
         {
             var aluno = await _alunoRepository.GetByIdAsync(id);
             if (aluno == null)
                 return null;
 
-            var codigo = GerarCodigo(8);
+            var codigo = CodigoAcesso.Gerar();
             aluno.CodigoResponsavel = codigo;
             await _alunoRepository.UpdateAsync(aluno);
 
@@ -275,13 +272,41 @@ namespace InstitutoTriboDeDavi.Application.Services
             return aluno?.CodigoResponsavel;
         }
 
-        private static string GerarCodigo(int tamanho)
+        public async Task<List<CodigoResponsavelItemDTO>> PrepararCodigosResponsavelAsync(UsuarioDTO usuario)
         {
-            var bytes = System.Security.Cryptography.RandomNumberGenerator.GetBytes(tamanho);
-            var chars = new char[tamanho];
-            for (var i = 0; i < tamanho; i++)
-                chars[i] = AlfabetoCodigo[bytes[i] % AlfabetoCodigo.Length];
-            return new string(chars);
+            List<Aluno> alunos;
+            if (usuario.Role == UserRole.Administrador)
+            {
+                alunos = (await _alunoRepository.ObterTodosAsync())
+                    .Where(a => a.AnonimizadoEm == null)
+                    .ToList();
+            }
+            else if ((usuario.Role == UserRole.Professor || usuario.Role == UserRole.Supervisor) && usuario.PoloId.HasValue)
+            {
+                alunos = await _alunoRepository.ObterPorPoloAsync(usuario.PoloId.Value);
+            }
+            else
+            {
+                throw new UnauthorizedAccessException("Usuário não tem permissão para acessar esta informação.");
+            }
+
+            // Garante um código para cada aluno que ainda não tem.
+            foreach (var aluno in alunos.Where(a => string.IsNullOrEmpty(a.CodigoResponsavel)))
+            {
+                aluno.CodigoResponsavel = CodigoAcesso.Gerar();
+                await _alunoRepository.UpdateAsync(aluno);
+            }
+
+            return alunos
+                .OrderBy(a => a.Nome)
+                .Select(a => new CodigoResponsavelItemDTO
+                {
+                    Id = a.Id,
+                    Nome = a.Nome,
+                    Responsavel = a.Responsavel ?? string.Empty,
+                    PoloId = a.PoloId,
+                    Codigo = a.CodigoResponsavel ?? string.Empty,
+                }).ToList();
         }
     }
 }

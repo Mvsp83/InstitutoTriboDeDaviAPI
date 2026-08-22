@@ -29,6 +29,10 @@ namespace InstitutoTriboDeDavi.Application.Repositories
 
         // Portal do responsável: localiza o aluno pelo código de acesso.
         Task<Aluno> ObterPorCodigoResponsavelAsync(string codigo);
+
+        // Alunos ativos (não anonimizados) de um polo — usado na impressão em
+        // lote dos códigos de acesso.
+        Task<List<Aluno>> ObterPorPoloAsync(long poloId);
     }
 
     // Pacote bruto (entidades de domínio) devolvido pela coleta LGPD; o serviço

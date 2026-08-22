@@ -317,5 +317,24 @@ namespace InstitutoTriboDeDavi.API.Controllers
                 });
             });
         }
+
+        // Impressão em lote: garante um código para cada aluno do escopo e
+        // devolve a lista para imprimir e entregar às famílias.
+        [HttpPost("codigos-responsavel/preparar")]
+        [Authorize(Policy = AuthPolicies.ProfessorOuSuperior)]
+        public async Task<IActionResult> PrepararCodigosResponsavel()
+        {
+            return await ExecuteAsync(async () =>
+            {
+                var lista = await _alunoService.PrepararCodigosResponsavelAsync(UsuarioAutenticado);
+
+                return Ok(new ResultViewModel
+                {
+                    Message = $"{lista.Count} código(s) prontos para impressão.",
+                    Success = true,
+                    Data = lista
+                });
+            });
+        }
     }
 }

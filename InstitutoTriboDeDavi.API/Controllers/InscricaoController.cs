@@ -65,14 +65,15 @@ namespace InstitutoTriboDeDavi.API.Controllers
         {
             return await ExecuteAsync(async () =>
             {
-                var id = await _service.Enviar(dto);
+                var resultado = await _service.Enviar(dto);
 
-                // Não devolvemos a ficha inteira: a resposta é pública.
+                // Não devolvemos a ficha inteira: a resposta é pública. O código
+                // de acesso vai junto para a família guardar e usar no portal.
                 return Ok(new ResultViewModel
                 {
                     Message = "Inscrição enviada! A equipe do polo vai conferir os dados e entrar em contato.",
                     Success = true,
-                    Data = new { id }
+                    Data = new { resultado.Id, resultado.CodigoResponsavel }
                 });
             });
         }

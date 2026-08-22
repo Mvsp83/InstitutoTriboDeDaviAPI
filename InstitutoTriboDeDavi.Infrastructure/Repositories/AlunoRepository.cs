@@ -256,5 +256,13 @@ namespace InstitutoTriboDeDavi.Infrastructure.Repositories
                 .AsNoTracking()
                 .FirstOrDefaultAsync(a => a.CodigoResponsavel == alvo && a.AnonimizadoEm == null);
         }
+
+        public async Task<List<Aluno>> ObterPorPoloAsync(long poloId)
+        {
+            return await _context.Alunos
+                .Where(a => a.PoloId == poloId && a.AnonimizadoEm == null)
+                .OrderBy(a => a.Nome)
+                .ToListAsync();
+        }
     }
 }

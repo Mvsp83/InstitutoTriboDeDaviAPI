@@ -31,5 +31,9 @@ namespace InstitutoTriboDeDavi.Application.Services.Interfaces
         Task<string> GerarCodigoResponsavelAsync(long id);
         // Código atual (ou null se não existe/não liberado).
         Task<string?> ObterCodigoResponsavelAsync(long id);
+        // Impressão em lote: garante um código para cada aluno no escopo do
+        // usuário (admin = todos; professor/supervisor = seu polo) e devolve a
+        // lista para imprimir e entregar às famílias.
+        Task<List<CodigoResponsavelItemDTO>> PrepararCodigosResponsavelAsync(UsuarioDTO usuario);
     }
 }

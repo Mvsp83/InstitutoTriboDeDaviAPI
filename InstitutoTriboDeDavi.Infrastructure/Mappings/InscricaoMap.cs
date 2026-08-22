@@ -53,6 +53,8 @@ namespace InstitutoTriboDeDavi.Infrastructure.Mappings
             builder.Property(x => x.VersaoTermos).HasMaxLength(20).IsRequired(false);
             builder.Property(x => x.DataEnvio).IsRequired();
 
+            builder.Property(x => x.CodigoResponsavel).HasMaxLength(16).IsRequired(false);
+
             builder.Property(x => x.Status).IsRequired();
             builder.Property(x => x.AlunoId).IsRequired(false);
             builder.Property(x => x.DataRevisao).IsRequired(false);

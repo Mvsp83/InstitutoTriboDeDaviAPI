@@ -75,6 +75,11 @@ namespace InstitutoTriboDeDavi.Domain.Entities
         public string VersaoTermos { get; set; } = string.Empty;
         public DateTime DataEnvio { get; set; }
 
+        // Código de acesso ao portal, gerado quando a família envia a ficha. É
+        // repassado ao Aluno na aprovação — assim a família usa o mesmo código
+        // desde a inscrição.
+        public string CodigoResponsavel { get; set; } = string.Empty;
+
         // ── Revisão ───────────────────────────────────────────────────────
         public int Status { get; set; } = (int)StatusInscricao.Pendente;
         public long? AlunoId { get; set; }

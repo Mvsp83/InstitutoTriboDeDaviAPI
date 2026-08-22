@@ -4,10 +4,14 @@ using InstitutoTriboDeDavi.Application.DTO;
 
 namespace InstitutoTriboDeDavi.Application.Services.Interfaces
 {
+    // Resultado do envio público: o id e o código de acesso que a família
+    // recebe no fim da ficha para acompanhar o aluno no portal.
+    public record EnvioInscricaoResultado(long Id, string CodigoResponsavel);
+
     public interface IInscricaoService
     {
         // Envio público (sem autenticação).
-        Task<long> Enviar(InscricaoDTO dto);
+        Task<EnvioInscricaoResultado> Enviar(InscricaoDTO dto);
 
         // Fila de revisão. poloId nulo = todos (Administrador).
         Task<List<InscricaoDTO>> Listar(int? status, int? ano, long? poloId);

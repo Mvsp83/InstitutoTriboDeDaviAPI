@@ -77,6 +77,50 @@ namespace InstitutoTriboDeDavi.Tests
             Assert.Contains(lista, i => i.Codigo == "JAEXISTE");
         }
 
+        [Fact]
+        public async Task Update_PreservaCodigoEAutorizacaoQuandoNaoEnviados()
+        {
+            var aluno = Semear("Ana Silva", "JAEXISTE");
+            aluno.AutorizaImagem = true;
+            _context.SaveChanges();
+
+            // Formulário de edição não traz codigo nem autorizaImagem (null).
+            await _service.Update(new AlunoDTO
+            {
+                Id = aluno.Id,
+                Nome = "Ana Maria Silva",
+                DataNascimento = aluno.DataNascimento,
+                PoloId = 1,
+                Turma = 2,
+            });
+
+            var salvo = await _context.Alunos.AsNoTracking().FirstAsync(a => a.Id == aluno.Id);
+            Assert.Equal("Ana Maria Silva", salvo.Nome);          // atualizou o que veio
+            Assert.Equal("JAEXISTE", salvo.CodigoResponsavel);     // preservou o código
+            Assert.True(salvo.AutorizaImagem);                     // preservou a autorização
+        }
+
+        [Fact]
+        public async Task Update_AtualizaAutorizacaoQuandoEnviada()
+        {
+            var aluno = Semear("Bruno Souza");
+            aluno.AutorizaImagem = true;
+            _context.SaveChanges();
+
+            await _service.Update(new AlunoDTO
+            {
+                Id = aluno.Id,
+                Nome = "Bruno Souza",
+                DataNascimento = aluno.DataNascimento,
+                PoloId = 1,
+                Turma = 1,
+                AutorizaImagem = false,
+            });
+
+            var salvo = await _context.Alunos.AsNoTracking().FirstAsync(a => a.Id == aluno.Id);
+            Assert.False(salvo.AutorizaImagem);
+        }
+
         public void Dispose() => _context.Dispose();
     }
 }

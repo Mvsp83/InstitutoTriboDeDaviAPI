@@ -135,6 +135,18 @@ namespace InstitutoTriboDeDavi.Tests
         }
 
         [Fact]
+        public async Task Aprovar_LevaAutorizacaoDeImagemParaOAluno()
+        {
+            var ficha = Pendente();
+            ficha.AceitouImagem = true;
+            _inscricoes.Setup(r => r.ObterAsync(1)).ReturnsAsync(ficha);
+
+            await _service.Aprovar(1, new RevisaoInscricaoDTO { PoloId = 1, Turma = 1 }, "admin");
+
+            Assert.True(_alunoSalvo.AutorizaImagem);
+        }
+
+        [Fact]
         public async Task Aprovar_HerdaOCodigoGeradoNaInscricao()
         {
             var ficha = Pendente();

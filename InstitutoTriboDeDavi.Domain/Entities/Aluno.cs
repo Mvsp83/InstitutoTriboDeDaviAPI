@@ -42,6 +42,11 @@ namespace InstitutoTriboDeDavi.Domain.Entities
         // pelo admin e compartilhado com a família; nulo = sem acesso liberado.
         public string? CodigoResponsavel { get; set; }
 
+        // Autorização de uso de imagem e voz (LGPD). null = não informado,
+        // true = autoriza, false = não autoriza. Só se pode publicar a imagem
+        // da criança quando for true.
+        public bool? AutorizaImagem { get; set; }
+
         public override bool Validate()
         {
             var validator = new AlunoValidator();

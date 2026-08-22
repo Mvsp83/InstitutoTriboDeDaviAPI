@@ -35,5 +35,8 @@ namespace InstitutoTriboDeDavi.Application.DTO
         public string Periodo { get; set; }
         public long PoloId { get; set; }
         public int Turma { get; set; }
+        // Autorização de uso de imagem/voz (LGPD): null = não informado,
+        // true = autoriza, false = não autoriza.
+        public bool? AutorizaImagem { get; set; }
     }
 }

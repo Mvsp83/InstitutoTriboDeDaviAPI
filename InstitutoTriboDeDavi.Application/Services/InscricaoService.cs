@@ -212,6 +212,8 @@ namespace InstitutoTriboDeDavi.Application.Services
             aluno.Cidade = i.Cidade;
             aluno.PoloId = poloId;
             aluno.Turma = turma;
+            // Autorização de imagem informada pela família na ficha.
+            aluno.AutorizaImagem = i.AceitouImagem;
 
             // Herda o código gerado na inscrição, para a família seguir usando o
             // mesmo. Se faltar (aluno antigo/edição manual), gera um agora.

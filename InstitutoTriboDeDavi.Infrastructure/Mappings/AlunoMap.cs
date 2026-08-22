@@ -40,6 +40,9 @@ namespace InstitutoTriboDeDavi.Infrastructure.Mappings
                 .HasColumnType("VARCHAR(16)");
 
             builder.HasIndex(x => x.CodigoResponsavel);
+
+            // Autorização de imagem (LGPD): null = não informado.
+            builder.Property(x => x.AutorizaImagem).IsRequired(false);
         }
     }
 }

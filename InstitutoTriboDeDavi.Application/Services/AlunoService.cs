@@ -81,6 +81,13 @@ namespace InstitutoTriboDeDavi.Application.Services
 
             var aluno = _mapper.Map<Aluno>(alunoDTO);
 
+            // O UpdateAsync grava a entidade inteira; como o formulário de edição
+            // não traz estes campos, preserva-os para não os zerar.
+            aluno.CodigoResponsavel = alunoExists.CodigoResponsavel;
+            aluno.AnonimizadoEm = alunoExists.AnonimizadoEm;
+            // Autorização de imagem: usa o valor enviado, ou preserva o atual.
+            aluno.AutorizaImagem = alunoDTO.AutorizaImagem ?? alunoExists.AutorizaImagem;
+
             aluno.Validate();
 
             var alunoUpdated = await _alunoRepository.UpdateAsync(aluno);

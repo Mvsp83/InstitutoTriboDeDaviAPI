@@ -205,6 +205,50 @@ namespace InstitutoTriboDeDavi.Application.Services
                 TotalAlunos: alunos.Count);
         }
 
+        public async Task<DadosPreMatriculaDTO> BuscarParaRematricula(string cpfResponsavel, DateTime dataNascimento)
+        {
+            var cpf = SomenteDigitos(cpfResponsavel);
+            if (cpf.Length == 0)
+                return null;
+
+            var alunos = await _alunoRepository.GetAllAsync();
+            var aluno = alunos.FirstOrDefault(a =>
+                a.AnonimizadoEm == null &&
+                SomenteDigitos(a.CPFResponsavel) == cpf &&
+                a.DataNascimento.Date == dataNascimento.Date);
+
+            if (aluno == null)
+                return null;
+
+            return new DadosPreMatriculaDTO
+            {
+                AlunoId = aluno.Id,
+                Nome = aluno.Nome ?? string.Empty,
+                DataNascimento = aluno.DataNascimento.ToString("yyyy-MM-dd"),
+                Rg = aluno.RG ?? string.Empty,
+                Cpf = aluno.CPF ?? string.Empty,
+                Peso = aluno.Peso,
+                Altura = aluno.Altura,
+                Faixa = (int)aluno.Faixa,
+                Escola = aluno.Escola ?? string.Empty,
+                Serie = aluno.Serie ?? string.Empty,
+                Periodo = aluno.Periodo ?? string.Empty,
+                Parentesco = (int)(aluno.Parentesco ?? 0),
+                NomeResponsavel = aluno.Responsavel ?? string.Empty,
+                RgResponsavel = aluno.RGResponsavel ?? string.Empty,
+                CpfResponsavel = aluno.CPFResponsavel ?? string.Empty,
+                Rua = aluno.Endereco ?? string.Empty,
+                Numero = aluno.Numero ?? string.Empty,
+                Complemento = aluno.Complemento ?? string.Empty,
+                Bairro = aluno.Bairro ?? string.Empty,
+                Cidade = aluno.Cidade ?? string.Empty,
+                WhatsApp = aluno.Celular ?? string.Empty,
+                Telefone2 = aluno.Telefone2 ?? string.Empty,
+                PoloId = aluno.PoloId,
+                TurmaAnterior = aluno.Turma,
+            };
+        }
+
         // ── Apoio ─────────────────────────────────────────────────────────
         private async Task<Aluno> LocalizarAlunoExistente(Inscricao inscricao)
         {

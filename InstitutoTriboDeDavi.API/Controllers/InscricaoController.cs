@@ -56,6 +56,32 @@ namespace InstitutoTriboDeDavi.API.Controllers
             });
         }
 
+        // Rematrícula: a família traz os dados de quem já é aluno para não
+        // redigitar. Público, protegido por 2 fatores (CPF do responsável + data
+        // de nascimento do aluno) e pelo rate limit. Data nula = não encontrado
+        // (mesma resposta para evitar enumeração de CPFs).
+        [HttpPost("buscar-aluno")]
+        [AllowAnonymous]
+        [EnableRateLimiting(AuthPolicies.InscricaoRateLimit)]
+        public async Task<IActionResult> BuscarAluno([FromBody] ViewModels.Create.BuscarRematriculaViewModel model)
+        {
+            return await ExecuteAsync(async () =>
+            {
+                var dados = await _service.BuscarParaRematricula(
+                    model?.CpfResponsavel ?? string.Empty,
+                    model?.DataNascimento ?? default);
+
+                return Ok(new ResultViewModel
+                {
+                    Message = dados != null
+                        ? "Dados encontrados."
+                        : "Não encontramos um aluno com esse CPF e data de nascimento.",
+                    Success = true,
+                    Data = dados
+                });
+            });
+        }
+
         // Envio da ficha pelo responsável. Público por natureza: quem se
         // inscreve ainda não tem conta no sistema.
         [HttpPost("enviar")]

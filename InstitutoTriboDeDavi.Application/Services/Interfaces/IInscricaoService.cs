@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using InstitutoTriboDeDavi.Application.DTO;
@@ -16,6 +17,12 @@ namespace InstitutoTriboDeDavi.Application.Services.Interfaces
     {
         // Envio público (sem autenticação).
         Task<EnvioInscricaoResultado> Enviar(InscricaoDTO dto);
+
+        // Rematrícula pública: busca um aluno já cadastrado por CPF do responsável
+        // + data de nascimento do aluno (2 fatores, como o portal) para pré-
+        // preencher o formulário. Null se não encontrar (mesma resposta que erro,
+        // para não permitir enumeração de CPFs).
+        Task<DadosPreMatriculaDTO> BuscarParaRematricula(string cpfResponsavel, DateTime dataNascimento);
 
         // Fila de revisão. poloId nulo = todos (Administrador).
         Task<List<InscricaoDTO>> Listar(int? status, int? ano, long? poloId);

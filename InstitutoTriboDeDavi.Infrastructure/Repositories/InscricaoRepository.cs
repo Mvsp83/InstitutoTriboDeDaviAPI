@@ -134,5 +134,22 @@ namespace InstitutoTriboDeDavi.Infrastructure.Repositories
                 .AsNoTracking()
                 .FirstOrDefaultAsync(m => m.AlunoId == alunoId && m.Ano == ano);
         }
+
+        public async Task<List<long>> ObterAlunosMatriculadosAsync(int ano, long? poloId)
+        {
+            var query = _context.Matriculas.AsNoTracking().Where(m => m.Ano == ano);
+            if (poloId.HasValue) query = query.Where(m => m.PoloId == poloId.Value);
+            return await query.Select(m => m.AlunoId).ToListAsync();
+        }
+
+        public async Task<int> CriarMatriculasAsync(IEnumerable<Matricula> matriculas)
+        {
+            var lista = matriculas.ToList();
+            if (lista.Count == 0) return 0;
+
+            await _context.Matriculas.AddRangeAsync(lista);
+            await _context.SaveChangesAsync();
+            return lista.Count;
+        }
     }
 }

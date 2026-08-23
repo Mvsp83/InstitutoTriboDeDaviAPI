@@ -26,5 +26,12 @@ namespace InstitutoTriboDeDavi.Application.Repositories
 
         Task<List<Matricula>> ListarMatriculasAsync(int ano, long? poloId);
         Task<Matricula> ObterMatriculaAsync(long alunoId, int ano);
+
+        // AlunoIds já matriculados no ano (opcionalmente por polo) — usado na
+        // matrícula em lote para não duplicar.
+        Task<List<long>> ObterAlunosMatriculadosAsync(int ano, long? poloId);
+
+        // Cria várias matrículas de uma vez (virada de ano). Retorna a quantidade.
+        Task<int> CriarMatriculasAsync(IEnumerable<Matricula> matriculas);
     }
 }

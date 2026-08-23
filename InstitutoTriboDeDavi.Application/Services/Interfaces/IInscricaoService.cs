@@ -8,6 +8,10 @@ namespace InstitutoTriboDeDavi.Application.Services.Interfaces
     // recebe no fim da ficha para acompanhar o aluno no portal.
     public record EnvioInscricaoResultado(long Id, string CodigoResponsavel);
 
+    // Resultado da matrícula em lote (virada de ano): quantas foram criadas,
+    // quantas já existiam e o total de alunos considerados.
+    public record MatriculaLoteResultado(int Criadas, int JaMatriculados, int TotalAlunos);
+
     public interface IInscricaoService
     {
         // Envio público (sem autenticação).
@@ -24,5 +28,9 @@ namespace InstitutoTriboDeDavi.Application.Services.Interfaces
         Task Recusar(long id, string motivo, string revisor);
 
         Task<List<MatriculaDTO>> ListarMatriculas(int ano, long? poloId);
+
+        // Virada de ano: matricula em lote os alunos ativos ainda sem matrícula
+        // no ano (polo/turma do cadastro atual). Idempotente. poloId nulo = todos.
+        Task<MatriculaLoteResultado> MatricularAno(int ano, long? poloId);
     }
 }

@@ -168,6 +168,43 @@ namespace InstitutoTriboDeDavi.Application.Services
             return _mapper.Map<List<MatriculaDTO>>(matriculas);
         }
 
+        public async Task<MatriculaLoteResultado> MatricularAno(int ano, long? poloId)
+        {
+            if (ano < 2000 || ano > 2100)
+                throw new DomainException("Ano inválido.");
+
+            // Base: alunos ativos que o usuário pode matricular (todos p/ admin,
+            // ou só o polo do professor/supervisor).
+            var alunos = poloId.HasValue
+                ? await _alunoRepository.ObterPorPoloAsync(poloId.Value)
+                : (await _alunoRepository.ObterTodosAsync())
+                    .Where(a => a.AnonimizadoEm == null)
+                    .ToList();
+
+            var jaMatriculados = (await _repository.ObterAlunosMatriculadosAsync(ano, poloId))
+                .ToHashSet();
+
+            var novas = alunos
+                .Where(a => !jaMatriculados.Contains(a.Id))
+                .Select(a => new Matricula
+                {
+                    AlunoId = a.Id,
+                    Ano = ano,
+                    PoloId = a.PoloId,
+                    Turma = a.Turma,
+                    DataMatricula = DateTime.Now,
+                    Ativa = true,
+                })
+                .ToList();
+
+            var criadas = await _repository.CriarMatriculasAsync(novas);
+
+            return new MatriculaLoteResultado(
+                Criadas: criadas,
+                JaMatriculados: alunos.Count - novas.Count,
+                TotalAlunos: alunos.Count);
+        }
+
         // ── Apoio ─────────────────────────────────────────────────────────
         private async Task<Aluno> LocalizarAlunoExistente(Inscricao inscricao)
         {

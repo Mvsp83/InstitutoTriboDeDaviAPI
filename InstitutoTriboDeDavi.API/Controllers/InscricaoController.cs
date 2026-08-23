@@ -176,6 +176,26 @@ namespace InstitutoTriboDeDavi.API.Controllers
             }));
         }
 
+        // Virada de ano: matricula em lote os alunos ativos ainda sem matrícula
+        // no ano. Admin cobre todos os polos; professor/supervisor, só o seu.
+        [HttpPost("matricular-ano/{ano}")]
+        [Authorize(Policy = AuthPolicies.ProfessorOuSuperior)]
+        public async Task<IActionResult> MatricularAno(int ano)
+        {
+            return await ExecuteAsync(async () =>
+            {
+                var r = await _service.MatricularAno(ano, PoloDoUsuario());
+                return Ok(new ResultViewModel
+                {
+                    Message = r.Criadas > 0
+                        ? $"{r.Criadas} aluno(s) matriculado(s) em {ano}."
+                        : $"Todos os alunos já estavam matriculados em {ano}.",
+                    Success = true,
+                    Data = r
+                });
+            });
+        }
+
         // Administrador enxerga todos os polos; os demais, só o seu.
         private long? PoloDoUsuario() =>
             UsuarioAutenticado.Role == UserRole.Administrador

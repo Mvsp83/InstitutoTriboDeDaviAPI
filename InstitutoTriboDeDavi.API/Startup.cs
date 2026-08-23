@@ -243,7 +243,11 @@ namespace InstitutoTriboDeDavi.API
 
             // Serviços
             services.AddScoped<IGoogleSheetsService, GoogleSheetsService>();
-            services.AddScoped<IDocumentoDriveService, GoogleDriveDocumentoService>();
+            // Documentos guardados no próprio banco (sem Google Drive). Para
+            // voltar ao Drive, troque por GoogleDriveDocumentoService e configure
+            // as credenciais OAuth (GOOGLE_DRIVE_SETUP.md).
+            services.AddScoped<IDocumentoArquivoRepository, DocumentoArquivoRepository>();
+            services.AddScoped<IDocumentoDriveService, DocumentoBancoService>();
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<IPushSubscriptionRepository, PushSubscriptionRepository>();
             services.AddScoped<IPushService, PushService>();

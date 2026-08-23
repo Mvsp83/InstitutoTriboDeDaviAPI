@@ -49,6 +49,7 @@ namespace InstitutoTriboDeDavi.Infrastructure.Context
             builder.ApplyConfiguration(new LogAuditoriaMap());
             builder.ApplyConfiguration(new RefreshTokenMap());
             builder.ApplyConfiguration(new PushSubscriptionMap());
+            builder.ApplyConfiguration(new DocumentoArquivoMap());
             builder.Entity<SincronizacaoHistorico>(entity =>
             {
                 entity.ToTable("SINCRONIZACAO_HISTORICO");
@@ -89,5 +90,6 @@ namespace InstitutoTriboDeDavi.Infrastructure.Context
         public DbSet<Doacao> Doacoes { get; set; }
         public DbSet<LogAuditoria> LogsAuditoria { get; set; }
         public DbSet<PushSubscription> PushSubscriptions { get; set; }
+        public DbSet<DocumentoArquivo> DocumentosArquivo { get; set; }
     }
 }

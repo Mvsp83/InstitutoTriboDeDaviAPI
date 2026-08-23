@@ -16,5 +16,9 @@ namespace InstitutoTriboDeDavi.Application.Services.Interfaces
         // O responsável autoriza (ou revoga) o uso de imagem/voz do aluno,
         // registrando a data do consentimento. Retorna o novo estado.
         Task<bool> AtualizarAutorizacaoImagemAsync(long alunoId, bool autoriza);
+
+        // O responsável justifica uma falta do próprio filho. A presença precisa
+        // pertencer ao aluno do token e ser uma falta. Retorna o item atualizado.
+        Task<PresencaItemDTO> JustificarFaltaAsync(long alunoId, long presencaId, string justificativa);
     }
 }

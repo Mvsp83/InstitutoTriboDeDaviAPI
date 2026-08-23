@@ -118,5 +118,33 @@ namespace InstitutoTriboDeDavi.API.Controllers
                 });
             });
         }
+
+        // O responsável justifica uma falta do próprio filho. A presença precisa
+        // pertencer ao aluno do token e ser uma falta.
+        [HttpPost("justificar-falta")]
+        [Authorize(Roles = "Responsavel")]
+        public async Task<IActionResult> JustificarFalta([FromBody] JustificarFaltaViewModel model)
+        {
+            return await ExecuteAsync(async () =>
+            {
+                var claim = User.FindFirst("AlunoId")?.Value;
+                if (!long.TryParse(claim, out var alunoId))
+                    return StatusCode(401, Responses.UnauthorizedErrorMessage());
+
+                var item = await _responsavelService.JustificarFaltaAsync(
+                    alunoId, model.PresencaId, model.Justificativa);
+
+                _logger.LogInformation(
+                    "Responsável do aluno #{Id} justificou a falta #{PresencaId}.",
+                    alunoId, model.PresencaId);
+
+                return Ok(new ResultViewModel
+                {
+                    Message = "Falta justificada.",
+                    Success = true,
+                    Data = item
+                });
+            });
+        }
     }
 }

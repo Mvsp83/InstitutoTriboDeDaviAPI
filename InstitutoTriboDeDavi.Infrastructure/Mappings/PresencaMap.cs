@@ -15,6 +15,11 @@ namespace InstitutoTriboDeDavi.Infrastructure.Mappings
             builder.Property(x => x.Id)
                 .UseIdentityColumn()
                 .HasColumnType("BIGINT");
+
+            // Justificativa é opcional: null enquanto a falta não é justificada
+            // (é o sinal de "não justificada", junto com JustificadaEm nula).
+            builder.Property(x => x.JustificativaResponsavel)
+                .IsRequired(false);
         }
     }
 }

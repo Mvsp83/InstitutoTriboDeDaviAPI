@@ -14,6 +14,12 @@ namespace InstitutoTriboDeDavi.Domain.Entities.Business
         public string Observacoes { get; set; }
         public long AulaId { get; set; }
 
+        // Justificativa da falta enviada pelo responsável no portal. Nula
+        // enquanto a falta não é justificada; só faz sentido quando
+        // EstaPresente == false.
+        public string JustificativaResponsavel { get; set; }
+        public DateTime? JustificadaEm { get; set; }
+
         public override bool Validate()
         {
             var validator = new PresencaValidator();

@@ -95,8 +95,11 @@ namespace InstitutoTriboDeDavi.Application.Services
                 // As presenças já vêm mais recentes primeiro; limita a lista.
                 Presencas = presencas.Take(60).Select(p => new PresencaItemDTO
                 {
+                    Id = p.Id,
                     Data = p.Data,
                     Presente = p.EstaPresente,
+                    Justificativa = p.JustificativaResponsavel,
+                    JustificadaEm = p.JustificadaEm,
                 }).ToList(),
                 Graduacoes = graduacoes
                     .OrderByDescending(g => g.Data)
@@ -124,6 +127,42 @@ namespace InstitutoTriboDeDavi.Application.Services
                         Descricao = e.Descricao,
                         Tipo = e.Tipo,
                     }).ToList(),
+            };
+        }
+
+        // Tamanho máximo da justificativa — cabe um bilhete do responsável sem
+        // virar campo de texto livre gigante.
+        private const int JustificativaMaxLength = 500;
+
+        public async Task<PresencaItemDTO> JustificarFaltaAsync(long alunoId, long presencaId, string justificativa)
+        {
+            var texto = (justificativa ?? string.Empty).Trim();
+            if (texto.Length == 0)
+                throw new DomainException("Escreva o motivo da falta.");
+            if (texto.Length > JustificativaMaxLength)
+                throw new DomainException($"A justificativa deve ter no máximo {JustificativaMaxLength} caracteres.");
+
+            var presenca = await _presencaRepository.GetByIdAsync(presencaId);
+
+            // Presença inexistente OU de outro aluno → mesma resposta, para não
+            // vazar a existência de registros de terceiros pelo token do portal.
+            if (presenca == null || presenca.AlunoId != alunoId)
+                throw new DomainException("Falta não encontrada.");
+
+            if (presenca.EstaPresente)
+                throw new DomainException("Esse registro é uma presença, não uma falta.");
+
+            presenca.JustificativaResponsavel = texto;
+            presenca.JustificadaEm = DateTime.Now;
+            await _presencaRepository.UpdateAsync(presenca);
+
+            return new PresencaItemDTO
+            {
+                Id = presenca.Id,
+                Data = presenca.Data,
+                Presente = presenca.EstaPresente,
+                Justificativa = presenca.JustificativaResponsavel,
+                JustificadaEm = presenca.JustificadaEm,
             };
         }
 

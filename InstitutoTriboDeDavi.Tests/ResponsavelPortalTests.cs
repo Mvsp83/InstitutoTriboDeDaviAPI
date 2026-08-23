@@ -3,9 +3,11 @@ using System.Threading.Tasks;
 using InstitutoTriboDeDavi.Application.Services;
 using InstitutoTriboDeDavi.Domain.Entities;
 using InstitutoTriboDeDavi.Domain.Entities.Business;
+using InstitutoTriboDeDavi.Domain.Exceptions;
 using InstitutoTriboDeDavi.Infrastructure.Context;
 using InstitutoTriboDeDavi.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 using Xunit;
 
 namespace InstitutoTriboDeDavi.Tests
@@ -101,6 +103,57 @@ namespace InstitutoTriboDeDavi.Tests
             Assert.Equal(50, painel.Frequencia.Percentual);
             Assert.Single(painel.Graduacoes);
             Assert.Equal(2, painel.Presencas.Count);
+        }
+
+        private long IdDaFalta() =>
+            _context.Presencas.First(p => !p.EstaPresente).Id;
+
+        [Fact]
+        public async Task JustificarFalta_FaltaDoAluno_GravaJustificativaEData()
+        {
+            var aluno = Semear();
+            var faltaId = IdDaFalta();
+
+            var item = await _service.JustificarFaltaAsync(aluno.Id, faltaId, "  Estava doente  ");
+
+            Assert.Equal("Estava doente", item.Justificativa); // trim aplicado
+            Assert.NotNull(item.JustificadaEm);
+
+            var painel = await _service.ObterPainelAsync(aluno.Id);
+            var falta = painel.Presencas.First(p => !p.Presente);
+            Assert.Equal("Estava doente", falta.Justificativa);
+            Assert.NotNull(falta.JustificadaEm);
+        }
+
+        [Fact]
+        public async Task JustificarFalta_Presenca_Recusa()
+        {
+            var aluno = Semear();
+            var presencaId = _context.Presencas.First(p => p.EstaPresente).Id;
+
+            await Assert.ThrowsAsync<DomainException>(
+                () => _service.JustificarFaltaAsync(aluno.Id, presencaId, "qualquer"));
+        }
+
+        [Fact]
+        public async Task JustificarFalta_DeOutroAluno_Recusa()
+        {
+            Semear();
+            var faltaId = IdDaFalta();
+
+            // Aluno diferente do dono da falta → mesma resposta de "não encontrada".
+            await Assert.ThrowsAsync<DomainException>(
+                () => _service.JustificarFaltaAsync(999, faltaId, "qualquer"));
+        }
+
+        [Fact]
+        public async Task JustificarFalta_MotivoVazio_Recusa()
+        {
+            var aluno = Semear();
+            var faltaId = IdDaFalta();
+
+            await Assert.ThrowsAsync<DomainException>(
+                () => _service.JustificarFaltaAsync(aluno.Id, faltaId, "   "));
         }
 
         public void Dispose() => _context.Dispose();

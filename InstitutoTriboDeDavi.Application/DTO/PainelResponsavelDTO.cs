@@ -48,8 +48,13 @@ namespace InstitutoTriboDeDavi.Application.DTO
 
     public class PresencaItemDTO
     {
+        public long Id { get; set; }
         public DateTime Data { get; set; }
         public bool Presente { get; set; }
+        // Justificativa da falta (preenchida pelo responsável). Null quando a
+        // falta ainda não foi justificada ou quando o aluno esteve presente.
+        public string Justificativa { get; set; }
+        public DateTime? JustificadaEm { get; set; }
     }
 
     public class GraduacaoItemDTO

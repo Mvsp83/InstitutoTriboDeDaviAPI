@@ -23,6 +23,7 @@ using InstitutoTriboDeDavi.Infrastructure.Seguranca;
 using InstitutoTriboDeDavi.Infrastructure.GoogleDrive;
 using InstitutoTriboDeDavi.Infrastructure.GoogleSheets;
 using InstitutoTriboDeDavi.Infrastructure.Email;
+using InstitutoTriboDeDavi.Infrastructure.Push;
 using InstitutoTriboDeDavi.Application.Services;
 using InstitutoTriboDeDavi.Application.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -237,10 +238,15 @@ namespace InstitutoTriboDeDavi.API
             // Configuração de email (avisos do calendário)
             services.Configure<SmtpConfig>(Configuration.GetSection("Smtp"));
 
+            // Configuração de Web Push (VAPID). Chaves via user-secrets / env.
+            services.Configure<WebPushConfig>(Configuration.GetSection("WebPush"));
+
             // Serviços
             services.AddScoped<IGoogleSheetsService, GoogleSheetsService>();
             services.AddScoped<IDocumentoDriveService, GoogleDriveDocumentoService>();
             services.AddScoped<IEmailService, EmailService>();
+            services.AddScoped<IPushSubscriptionRepository, PushSubscriptionRepository>();
+            services.AddScoped<IPushService, PushService>();
 
             // Background service de sincronização automática
             services.AddHostedService<SincronizacaoHostedService>();

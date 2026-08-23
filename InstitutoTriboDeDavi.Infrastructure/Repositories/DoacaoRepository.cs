@@ -84,6 +84,16 @@ namespace InstitutoTriboDeDavi.Infrastructure.Repositories
             return await _context.Doacoes.AsNoTracking().FirstOrDefaultAsync(d => d.Id == id);
         }
 
+        public async Task VincularReciboAsync(long doacaoId, long reciboDocumentoId, string reciboNumero)
+        {
+            var doacao = await _context.Doacoes.FirstOrDefaultAsync(d => d.Id == doacaoId);
+            if (doacao == null) return;
+
+            doacao.ReciboDocumentoId = reciboDocumentoId;
+            doacao.ReciboNumero = reciboNumero ?? string.Empty;
+            await _context.SaveChangesAsync();
+        }
+
         public async Task<Doacao> SalvarDoacaoAsync(Doacao doacao)
         {
             if (doacao.Id > 0)

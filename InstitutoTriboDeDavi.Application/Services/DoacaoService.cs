@@ -185,9 +185,13 @@ namespace InstitutoTriboDeDavi.Application.Services
             // aconteceu, então o recibo nasce aprovado — e imutável.
             var aprovado = await _documentos.Aprovar(documento.Id);
 
+            // Grava o vínculo por método dedicado — SalvarDoacaoAsync ignora
+            // os campos de recibo (para a edição da doação não os alterar), então
+            // usá-lo aqui deixava a doação SEM recibo registrado e a trava
+            // anti-duplicação nunca disparava.
+            await _repository.VincularReciboAsync(doacao.Id, aprovado.Id, aprovado.NumeroFormatado);
             doacao.ReciboDocumentoId = aprovado.Id;
             doacao.ReciboNumero = aprovado.NumeroFormatado;
-            await _repository.SalvarDoacaoAsync(doacao);
 
             return _mapper.Map<DoacaoDTO>(doacao);
         }

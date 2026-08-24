@@ -23,6 +23,7 @@ using InstitutoTriboDeDavi.Infrastructure.Seguranca;
 using InstitutoTriboDeDavi.Infrastructure.GoogleDrive;
 using InstitutoTriboDeDavi.Infrastructure.GoogleSheets;
 using InstitutoTriboDeDavi.Infrastructure.Email;
+using InstitutoTriboDeDavi.Infrastructure.Notificacoes;
 using InstitutoTriboDeDavi.Infrastructure.Push;
 using InstitutoTriboDeDavi.Infrastructure.Video;
 using InstitutoTriboDeDavi.Application.Services;
@@ -250,6 +251,7 @@ namespace InstitutoTriboDeDavi.API
             services.AddScoped<IDocumentoArquivoRepository, DocumentoArquivoRepository>();
             services.AddScoped<IDocumentoDriveService, DocumentoBancoService>();
             services.AddScoped<IEmailService, EmailService>();
+            services.AddScoped<INotificacaoCalendarioService, NotificacaoCalendarioService>();
             services.AddScoped<IPushSubscriptionRepository, PushSubscriptionRepository>();
             services.AddScoped<IPushService, PushService>();
             services.AddScoped<IOcorrenciaAlunoRepository, OcorrenciaAlunoRepository>();

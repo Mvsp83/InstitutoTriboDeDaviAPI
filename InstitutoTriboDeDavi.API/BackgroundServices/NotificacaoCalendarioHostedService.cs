@@ -1,6 +1,4 @@
-using InstitutoTriboDeDavi.Application.Repositories;
 using InstitutoTriboDeDavi.Application.Services.Interfaces;
-using InstitutoTriboDeDavi.Domain.Entities;
 using InstitutoTriboDeDavi.Infrastructure;
 using InstitutoTriboDeDavi.Infrastructure.Configuration;
 using Microsoft.Extensions.Options;
@@ -9,7 +7,8 @@ namespace InstitutoTriboDeDavi.API.BackgroundServices
 {
     // Job diário que envia por email os avisos dos eventos do calendário cuja
     // data de disparo (data - dias de antecedência) chegou. Roda no horário de
-    // Brasília definido em Smtp:HorarioExecucao.
+    // Brasília definido em Smtp:HorarioExecucao. A lógica de processamento fica
+    // em INotificacaoCalendarioService (reutilizada pelo endpoint de teste).
     public class NotificacaoCalendarioHostedService : BackgroundService
     {
         private readonly IServiceScopeFactory _scopeFactory;
@@ -47,89 +46,15 @@ namespace InstitutoTriboDeDavi.API.BackgroundServices
 
                 try
                 {
-                    await ProcessarAvisosAsync();
+                    using var scope = _scopeFactory.CreateScope();
+                    var servico = scope.ServiceProvider.GetRequiredService<INotificacaoCalendarioService>();
+                    await servico.ProcessarAsync(forcarEnvio: false);
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "Falha ao processar avisos do calendário.");
                 }
             }
-        }
-
-        private async Task ProcessarAvisosAsync()
-        {
-            using var scope = _scopeFactory.CreateScope();
-            var repo = scope.ServiceProvider.GetRequiredService<IEventoCalendarioRepository>();
-            var email = scope.ServiceProvider.GetRequiredService<IEmailService>();
-
-            var hoje = FusoBrasil.Agora.Date;
-            var pendentes = await repo.ObterPendentesNotificacaoAsync();
-            var enviados = 0;
-
-            foreach (var evento in pendentes)
-            {
-                var dataEnvio = evento.Data.Date.AddDays(-evento.DiasAntecedencia);
-
-                // Evento já passou sem notificar: marca para não reprocessar.
-                if (hoje > evento.Data.Date)
-                {
-                    await repo.MarcarNotificadaAsync(evento.Id);
-                    continue;
-                }
-
-                // Ainda não chegou a data de disparo.
-                if (hoje < dataEnvio)
-                    continue;
-
-                var destinatarios = SepararEmails(evento.EmailsNotificacao);
-                if (destinatarios.Count == 0)
-                {
-                    await repo.MarcarNotificadaAsync(evento.Id);
-                    continue;
-                }
-
-                try
-                {
-                    await email.EnviarAsync(destinatarios, MontarAssunto(evento), MontarCorpo(evento));
-                    await repo.MarcarNotificadaAsync(evento.Id);
-                    enviados++;
-                }
-                catch (Exception ex)
-                {
-                    // Não marca como enviada: tenta de novo na próxima execução.
-                    _logger.LogError(ex, "Falha ao enviar aviso do evento {Id}.", evento.Id);
-                }
-            }
-
-            if (enviados > 0)
-                _logger.LogInformation("{Total} aviso(s) do calendário enviado(s).", enviados);
-        }
-
-        private static List<string> SepararEmails(string emails)
-        {
-            if (string.IsNullOrWhiteSpace(emails))
-                return new List<string>();
-            return emails
-                .Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-                .Distinct()
-                .ToList();
-        }
-
-        private static string MontarAssunto(EventoCalendario e)
-            => $"[Instituto Tribo de Davi] {e.Titulo} — {e.Data:dd/MM/yyyy}";
-
-        private static string MontarCorpo(EventoCalendario e)
-        {
-            var periodo = e.DataFim.HasValue
-                ? $"{e.Data:dd/MM/yyyy} a {e.DataFim.Value:dd/MM/yyyy}"
-                : e.Data.ToString("dd/MM/yyyy");
-
-            return $@"<div style='font-family:Segoe UI,Arial,sans-serif;color:#111;'>
-  <h2 style='margin:0 0 8px 0;'>{e.Titulo}</h2>
-  <p style='margin:0 0 4px 0;'><strong>Data:</strong> {periodo}</p>
-  {(string.IsNullOrWhiteSpace(e.Descricao) ? "" : $"<p style='margin:8px 0;'>{e.Descricao}</p>")}
-  <p style='margin-top:16px;color:#888;font-size:12px;'>Aviso automático do calendário do Instituto Tribo de Davi.</p>
-</div>";
         }
     }
 }

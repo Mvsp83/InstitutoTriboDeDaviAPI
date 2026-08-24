@@ -17,13 +17,16 @@ namespace InstitutoTriboDeDavi.API.Controllers
             nameof(UserRole.Administrador) + "," + nameof(UserRole.Supervisor);
 
         private readonly IEventoCalendarioService _service;
+        private readonly INotificacaoCalendarioService _notificacaoService;
         private readonly ILogger<EventoCalendarioController> _logger;
 
         public EventoCalendarioController(
             IEventoCalendarioService service,
+            INotificacaoCalendarioService notificacaoService,
             ILogger<EventoCalendarioController> logger) : base(logger)
         {
             _service = service;
+            _notificacaoService = notificacaoService;
             _logger = logger;
         }
 
@@ -103,6 +106,32 @@ namespace InstitutoTriboDeDavi.API.Controllers
                     Message = "Evento removido com sucesso!",
                     Success = true,
                     Data = null
+                });
+            });
+        }
+
+        // Dispara AGORA o processamento dos avisos por email (todos os eventos
+        // com notificação pendente, ignorando a janela de data). Só Administrador.
+        // Devolve o resumo com os erros por evento (ex.: SMTP não configurado).
+        [HttpPost("processar-avisos")]
+        [Authorize(Roles = nameof(UserRole.Administrador))]
+        public async Task<IActionResult> ProcessarAvisos()
+        {
+            return await ExecuteAsync(async () =>
+            {
+                var resultado = await _notificacaoService.ProcessarAsync(forcarEnvio: true);
+
+                var mensagem = resultado.Erros.Count > 0
+                    ? $"{resultado.Enviados} enviado(s), {resultado.Erros.Count} com erro."
+                    : $"{resultado.Enviados} aviso(s) enviado(s).";
+
+                // Sempre Success = true: o processamento rodou. Os erros por
+                // evento vão no Data para a tela exibir o motivo (ex.: SMTP).
+                return Ok(new ResultViewModel
+                {
+                    Message = mensagem,
+                    Success = true,
+                    Data = resultado
                 });
             });
         }

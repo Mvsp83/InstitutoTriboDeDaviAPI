@@ -30,6 +30,9 @@ namespace InstitutoTriboDeDavi.Infrastructure.Mappings
 
             builder.Property(x => x.MostrarLogo);
             builder.Property(x => x.MostrarDataGeracao);
+
+            builder.Property(x => x.TextosPadraoJson)
+                .IsRequired(false); // nvarchar(max)
         }
     }
 }

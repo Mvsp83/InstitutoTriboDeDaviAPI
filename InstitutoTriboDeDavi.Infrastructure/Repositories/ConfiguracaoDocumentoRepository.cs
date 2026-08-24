@@ -37,6 +37,7 @@ namespace InstitutoTriboDeDavi.Infrastructure.Repositories
                 existente.TextoRodape = configuracao.TextoRodape;
                 existente.MostrarLogo = configuracao.MostrarLogo;
                 existente.MostrarDataGeracao = configuracao.MostrarDataGeracao;
+                existente.TextosPadraoJson = configuracao.TextosPadraoJson;
             }
 
             await _context.SaveChangesAsync();

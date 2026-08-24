@@ -11,6 +11,9 @@ namespace InstitutoTriboDeDavi.Domain.Entities
         public string TextoRodape { get; set; } = string.Empty;
         public bool MostrarLogo { get; set; } = true;
         public bool MostrarDataGeracao { get; set; } = true;
+        // Textos-padrão por tipo (ofício/recibo/certificado) em JSON. Campos
+        // novos não exigem migration de coluna — só editar o JSON no front.
+        public string TextosPadraoJson { get; set; } = string.Empty;
 
         public override bool Validate() => true;
     }

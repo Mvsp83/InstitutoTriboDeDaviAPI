@@ -25,6 +25,23 @@ namespace InstitutoTriboDeDavi.Application.DTO
         public List<GraduacaoItemDTO> Graduacoes { get; set; } = new();
         public List<AvisoItemDTO> Avisos { get; set; } = new();
         public List<EventoItemDTO> Eventos { get; set; } = new();
+        // Advertências (comportamento) e recados do professor, do mais novo p/ o
+        // mais antigo. Deixam o portal interativo (professor → família).
+        public List<AdvertenciaItemDTO> Advertencias { get; set; } = new();
+        public List<RecadoItemDTO> Recados { get; set; } = new();
+    }
+
+    public class AdvertenciaItemDTO
+    {
+        public DateTime Data { get; set; }
+        public string Motivo { get; set; } = string.Empty;
+    }
+
+    public class RecadoItemDTO
+    {
+        public DateTime Data { get; set; }
+        public int Status { get; set; }
+        public string Texto { get; set; } = string.Empty;
     }
 
     public class ResponsavelAlunoDTO

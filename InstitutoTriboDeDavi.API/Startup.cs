@@ -252,6 +252,8 @@ namespace InstitutoTriboDeDavi.API
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<IPushSubscriptionRepository, PushSubscriptionRepository>();
             services.AddScoped<IPushService, PushService>();
+            services.AddScoped<IOcorrenciaAlunoRepository, OcorrenciaAlunoRepository>();
+            services.AddScoped<IOcorrenciaAlunoService, OcorrenciaAlunoService>();
             // Transcrição de vídeo (legenda traduzida do YouTube) para o plano de aula.
             services.AddHttpClient();
             services.AddScoped<IVideoTranscricaoService, VideoTranscricaoService>();

@@ -22,6 +22,8 @@ namespace InstitutoTriboDeDavi.Tests
 
         private DocumentoOficialDTO _documentoCriado;
         private Doacao _doacaoSalva;
+        private long _doacaoIdVinculada;
+        private string _reciboNumeroVinculado;
 
         public DoacaoServiceTests()
         {
@@ -47,6 +49,14 @@ namespace InstitutoTriboDeDavi.Tests
 
             _repo.Setup(r => r.SalvarDoacaoAsync(It.IsAny<Doacao>()))
                  .ReturnsAsync((Doacao d) => { _doacaoSalva = d; return d; });
+            // O recibo é vinculado por método dedicado (não por SalvarDoacaoAsync).
+            _repo.Setup(r => r.VincularReciboAsync(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<string>()))
+                 .Callback((long doacaoId, long reciboId, string numero) =>
+                 {
+                     _doacaoIdVinculada = doacaoId;
+                     _reciboNumeroVinculado = numero;
+                 })
+                 .Returns(Task.CompletedTask);
             _repo.Setup(r => r.ListarDoadoresAsync()).ReturnsAsync(new List<Doador>());
             _repo.Setup(r => r.ListarDoacoesAsync(It.IsAny<int?>(), It.IsAny<long?>()))
                  .ReturnsAsync(new List<Doacao>());
@@ -83,7 +93,9 @@ namespace InstitutoTriboDeDavi.Tests
             Assert.Contains("Maria Doadora", _documentoCriado.Titulo);
             // O recibo nasce aprovado — a doação já aconteceu.
             _documentos.Verify(d => d.Aprovar(77), Times.Once);
-            Assert.Equal("2026/0003", _doacaoSalva.ReciboNumero);
+            // O vínculo do recibo é gravado por VincularReciboAsync.
+            Assert.Equal(10, _doacaoIdVinculada);
+            Assert.Equal("2026/0003", _reciboNumeroVinculado);
         }
 
         [Fact]

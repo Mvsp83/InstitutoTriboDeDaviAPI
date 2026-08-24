@@ -16,6 +16,11 @@ namespace InstitutoTriboDeDavi.Application.Services
         private readonly IAvisoRepository _avisoRepository;
         private readonly IEventoCalendarioRepository _eventoRepository;
         private readonly IPoloRepository _poloRepository;
+        private readonly IOcorrenciaAlunoRepository _ocorrenciaRepository;
+
+        // Tipos de OcorrenciaAluno (espelham o service): 0 = advertência, 1 = recado.
+        private const int TipoAdvertencia = 0;
+        private const int TipoRecado = 1;
 
         // Só os avisos deste público-alvo aparecem para a família (0 = Todos).
         private const int PublicoTodos = 0;
@@ -26,7 +31,8 @@ namespace InstitutoTriboDeDavi.Application.Services
             IGraduacaoRepository graduacaoRepository,
             IAvisoRepository avisoRepository,
             IEventoCalendarioRepository eventoRepository,
-            IPoloRepository poloRepository)
+            IPoloRepository poloRepository,
+            IOcorrenciaAlunoRepository ocorrenciaRepository)
         {
             _alunoRepository = alunoRepository;
             _presencaRepository = presencaRepository;
@@ -34,6 +40,7 @@ namespace InstitutoTriboDeDavi.Application.Services
             _avisoRepository = avisoRepository;
             _eventoRepository = eventoRepository;
             _poloRepository = poloRepository;
+            _ocorrenciaRepository = ocorrenciaRepository;
         }
 
         public async Task<AcessoResponsavelDTO> AutenticarAsync(string codigo, DateTime dataNascimento)
@@ -73,6 +80,8 @@ namespace InstitutoTriboDeDavi.Application.Services
 
             var eventos = (await _eventoRepository.ObterPorAnoAsync(DateTime.Now.Year))
                 .Where(e => e.PoloId == null || e.PoloId == aluno.PoloId);
+
+            var ocorrencias = await _ocorrenciaRepository.ListarPorAlunoAsync(alunoId);
 
             return new PainelResponsavelDTO
             {
@@ -127,6 +136,14 @@ namespace InstitutoTriboDeDavi.Application.Services
                         Descricao = e.Descricao,
                         Tipo = e.Tipo,
                     }).ToList(),
+                Advertencias = ocorrencias
+                    .Where(o => o.Tipo == TipoAdvertencia)
+                    .Select(o => new AdvertenciaItemDTO { Data = o.Data, Motivo = o.Texto })
+                    .ToList(),
+                Recados = ocorrencias
+                    .Where(o => o.Tipo == TipoRecado)
+                    .Select(o => new RecadoItemDTO { Data = o.Data, Status = o.Status, Texto = o.Texto })
+                    .ToList(),
             };
         }
 

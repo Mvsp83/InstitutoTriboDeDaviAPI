@@ -32,7 +32,8 @@ namespace InstitutoTriboDeDavi.Tests
                 new GraduacaoRepository(_context),
                 new AvisoRepository(_context),
                 new EventoCalendarioRepository(_context),
-                new PoloRepository(_context));
+                new PoloRepository(_context),
+                new OcorrenciaAlunoRepository(_context));
         }
 
         private Aluno Semear()

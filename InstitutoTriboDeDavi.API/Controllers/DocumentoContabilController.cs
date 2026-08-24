@@ -42,8 +42,11 @@ namespace InstitutoTriboDeDavi.API.Controllers
             });
         }
 
+        // 25 MB de folga: acima do limite de 20 MiB (20.971.520 bytes) validado
+        // no front, para o arquivo no limite não ser rejeitado com 413 aqui.
         [HttpPost("upload/{categoria}")]
-        [RequestSizeLimit(20_000_000)]
+        [RequestSizeLimit(25_000_000)]
+        [RequestFormLimits(MultipartBodyLengthLimit = 25_000_000)]
         public async Task<IActionResult> Upload(string categoria, IFormFile arquivo)
         {
             return await ExecuteAsync(async () =>

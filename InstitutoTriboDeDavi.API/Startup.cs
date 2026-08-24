@@ -24,6 +24,7 @@ using InstitutoTriboDeDavi.Infrastructure.GoogleDrive;
 using InstitutoTriboDeDavi.Infrastructure.GoogleSheets;
 using InstitutoTriboDeDavi.Infrastructure.Email;
 using InstitutoTriboDeDavi.Infrastructure.Push;
+using InstitutoTriboDeDavi.Infrastructure.Video;
 using InstitutoTriboDeDavi.Application.Services;
 using InstitutoTriboDeDavi.Application.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -251,6 +252,9 @@ namespace InstitutoTriboDeDavi.API
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<IPushSubscriptionRepository, PushSubscriptionRepository>();
             services.AddScoped<IPushService, PushService>();
+            // Transcrição de vídeo (legenda traduzida do YouTube) para o plano de aula.
+            services.AddHttpClient();
+            services.AddScoped<IVideoTranscricaoService, VideoTranscricaoService>();
 
             // Background service de sincronização automática
             services.AddHostedService<SincronizacaoHostedService>();

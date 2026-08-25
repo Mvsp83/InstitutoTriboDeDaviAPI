@@ -1463,6 +1463,9 @@ namespace InstitutoTriboDeDavi.Infrastructure.Migrations
                         .HasColumnType("VARCHAR(20)")
                         .HasColumnName("Login");
 
+                    b.Property<bool>("PermiteGraduacao")
+                        .HasColumnType("bit");
+
                     b.Property<long?>("PoloId")
                         .HasColumnType("bigint");
 

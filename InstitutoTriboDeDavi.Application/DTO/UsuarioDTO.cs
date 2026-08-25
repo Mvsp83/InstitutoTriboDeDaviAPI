@@ -25,6 +25,8 @@ namespace InstitutoTriboDeDavi.Application.DTO
         public UserRole Role { get; set; }
         public long? PoloId { get; set; }
         public string PoloNome { get; set; }
+        // Libera o acesso do professor ao módulo Programa de Graduação.
+        public bool PermiteGraduacao { get; set; }
         public string? Avatar { get; set; }
         // 2FA ativo e confirmado — usado no login para decidir se exige o código.
         public bool TotpConfirmado { get; set; }

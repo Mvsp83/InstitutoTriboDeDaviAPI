@@ -27,7 +27,8 @@ namespace InstitutoTriboDeDavi.API.Token
                 new Claim(ClaimTypes.Email, usuario.Email),
                 new Claim(ClaimTypes.Role, usuario.Role.ToString()),
                 new Claim("PoloId", usuario.PoloId?.ToString() ?? string.Empty),
-                new Claim("PoloNome", usuario.PoloNome ?? string.Empty)
+                new Claim("PoloNome", usuario.PoloNome ?? string.Empty),
+                new Claim("PermiteGraduacao", usuario.PermiteGraduacao ? "true" : "false")
             };
 
             var tokenDescriptor = new SecurityTokenDescriptor

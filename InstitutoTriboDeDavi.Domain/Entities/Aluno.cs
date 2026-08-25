@@ -49,6 +49,9 @@ namespace InstitutoTriboDeDavi.Domain.Entities
         // Quando o responsável definiu a autorização pelo portal — a data do
         // consentimento/revogação, para demonstrar quando foi dado.
         public DateTime? AutorizaImagemEm { get; set; }
+        // Inscrito pela ficha de adultos. Definido na aprovação a partir do
+        // público da inscrição. false = criança/adolescente (padrão).
+        public bool EhAdulto { get; set; }
 
         public override bool Validate()
         {

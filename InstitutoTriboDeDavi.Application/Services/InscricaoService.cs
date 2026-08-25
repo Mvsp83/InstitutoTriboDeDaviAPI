@@ -291,6 +291,7 @@ namespace InstitutoTriboDeDavi.Application.Services
             aluno.Complemento = i.Complemento;
             aluno.Bairro = i.Bairro;
             aluno.Cidade = i.Cidade;
+            aluno.EhAdulto = i.Publico == 1;
             aluno.PoloId = poloId;
             aluno.Turma = turma;
             // Autorização de imagem informada pela família na ficha.

@@ -5,10 +5,13 @@ using InstitutoTriboDeDavi.Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
+using InstitutoTriboDeDavi.API.Utilities;
+
 namespace InstitutoTriboDeDavi.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [RequireModulo("relacionamento")]
     public class EventoCalendarioController : BaseController
     {
         // Escrita restrita a Administrador e Supervisor; leitura a qualquer

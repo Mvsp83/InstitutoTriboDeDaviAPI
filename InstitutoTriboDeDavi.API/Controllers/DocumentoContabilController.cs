@@ -5,6 +5,8 @@ using InstitutoTriboDeDavi.Domain.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
+using InstitutoTriboDeDavi.API.Utilities;
+
 namespace InstitutoTriboDeDavi.API.Controllers
 {
     // Armazenamento de documentos contábeis (DRE, Balanço, Relatório de
@@ -12,6 +14,7 @@ namespace InstitutoTriboDeDavi.API.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [Authorize(Roles = nameof(UserRole.Administrador))]
+    [RequireModulo("financeiro")]
     public class DocumentoContabilController : BaseController
     {
         private readonly IDocumentoDriveService _documentoService;

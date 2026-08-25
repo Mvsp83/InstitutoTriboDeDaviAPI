@@ -214,6 +214,7 @@ namespace InstitutoTriboDeDavi.API
             services.AddScoped<IInscricaoRepository, InscricaoRepository>();
             services.AddScoped<IInscricaoService, InscricaoService>();
             services.AddScoped<IGraduacaoRepository, GraduacaoRepository>();
+            services.AddScoped<IAptidaoGraduacaoRepository, AptidaoGraduacaoRepository>();
             services.AddScoped<IGraduacaoService, GraduacaoService>();
             services.AddScoped<IDoacaoRepository, DoacaoRepository>();
             services.AddScoped<IDoacaoService, DoacaoService>();

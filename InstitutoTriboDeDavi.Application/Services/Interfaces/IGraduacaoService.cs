@@ -11,5 +11,6 @@ namespace InstitutoTriboDeDavi.Application.Services.Interfaces
         Task<GraduacaoDTO> Obter(long id);
         Task<ResultadoGraduacaoDTO> Registrar(GraduacaoLoteDTO dto, string registradoPor);
         Task Excluir(long id);
+        Task<List<AptidaoGraduacaoDTO>> ListarAptidao(long? poloId);
     }
 }

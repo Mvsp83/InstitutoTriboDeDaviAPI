@@ -49,6 +49,18 @@ namespace InstitutoTriboDeDavi.API.Controllers
             }));
         }
 
+        [HttpGet("aptidao")]
+        [Authorize]
+        public async Task<IActionResult> Aptidao()
+        {
+            return await ExecuteAsync(async () => Ok(new ResultViewModel
+            {
+                Message = "Aptidão obtida com sucesso!",
+                Success = true,
+                Data = await _service.ListarAptidao(PoloDoUsuario())
+            }));
+        }
+
         [HttpPost("registrar")]
         [Authorize(Policy = AuthPolicies.ProfessorOuSuperior)]
         public async Task<IActionResult> Registrar([FromBody] GraduacaoLoteDTO dto)

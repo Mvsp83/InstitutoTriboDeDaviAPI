@@ -88,6 +88,8 @@ namespace InstitutoTriboDeDavi.Application.Services
             aluno.AutorizaImagemEm = alunoExists.AutorizaImagemEm;
             // Autorização de imagem: usa o valor enviado, ou preserva o atual.
             aluno.AutorizaImagem = alunoDTO.AutorizaImagem ?? alunoExists.AutorizaImagem;
+            // "É adulto" vem da aprovação da inscrição, não da ficha — preserva.
+            aluno.EhAdulto = alunoExists.EhAdulto;
 
             aluno.Validate();
 

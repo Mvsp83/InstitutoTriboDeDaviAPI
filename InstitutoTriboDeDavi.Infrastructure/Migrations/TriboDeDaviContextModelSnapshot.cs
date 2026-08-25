@@ -42,6 +42,9 @@ namespace InstitutoTriboDeDavi.Infrastructure.Migrations
                     b.Property<DateTime?>("AutorizaImagemEm")
                         .HasColumnType("datetime2");
 
+                    b.Property<bool>("EhAdulto")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Bairro")
                         .HasColumnType("nvarchar(max)");
 
@@ -1070,6 +1073,9 @@ namespace InstitutoTriboDeDavi.Infrastructure.Migrations
                         .HasColumnType("bigint");
 
                     b.Property<int>("Ano")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Publico")
                         .HasColumnType("int");
 
                     b.Property<string>("Bairro")

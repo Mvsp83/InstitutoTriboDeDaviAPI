@@ -9,6 +9,8 @@ namespace InstitutoTriboDeDavi.Application.DTO
     {
         public long Id { get; set; }
 
+        // 0 = criança/adolescente, 1 = adulto.
+        public int Publico { get; set; }
         public long PoloId { get; set; }
         public int? Turma { get; set; }
         public bool JaEraAluno { get; set; }

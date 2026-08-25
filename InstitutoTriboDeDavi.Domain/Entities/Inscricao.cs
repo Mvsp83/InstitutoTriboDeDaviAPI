@@ -25,6 +25,9 @@ namespace InstitutoTriboDeDavi.Domain.Entities
     {
         // ── Destino ───────────────────────────────────────────────────────
         public int Ano { get; set; }
+        // Público da ficha: 0 = criança/adolescente, 1 = adulto. O adulto não
+        // tem responsável/escola, então a validação abaixo se ajusta.
+        public int Publico { get; set; }
         public long PoloId { get; set; }
         public int? Turma { get; set; }
         public bool JaEraAluno { get; set; }
@@ -99,7 +102,8 @@ namespace InstitutoTriboDeDavi.Domain.Entities
                 _errors.Add("A data de nascimento não pode estar no futuro.");
             if (PoloId <= 0)
                 _errors.Add("Selecione o polo.");
-            if (string.IsNullOrWhiteSpace(NomeResponsavel))
+            // Responsável só é exigido na ficha infantil; o adulto é o próprio.
+            if (Publico != 1 && string.IsNullOrWhiteSpace(NomeResponsavel))
                 _errors.Add("O nome do responsável é obrigatório.");
             if (string.IsNullOrWhiteSpace(WhatsApp))
                 _errors.Add("O WhatsApp do responsável é obrigatório.");

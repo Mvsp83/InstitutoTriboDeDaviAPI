@@ -17,6 +17,7 @@ namespace InstitutoTriboDeDavi.Infrastructure.Mappings
                 .HasColumnType("BIGINT");
 
             builder.Property(x => x.Ano).IsRequired();
+            builder.Property(x => x.Publico).IsRequired();
             builder.Property(x => x.PoloId).IsRequired();
             builder.Property(x => x.Turma).IsRequired(false);
             builder.Property(x => x.TurmaAnterior).IsRequired(false);

@@ -1072,6 +1072,9 @@ namespace InstitutoTriboDeDavi.Infrastructure.Migrations
                     b.Property<int>("Ano")
                         .HasColumnType("int");
 
+                    b.Property<int>("Publico")
+                        .HasColumnType("int");
+
                     b.Property<string>("Bairro")
                         .HasMaxLength(120)
                         .HasColumnType("nvarchar(120)");

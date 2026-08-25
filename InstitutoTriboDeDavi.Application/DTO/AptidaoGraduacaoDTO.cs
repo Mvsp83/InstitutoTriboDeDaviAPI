@@ -12,6 +12,9 @@ namespace InstitutoTriboDeDavi.Application.DTO
         public int Faixa { get; set; }
         public long PoloId { get; set; }
         public DateTime? DataUltimaGraduacao { get; set; }
+        // Base para "tempo na faixa": a última graduação ou, se nunca graduou,
+        // a primeira presença. Nula quando o aluno não tem nenhuma das duas.
+        public DateTime? DataReferencia { get; set; }
         public int PresencasDesdeUltima { get; set; }
         public int AdvertenciasDesdeUltima { get; set; }
     }

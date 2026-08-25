@@ -53,24 +53,29 @@ namespace InstitutoTriboDeDavi.Infrastructure.Repositories
             var lista = new List<AptidaoGraduacaoDTO>(alunos.Count);
             foreach (var a in alunos)
             {
-                DateTime? dataRef = ultimaGrad.TryGetValue(a.Id, out var dataUlt)
+                DateTime? dataUltimaGrad = ultimaGrad.TryGetValue(a.Id, out var dataUlt)
                     ? dataUlt
                     : (DateTime?)null;
-                var corte = dataRef ?? DateTime.MinValue;
+                var corte = dataUltimaGrad ?? DateTime.MinValue;
 
-                var pres = presencas.TryGetValue(a.Id, out var pl)
-                    ? pl.Count(d => d >= corte)
-                    : 0;
-                var adv = advertencias.TryGetValue(a.Id, out var ol)
-                    ? ol.Count(d => d >= corte)
-                    : 0;
+                presencas.TryGetValue(a.Id, out var pl);
+                advertencias.TryGetValue(a.Id, out var ol);
+
+                var pres = pl?.Count(d => d >= corte) ?? 0;
+                var adv = ol?.Count(d => d >= corte) ?? 0;
+
+                // Base para "tempo na faixa": última graduação; se nunca graduou,
+                // a primeira presença registrada.
+                DateTime? dataReferencia = dataUltimaGrad
+                    ?? (pl != null && pl.Count > 0 ? pl.Min() : (DateTime?)null);
 
                 lista.Add(new AptidaoGraduacaoDTO
                 {
                     AlunoId = a.Id,
                     Faixa = (int)a.Faixa,
                     PoloId = a.PoloId,
-                    DataUltimaGraduacao = dataRef,
+                    DataUltimaGraduacao = dataUltimaGrad,
+                    DataReferencia = dataReferencia,
                     PresencasDesdeUltima = pres,
                     AdvertenciasDesdeUltima = adv,
                 });

@@ -17,18 +17,24 @@ namespace InstitutoTriboDeDavi.Application.Services
         private readonly IGraduacaoRepository _repository;
         private readonly IAlunoRepository _alunoRepository;
         private readonly IPoloRepository _poloRepository;
+        private readonly IAptidaoGraduacaoRepository _aptidaoRepository;
 
         public GraduacaoService(
             IMapper mapper,
             IGraduacaoRepository repository,
             IAlunoRepository alunoRepository,
-            IPoloRepository poloRepository)
+            IPoloRepository poloRepository,
+            IAptidaoGraduacaoRepository aptidaoRepository)
         {
             _mapper = mapper;
             _repository = repository;
             _alunoRepository = alunoRepository;
             _poloRepository = poloRepository;
+            _aptidaoRepository = aptidaoRepository;
         }
+
+        public Task<List<AptidaoGraduacaoDTO>> ListarAptidao(long? poloId) =>
+            _aptidaoRepository.ObterAsync(poloId);
 
         public async Task<List<GraduacaoDTO>> Listar(int? ano, long? poloId)
         {

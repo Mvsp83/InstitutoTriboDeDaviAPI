@@ -57,7 +57,8 @@ namespace InstitutoTriboDeDavi.Application.Services
         {
             return publicoAlvo == (int)PublicoAviso.Todos
                 || (publicoAlvo == (int)PublicoAviso.Professores && role == UserRole.Professor)
-                || (publicoAlvo == (int)PublicoAviso.Supervisores && role == UserRole.Supervisor);
+                || (publicoAlvo == (int)PublicoAviso.Supervisores && role == UserRole.Supervisor)
+                || (publicoAlvo == (int)PublicoAviso.Administradores && role == UserRole.Administrador);
         }
     }
 }

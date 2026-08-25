@@ -7,6 +7,7 @@ namespace InstitutoTriboDeDavi.Domain.Enums
     {
         [Description("Todos")] Todos,
         [Description("Professores")] Professores,
-        [Description("Supervisores")] Supervisores
+        [Description("Supervisores")] Supervisores,
+        [Description("Administradores")] Administradores
     }
 }

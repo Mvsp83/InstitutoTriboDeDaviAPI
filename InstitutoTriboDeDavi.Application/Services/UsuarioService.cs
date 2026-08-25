@@ -105,6 +105,9 @@ namespace InstitutoTriboDeDavi.Application.Services
             if (!string.IsNullOrWhiteSpace(userDTO.PoloNome))
                 usuarioExists.PoloNome = userDTO.PoloNome;
 
+            if (userDTO.PermiteGraduacao.HasValue)
+                usuarioExists.PermiteGraduacao = userDTO.PermiteGraduacao.Value;
+
             // Senha só é alterada se uma nova for enviada; SenhaHash é preservado
             if (!string.IsNullOrWhiteSpace(userDTO.Password))
             {
@@ -154,6 +157,7 @@ namespace InstitutoTriboDeDavi.Application.Services
                 Role = usuario.Role,
                 PoloId = usuario.PoloId,
                 PoloNome = usuario.PoloNome,
+                PermiteGraduacao = usuario.PermiteGraduacao,
                 TotpConfirmado = usuario.TotpConfirmado
             };
         }

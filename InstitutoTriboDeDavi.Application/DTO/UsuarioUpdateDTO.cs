@@ -29,5 +29,7 @@ namespace InstitutoTriboDeDavi.Application.DTO
         public UserRole? Role { get; set; }
         public long? PoloId { get; set; }
         public string? PoloNome { get; set; }
+        // Permissão de acesso ao Programa de Graduação (professor).
+        public bool? PermiteGraduacao { get; set; }
     }
 }

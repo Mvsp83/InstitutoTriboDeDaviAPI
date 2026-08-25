@@ -5,11 +5,14 @@ using InstitutoTriboDeDavi.Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
+using InstitutoTriboDeDavi.API.Utilities;
+
 namespace InstitutoTriboDeDavi.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
     [Authorize(Roles = nameof(UserRole.Administrador))]
+    [RequireModulo("financeiro")]
     public class BemPatrimonialController : BaseController
     {
         private readonly IBemPatrimonialService _service;

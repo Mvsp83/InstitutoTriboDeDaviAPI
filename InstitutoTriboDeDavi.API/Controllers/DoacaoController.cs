@@ -6,6 +6,8 @@ using InstitutoTriboDeDavi.Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
+using InstitutoTriboDeDavi.API.Utilities;
+
 namespace InstitutoTriboDeDavi.API.Controllers
 {
     // Doadores e doações. Restrito a Administrador: envolve dados pessoais de
@@ -13,6 +15,7 @@ namespace InstitutoTriboDeDavi.API.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [Authorize(Roles = nameof(UserRole.Administrador))]
+    [RequireModulo("captacao")]
     public class DoacaoController : BaseController
     {
         private readonly IDoacaoService _service;

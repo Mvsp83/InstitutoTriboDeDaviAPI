@@ -6,6 +6,8 @@ using InstitutoTriboDeDavi.Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
+using InstitutoTriboDeDavi.API.Utilities;
+
 namespace InstitutoTriboDeDavi.API.Controllers
 {
     // Financeiro do instituto: contas, lançamentos e transferências.
@@ -13,6 +15,7 @@ namespace InstitutoTriboDeDavi.API.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [Authorize(Roles = nameof(UserRole.Administrador))]
+    [RequireModulo("financeiro")]
     public class FinanceiroController : BaseController
     {
         private readonly IFinanceiroService _service;

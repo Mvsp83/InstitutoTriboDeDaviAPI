@@ -51,6 +51,9 @@ namespace InstitutoTriboDeDavi.Infrastructure.Context
             builder.ApplyConfiguration(new PushSubscriptionMap());
             builder.ApplyConfiguration(new DocumentoArquivoMap());
             builder.ApplyConfiguration(new OcorrenciaAlunoMap());
+            builder.ApplyConfiguration(new PlanoMensalidadeMap());
+            builder.ApplyConfiguration(new MatriculaFinanceiraMap());
+            builder.ApplyConfiguration(new CobrancaMap());
             builder.Entity<SincronizacaoHistorico>(entity =>
             {
                 entity.ToTable("SINCRONIZACAO_HISTORICO");
@@ -93,5 +96,8 @@ namespace InstitutoTriboDeDavi.Infrastructure.Context
         public DbSet<PushSubscription> PushSubscriptions { get; set; }
         public DbSet<DocumentoArquivo> DocumentosArquivo { get; set; }
         public DbSet<OcorrenciaAluno> OcorrenciasAluno { get; set; }
+        public DbSet<PlanoMensalidade> PlanosMensalidade { get; set; }
+        public DbSet<MatriculaFinanceira> MatriculasFinanceiras { get; set; }
+        public DbSet<Cobranca> Cobrancas { get; set; }
     }
 }

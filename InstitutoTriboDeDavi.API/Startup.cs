@@ -387,6 +387,10 @@ namespace InstitutoTriboDeDavi.API
 
         public void Configure(WebApplication app, IWebHostEnvironment env)
         {
+            // Cabeçalhos de segurança em toda resposta (inclusive erros). Cedo no
+            // pipeline para envolver tudo o que vem depois.
+            app.UseSecurityHeaders(app.Environment.IsDevelopment());
+
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();

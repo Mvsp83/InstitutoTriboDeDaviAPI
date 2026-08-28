@@ -20,6 +20,7 @@ namespace InstitutoTriboDeDavi.Tests
         private readonly Mock<IGraduacaoRepository> _graduacoes = new();
         private readonly Mock<IAlunoRepository> _alunos = new();
         private readonly Mock<IPoloRepository> _polos = new();
+        private readonly Mock<IAptidaoGraduacaoRepository> _aptidao = new();
         private readonly GraduacaoService _service;
 
         private List<(Graduacao graduacao, Aluno aluno)> _registrados = new();
@@ -47,7 +48,7 @@ namespace InstitutoTriboDeDavi.Tests
                        .Callback((Graduacao g, Aluno a) => { _excluida = g; _alunoDaExclusao = a; })
                        .Returns(Task.CompletedTask);
 
-            _service = new GraduacaoService(mapper, _graduacoes.Object, _alunos.Object, _polos.Object);
+            _service = new GraduacaoService(mapper, _graduacoes.Object, _alunos.Object, _polos.Object, _aptidao.Object);
         }
 
         private static Aluno AlunoCom(long id, int faixa, string nome = "Aluno") =>

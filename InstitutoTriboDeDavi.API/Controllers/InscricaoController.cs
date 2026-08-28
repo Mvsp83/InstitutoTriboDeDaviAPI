@@ -6,7 +6,9 @@ using InstitutoTriboDeDavi.API.ViewModels.Result;
 using InstitutoTriboDeDavi.Application.DTO;
 using InstitutoTriboDeDavi.Application.Services.Interfaces;
 using InstitutoTriboDeDavi.Domain.Enums;
+using InstitutoTriboDeDavi.Domain.Exceptions;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
@@ -21,15 +23,18 @@ namespace InstitutoTriboDeDavi.API.Controllers
     {
         private readonly IInscricaoService _service;
         private readonly IPoloService _poloService;
+        private readonly IFotoStorage _fotoStorage;
         private readonly ILogger<InscricaoController> _logger;
 
         public InscricaoController(
             IInscricaoService service,
             IPoloService poloService,
+            IFotoStorage fotoStorage,
             ILogger<InscricaoController> logger) : base(logger)
         {
             _service = service;
             _poloService = poloService;
+            _fotoStorage = fotoStorage;
             _logger = logger;
         }
 
@@ -52,6 +57,34 @@ namespace InstitutoTriboDeDavi.API.Controllers
                     Message = "Polos obtidos com sucesso!",
                     Success = true,
                     Data = publicos
+                });
+            });
+        }
+
+        // Upload da foto (opcional) na ficha pública: guarda o binário e devolve
+        // o id do arquivo, que o formulário inclui no envio da inscrição.
+        [HttpPost("foto")]
+        [AllowAnonymous]
+        [EnableRateLimiting(AuthPolicies.InscricaoRateLimit)]
+        [RequestSizeLimit(15_000_000)]
+        public async Task<IActionResult> UploadFoto(IFormFile arquivo)
+        {
+            return await ExecuteAsync(async () =>
+            {
+                if (arquivo == null || arquivo.Length == 0)
+                    throw new DomainException("Nenhuma imagem enviada.");
+                if (!(arquivo.ContentType ?? "").StartsWith("image/"))
+                    throw new DomainException("O arquivo enviado não é uma imagem.");
+
+                using var stream = arquivo.OpenReadStream();
+                var fotoArquivoId = await _fotoStorage.UploadAsync(
+                    arquivo.FileName, arquivo.ContentType, stream);
+
+                return Ok(new ResultViewModel
+                {
+                    Message = "Foto recebida.",
+                    Success = true,
+                    Data = new { fotoArquivoId }
                 });
             });
         }

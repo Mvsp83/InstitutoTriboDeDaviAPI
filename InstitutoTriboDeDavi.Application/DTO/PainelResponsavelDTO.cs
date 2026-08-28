@@ -53,6 +53,9 @@ namespace InstitutoTriboDeDavi.Application.DTO
         // Uso de imagem: null = não informado, true/false = decisão do responsável.
         public bool? AutorizaImagem { get; set; }
         public DateTime? AutorizaImagemEm { get; set; }
+        // Foto do aluno em data URI (base64), quando a config permite mostrá-la
+        // no portal e o aluno tem foto. null = não mostrar.
+        public string FotoDataUri { get; set; }
     }
 
     public class FrequenciaResumoDTO

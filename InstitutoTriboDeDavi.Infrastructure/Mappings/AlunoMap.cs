@@ -45,6 +45,7 @@ namespace InstitutoTriboDeDavi.Infrastructure.Mappings
             builder.Property(x => x.AutorizaImagem).IsRequired(false);
             builder.Property(x => x.AutorizaImagemEm).IsRequired(false);
             builder.Property(x => x.EhAdulto).IsRequired();
+            builder.Property(x => x.FotoArquivoId).HasMaxLength(200).IsRequired(false);
         }
     }
 }

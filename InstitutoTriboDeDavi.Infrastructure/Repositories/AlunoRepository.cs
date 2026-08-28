@@ -264,5 +264,41 @@ namespace InstitutoTriboDeDavi.Infrastructure.Repositories
                 .OrderBy(a => a.Nome)
                 .ToListAsync();
         }
+
+        // ── Foto do aluno ─────────────────────────────────────────────────
+        public async Task<string> DefinirFotoAsync(long alunoId, string fotoArquivoId)
+        {
+            var aluno = await _context.Alunos.FirstOrDefaultAsync(a => a.Id == alunoId);
+            if (aluno == null) return null;
+
+            var anterior = aluno.FotoArquivoId;
+            aluno.FotoArquivoId = fotoArquivoId;
+            await _context.SaveChangesAsync();
+            return anterior;
+        }
+
+        public async Task<ConfiguracaoFotoAluno> ObterConfigFotoAsync()
+        {
+            return await _context.ConfiguracoesFotoAluno
+                .AsNoTracking()
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task SalvarConfigFotoAsync(ConfiguracaoFotoAluno cfg)
+        {
+            var existente = await _context.ConfiguracoesFotoAluno.FirstOrDefaultAsync();
+            if (existente == null)
+            {
+                _context.ConfiguracoesFotoAluno.Add(cfg);
+            }
+            else
+            {
+                existente.MostrarNoCadastro = cfg.MostrarNoCadastro;
+                existente.MostrarNaChamada = cfg.MostrarNaChamada;
+                existente.MostrarNoResponsavel = cfg.MostrarNoResponsavel;
+                existente.MostrarNaCarteirinha = cfg.MostrarNaCarteirinha;
+            }
+            await _context.SaveChangesAsync();
+        }
     }
 }

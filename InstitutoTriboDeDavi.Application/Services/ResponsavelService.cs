@@ -17,6 +17,7 @@ namespace InstitutoTriboDeDavi.Application.Services
         private readonly IEventoCalendarioRepository _eventoRepository;
         private readonly IPoloRepository _poloRepository;
         private readonly IOcorrenciaAlunoRepository _ocorrenciaRepository;
+        private readonly IFotoStorage _fotoStorage;
 
         // Tipos de OcorrenciaAluno (espelham o service): 0 = advertência, 1 = recado.
         private const int TipoAdvertencia = 0;
@@ -32,7 +33,8 @@ namespace InstitutoTriboDeDavi.Application.Services
             IAvisoRepository avisoRepository,
             IEventoCalendarioRepository eventoRepository,
             IPoloRepository poloRepository,
-            IOcorrenciaAlunoRepository ocorrenciaRepository)
+            IOcorrenciaAlunoRepository ocorrenciaRepository,
+            IFotoStorage fotoStorage)
         {
             _alunoRepository = alunoRepository;
             _presencaRepository = presencaRepository;
@@ -41,6 +43,7 @@ namespace InstitutoTriboDeDavi.Application.Services
             _eventoRepository = eventoRepository;
             _poloRepository = poloRepository;
             _ocorrenciaRepository = ocorrenciaRepository;
+            _fotoStorage = fotoStorage;
         }
 
         public async Task<AcessoResponsavelDTO> AutenticarAsync(string codigo, DateTime dataNascimento)
@@ -83,6 +86,8 @@ namespace InstitutoTriboDeDavi.Application.Services
 
             var ocorrencias = await _ocorrenciaRepository.ListarPorAlunoAsync(alunoId);
 
+            var fotoDataUri = await ObterFotoDataUriAsync(aluno.FotoArquivoId);
+
             return new PainelResponsavelDTO
             {
                 Aluno = new ResponsavelAlunoDTO
@@ -93,6 +98,7 @@ namespace InstitutoTriboDeDavi.Application.Services
                     Turma = aluno.Turma,
                     AutorizaImagem = aluno.AutorizaImagem,
                     AutorizaImagemEm = aluno.AutorizaImagemEm,
+                    FotoDataUri = fotoDataUri,
                 },
                 Frequencia = new FrequenciaResumoDTO
                 {
@@ -201,6 +207,28 @@ namespace InstitutoTriboDeDavi.Application.Services
                 return string.Empty;
             var polo = await _poloRepository.GetByIdAsync(poloId);
             return polo?.Nome ?? string.Empty;
+        }
+
+        // Foto do aluno em base64 para o portal — só quando a config global
+        // permite mostrá-la no responsável e o aluno tem foto.
+        private async Task<string> ObterFotoDataUriAsync(string fotoArquivoId)
+        {
+            if (string.IsNullOrEmpty(fotoArquivoId))
+                return null;
+
+            var cfg = await _alunoRepository.ObterConfigFotoAsync();
+            // Ausente = padrão (mostra).
+            if (cfg != null && !cfg.MostrarNoResponsavel)
+                return null;
+
+            var download = await _fotoStorage.BaixarAsync(fotoArquivoId);
+            if (download == null)
+                return null;
+
+            using var ms = new System.IO.MemoryStream();
+            await download.Conteudo.CopyToAsync(ms);
+            var base64 = System.Convert.ToBase64String(ms.ToArray());
+            return $"data:{download.ContentType};base64,{base64}";
         }
     }
 }

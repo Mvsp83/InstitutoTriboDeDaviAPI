@@ -53,6 +53,7 @@ namespace InstitutoTriboDeDavi.Infrastructure.Mappings
             builder.Property(x => x.NomeAssinatura).IsRequired().HasMaxLength(160);
             builder.Property(x => x.VersaoTermos).HasMaxLength(20).IsRequired(false);
             builder.Property(x => x.DataEnvio).IsRequired();
+            builder.Property(x => x.FotoArquivoId).HasMaxLength(200).IsRequired(false);
 
             builder.Property(x => x.CodigoResponsavel).HasMaxLength(16).IsRequired(false);
 

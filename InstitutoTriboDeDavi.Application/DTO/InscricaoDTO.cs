@@ -53,6 +53,10 @@ namespace InstitutoTriboDeDavi.Application.DTO
         public string NomeAssinatura { get; set; }
         public string VersaoTermos { get; set; }
 
+        // Foto (opcional) tirada na ficha — id do arquivo devolvido pelo upload
+        // público (/api/Inscricao/foto). Repassado ao Aluno na aprovação.
+        public string FotoArquivoId { get; set; }
+
         // Somente leitura (preenchidos pelo servidor).
         public int Ano { get; set; }
         public int Status { get; set; }

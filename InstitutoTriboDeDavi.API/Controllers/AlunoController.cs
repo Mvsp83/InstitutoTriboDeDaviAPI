@@ -1,9 +1,11 @@
 using InstitutoTriboDeDavi.API.Utilities;
 using InstitutoTriboDeDavi.API.ViewModels.Result;
 using InstitutoTriboDeDavi.Domain.Enums;
+using InstitutoTriboDeDavi.Domain.Exceptions;
 using InstitutoTriboDeDavi.Application.DTO;
 using InstitutoTriboDeDavi.Application.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InstitutoTriboDeDavi.API.Controllers
@@ -14,12 +16,14 @@ namespace InstitutoTriboDeDavi.API.Controllers
     {
         private readonly IAlunoService _alunoService;
         private readonly IFrequenciaService _frequenciaService;
+        private readonly IAlunoFotoService _fotoService;
         private readonly ILogger<AlunoController> _logger;
 
-        public AlunoController(IAlunoService alunoService, IPresencaService presencaService, IFrequenciaService frequenciaService, ILogger<AlunoController> logger) : base(logger)
+        public AlunoController(IAlunoService alunoService, IPresencaService presencaService, IFrequenciaService frequenciaService, IAlunoFotoService fotoService, ILogger<AlunoController> logger) : base(logger)
         {
             _alunoService = alunoService;
             _frequenciaService = frequenciaService;
+            _fotoService = fotoService;
             _logger = logger;
         }
 
@@ -334,6 +338,91 @@ namespace InstitutoTriboDeDavi.API.Controllers
                     Success = true,
                     Data = lista
                 });
+            });
+        }
+
+        // ── Foto do aluno ──────────────────────────────────────────────────
+        [HttpPost("{id}/foto")]
+        [Authorize(Policy = AuthPolicies.ProfessorOuSuperior)]
+        [RequestSizeLimit(15_000_000)]
+        public async Task<IActionResult> SalvarFoto(long id, IFormFile arquivo)
+        {
+            return await ExecuteAsync(async () =>
+            {
+                if (arquivo == null || arquivo.Length == 0)
+                    throw new DomainException("Nenhuma imagem enviada.");
+                if (!(arquivo.ContentType ?? "").StartsWith("image/"))
+                    throw new DomainException("O arquivo enviado não é uma imagem.");
+
+                var poloId = await _fotoService.ObterPoloId(id);
+                if (poloId == null) throw new DomainException("Aluno não encontrado.");
+                ValidatePoloUsuario(poloId.Value);
+
+                using var stream = arquivo.OpenReadStream();
+                await _fotoService.SalvarFoto(id, arquivo.FileName, arquivo.ContentType, stream);
+
+                return Ok(new ResultViewModel { Message = "Foto atualizada!", Success = true, Data = null });
+            });
+        }
+
+        [HttpDelete("{id}/foto")]
+        [Authorize(Policy = AuthPolicies.ProfessorOuSuperior)]
+        public async Task<IActionResult> RemoverFoto(long id)
+        {
+            return await ExecuteAsync(async () =>
+            {
+                var poloId = await _fotoService.ObterPoloId(id);
+                if (poloId == null) throw new DomainException("Aluno não encontrado.");
+                ValidatePoloUsuario(poloId.Value);
+
+                await _fotoService.RemoverFoto(id);
+                return Ok(new ResultViewModel { Message = "Foto removida.", Success = true, Data = null });
+            });
+        }
+
+        // Foto em base64 (a tag <img> não envia token). Acesso: admin, professor
+        // do polo, ou o responsável do próprio aluno.
+        [HttpGet("{id}/foto")]
+        [Authorize]
+        public async Task<IActionResult> ObterFoto(long id)
+        {
+            return await ExecuteAsync(async () =>
+            {
+                var poloId = await _fotoService.ObterPoloId(id);
+                if (poloId == null) return NotFound();
+
+                var ehResponsavel = User.FindFirst("AlunoId")?.Value == id.ToString();
+                if (!ehResponsavel)
+                    ValidatePoloUsuario(poloId.Value); // admin bypass; professor precisa ser do polo
+
+                var dataUri = await _fotoService.ObterFotoDataUri(id);
+                if (dataUri == null) return NotFound();
+
+                return Ok(new ResultViewModel { Message = "Foto obtida.", Success = true, Data = new { dataUri } });
+            });
+        }
+
+        // Config global de onde a foto do aluno aparece (leitura p/ todas as telas).
+        [HttpGet("config-foto")]
+        [Authorize]
+        public async Task<IActionResult> ObterConfigFoto()
+        {
+            return await ExecuteAsync(async () => Ok(new ResultViewModel
+            {
+                Message = "Config obtida.",
+                Success = true,
+                Data = await _fotoService.ObterConfig()
+            }));
+        }
+
+        [HttpPut("config-foto")]
+        [Authorize(Roles = nameof(UserRole.Administrador))]
+        public async Task<IActionResult> SalvarConfigFoto([FromBody] ConfiguracaoFotoAlunoDTO dto)
+        {
+            return await ExecuteAsync(async () =>
+            {
+                await _fotoService.SalvarConfig(dto);
+                return Ok(new ResultViewModel { Message = "Configuração salva!", Success = true, Data = null });
             });
         }
     }

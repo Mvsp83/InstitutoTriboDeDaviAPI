@@ -40,5 +40,8 @@ namespace InstitutoTriboDeDavi.Application.DTO
         // Autorização de uso de imagem/voz (LGPD): null = não informado,
         // true = autoriza, false = não autoriza.
         public bool? AutorizaImagem { get; set; }
+        // Somente-leitura: indica se o aluno tem foto (o binário é obtido em
+        // /api/Aluno/{id}/foto). Não é gravado no update.
+        public bool TemFoto { get; set; }
     }
 }

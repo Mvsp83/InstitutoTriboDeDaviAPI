@@ -33,6 +33,15 @@ namespace InstitutoTriboDeDavi.Application.Repositories
         // Alunos ativos (não anonimizados) de um polo — usado na impressão em
         // lote dos códigos de acesso.
         Task<List<Aluno>> ObterPorPoloAsync(long poloId);
+
+        // ── Foto do aluno ─────────────────────────────────────────────────
+        // Define o arquivo da foto e devolve o id do arquivo ANTERIOR (para o
+        // serviço remover do storage). Retorna null se o aluno não existe.
+        Task<string> DefinirFotoAsync(long alunoId, string fotoArquivoId);
+
+        // Config global (linha única) de onde a foto aparece.
+        Task<ConfiguracaoFotoAluno> ObterConfigFotoAsync();
+        Task SalvarConfigFotoAsync(ConfiguracaoFotoAluno cfg);
     }
 
     // Pacote bruto (entidades de domínio) devolvido pela coleta LGPD; o serviço

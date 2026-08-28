@@ -4,6 +4,7 @@ using InstitutoTriboDeDavi.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace InstitutoTriboDeDavi.Infrastructure.Migrations
 {
     [DbContext(typeof(TriboDeDaviContext))]
-    partial class TriboDeDaviContextModelSnapshot : ModelSnapshot
+    [Migration("20260828122613_AddCategoriaFoto")]
+    partial class AddCategoriaFoto
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1770,40 +1773,6 @@ namespace InstitutoTriboDeDavi.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("USUARIOS", (string)null);
-                });
-
-            modelBuilder.Entity("InstitutoTriboDeDavi.Domain.Entities.VideoGaleria", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("BIGINT");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<DateTime>("CriadoEm")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Descricao")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("Titulo")
-                        .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
-
-                    b.Property<string>("Url")
-                        .HasMaxLength(400)
-                        .HasColumnType("nvarchar(400)");
-
-                    b.Property<string>("YoutubeId")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("VIDEO_GALERIA", (string)null);
                 });
 
             modelBuilder.Entity("InstitutoTriboDeDavi.Domain.Entities.Business.AtividadeDoBloco", b =>

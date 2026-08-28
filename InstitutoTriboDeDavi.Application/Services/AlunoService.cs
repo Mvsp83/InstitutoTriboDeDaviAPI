@@ -90,6 +90,8 @@ namespace InstitutoTriboDeDavi.Application.Services
             aluno.AutorizaImagem = alunoDTO.AutorizaImagem ?? alunoExists.AutorizaImagem;
             // "É adulto" vem da aprovação da inscrição, não da ficha — preserva.
             aluno.EhAdulto = alunoExists.EhAdulto;
+            // A foto é gerida por endpoints próprios; a ficha não a traz — preserva.
+            aluno.FotoArquivoId = alunoExists.FotoArquivoId;
 
             aluno.Validate();
 

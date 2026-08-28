@@ -54,6 +54,11 @@ namespace InstitutoTriboDeDavi.Infrastructure.Context
             builder.ApplyConfiguration(new PlanoMensalidadeMap());
             builder.ApplyConfiguration(new MatriculaFinanceiraMap());
             builder.ApplyConfiguration(new CobrancaMap());
+            builder.ApplyConfiguration(new FotoTreinoMap());
+            builder.ApplyConfiguration(new FotoArquivoMap());
+            builder.ApplyConfiguration(new PoloFotoConfigMap());
+            builder.ApplyConfiguration(new ConfiguracaoFotoAlunoMap());
+            builder.ApplyConfiguration(new VideoGaleriaMap());
             builder.Entity<SincronizacaoHistorico>(entity =>
             {
                 entity.ToTable("SINCRONIZACAO_HISTORICO");
@@ -99,5 +104,10 @@ namespace InstitutoTriboDeDavi.Infrastructure.Context
         public DbSet<PlanoMensalidade> PlanosMensalidade { get; set; }
         public DbSet<MatriculaFinanceira> MatriculasFinanceiras { get; set; }
         public DbSet<Cobranca> Cobrancas { get; set; }
+        public DbSet<FotoTreino> FotosTreino { get; set; }
+        public DbSet<FotoArquivo> FotosArquivo { get; set; }
+        public DbSet<PoloFotoConfig> PoloFotoConfigs { get; set; }
+        public DbSet<ConfiguracaoFotoAluno> ConfiguracoesFotoAluno { get; set; }
+        public DbSet<VideoGaleria> VideosGaleria { get; set; }
     }
 }

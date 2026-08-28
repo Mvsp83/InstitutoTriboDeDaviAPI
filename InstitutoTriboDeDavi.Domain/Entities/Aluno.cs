@@ -53,6 +53,11 @@ namespace InstitutoTriboDeDavi.Domain.Entities
         // público da inscrição. false = criança/adolescente (padrão).
         public bool EhAdulto { get; set; }
 
+        // Foto do aluno: id do arquivo no storage (FOTO_ARQUIVO), reaproveitando
+        // o mesmo mecanismo das fotos de treino. Null/vazio = sem foto. A foto é
+        // gerida por endpoints próprios (não vem na ficha de edição).
+        public string? FotoArquivoId { get; set; }
+
         public override bool Validate()
         {
             var validator = new AlunoValidator();

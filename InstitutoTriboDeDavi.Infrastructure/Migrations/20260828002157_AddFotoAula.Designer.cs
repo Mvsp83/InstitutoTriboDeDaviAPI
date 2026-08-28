@@ -4,6 +4,7 @@ using InstitutoTriboDeDavi.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace InstitutoTriboDeDavi.Infrastructure.Migrations
 {
     [DbContext(typeof(TriboDeDaviContext))]
-    partial class TriboDeDaviContextModelSnapshot : ModelSnapshot
+    [Migration("20260828002157_AddFotoAula")]
+    partial class AddFotoAula
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -79,10 +82,6 @@ namespace InstitutoTriboDeDavi.Infrastructure.Migrations
 
                     b.Property<int>("Faixa")
                         .HasColumnType("int");
-
-                    b.Property<string>("FotoArquivoId")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
 
                     b.Property<string>("Nome")
                         .IsRequired()
@@ -827,31 +826,6 @@ namespace InstitutoTriboDeDavi.Infrastructure.Migrations
                     b.ToTable("CONFIGURACAO_DOCUMENTO", (string)null);
                 });
 
-            modelBuilder.Entity("InstitutoTriboDeDavi.Domain.Entities.ConfiguracaoFotoAluno", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("BIGINT");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<bool>("MostrarNaCarteirinha")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("MostrarNaChamada")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("MostrarNoCadastro")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("MostrarNoResponsavel")
-                        .HasColumnType("bit");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("CONFIG_FOTO_ALUNO", (string)null);
-                });
-
             modelBuilder.Entity("InstitutoTriboDeDavi.Domain.Entities.ContaFinanceira", b =>
                 {
                     b.Property<long>("Id")
@@ -1129,11 +1103,6 @@ namespace InstitutoTriboDeDavi.Infrastructure.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
-                    b.Property<string>("Categoria")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
                     b.Property<DateTime>("CriadoEm")
                         .HasColumnType("datetime2");
 
@@ -1158,13 +1127,10 @@ namespace InstitutoTriboDeDavi.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Categoria");
-
                     b.HasIndex("Publicada");
 
                     b.HasIndex("PoloId", "Turma", "DataAula")
-                        .IsUnique()
-                        .HasFilter("[Categoria] = 'polo'");
+                        .IsUnique();
 
                     b.ToTable("FOTO_TREINO", (string)null);
                 });
@@ -1277,10 +1243,6 @@ namespace InstitutoTriboDeDavi.Infrastructure.Migrations
 
                     b.Property<int>("Faixa")
                         .HasColumnType("int");
-
-                    b.Property<string>("FotoArquivoId")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
 
                     b.Property<bool>("JaEraAluno")
                         .HasColumnType("bit");
@@ -1770,40 +1732,6 @@ namespace InstitutoTriboDeDavi.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("USUARIOS", (string)null);
-                });
-
-            modelBuilder.Entity("InstitutoTriboDeDavi.Domain.Entities.VideoGaleria", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("BIGINT");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<DateTime>("CriadoEm")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Descricao")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("Titulo")
-                        .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
-
-                    b.Property<string>("Url")
-                        .HasMaxLength(400)
-                        .HasColumnType("nvarchar(400)");
-
-                    b.Property<string>("YoutubeId")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("VIDEO_GALERIA", (string)null);
                 });
 
             modelBuilder.Entity("InstitutoTriboDeDavi.Domain.Entities.Business.AtividadeDoBloco", b =>

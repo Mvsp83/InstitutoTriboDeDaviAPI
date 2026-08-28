@@ -213,6 +213,15 @@ namespace InstitutoTriboDeDavi.API
             services.AddScoped<IFinanceiroService, FinanceiroService>();
             services.AddScoped<IMensalidadesRepository, MensalidadesRepository>();
             services.AddScoped<IMensalidadesService, MensalidadesService>();
+            services.AddScoped<IFotoTreinoRepository, FotoTreinoRepository>();
+            services.AddScoped<IFotoArquivoRepository, FotoArquivoRepository>();
+            services.AddScoped<IFotoTreinoService, FotoTreinoService>();
+            // Storage das fotos: banco por padrão (funciona sem config externa,
+            // igual aos documentos). Para usar o Drive, troque por GoogleDriveFotoStorage.
+            services.AddScoped<IFotoStorage, BancoFotoStorage>();
+            services.AddScoped<IAlunoFotoService, AlunoFotoService>();
+            services.AddScoped<IVideoGaleriaRepository, VideoGaleriaRepository>();
+            services.AddScoped<IVideoGaleriaService, VideoGaleriaService>();
             services.AddScoped<IInscricaoRepository, InscricaoRepository>();
             services.AddScoped<IInscricaoService, InscricaoService>();
             services.AddScoped<IGraduacaoRepository, GraduacaoRepository>();
@@ -282,7 +291,10 @@ namespace InstitutoTriboDeDavi.API
                 {
                     cfg.CreateMap<Usuario, UsuarioDTO>().ReverseMap();
                     cfg.CreateMap<UsuarioViewModel, UsuarioDTO>().ReverseMap();
-                    cfg.CreateMap<Aluno, AlunoDTO>().ReverseMap();
+                    cfg.CreateMap<Aluno, AlunoDTO>()
+                        .ForMember(d => d.TemFoto, o => o.MapFrom(s => !string.IsNullOrEmpty(s.FotoArquivoId)))
+                        .ReverseMap()
+                        .ForMember(d => d.FotoArquivoId, o => o.Ignore());
                     cfg.CreateMap<Polo, PoloDTO>().ReverseMap();
                     cfg.CreateMap<ConfiguracaoDocumento, ConfiguracaoDocumentoDTO>().ReverseMap();
                     cfg.CreateMap<ConfiguracaoDashboard, ConfiguracaoDashboardDTO>().ReverseMap();
@@ -291,6 +303,7 @@ namespace InstitutoTriboDeDavi.API
                     cfg.CreateMap<PlanoMensalidade, PlanoMensalidadeDTO>().ReverseMap();
                     cfg.CreateMap<MatriculaFinanceira, MatriculaFinanceiraDTO>().ReverseMap();
                     cfg.CreateMap<Cobranca, CobrancaDTO>().ReverseMap();
+                    cfg.CreateMap<VideoGaleria, VideoGaleriaDTO>().ReverseMap();
                     cfg.CreateMap<Inscricao, InscricaoDTO>().ReverseMap();
                     cfg.CreateMap<Matricula, MatriculaDTO>().ReverseMap();
                     cfg.CreateMap<Graduacao, GraduacaoDTO>().ReverseMap();

@@ -78,6 +78,10 @@ namespace InstitutoTriboDeDavi.Domain.Entities
         public string VersaoTermos { get; set; } = string.Empty;
         public DateTime DataEnvio { get; set; }
 
+        // Foto (opcional) tirada na ficha de inscrição. Id do arquivo no storage
+        // (FOTO_ARQUIVO). Na aprovação, é repassado ao Aluno.
+        public string FotoArquivoId { get; set; } = string.Empty;
+
         // Código de acesso ao portal, gerado quando a família envia a ficha. É
         // repassado ao Aluno na aprovação — assim a família usa o mesmo código
         // desde a inscrição.

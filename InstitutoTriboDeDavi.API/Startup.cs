@@ -243,6 +243,8 @@ namespace InstitutoTriboDeDavi.API
             services.AddScoped<ISolicitacaoInternaService, SolicitacaoInternaService>();
             services.AddScoped<IProdutoRepository, ProdutoRepository>();
             services.AddScoped<IProdutoService, ProdutoService>();
+            services.AddScoped<IAtletaRepository, AtletaRepository>();
+            services.AddScoped<IAtletaService, AtletaService>();
 
             services.AddScoped<ITokenGenerator, TokenGenerator>();
 
@@ -325,6 +327,12 @@ namespace InstitutoTriboDeDavi.API
                         .ForMember(d => d.TemFoto, o => o.MapFrom(s => !string.IsNullOrEmpty(s.FotoArquivoId)))
                         .ReverseMap();
                     cfg.CreateMap<VariacaoProduto, VariacaoProdutoDTO>().ReverseMap();
+                    cfg.CreateMap<Atleta, AtletaDTO>().ReverseMap();
+                    cfg.CreateMap<AvaliacaoFisica, AvaliacaoFisicaDTO>().ReverseMap();
+                    cfg.CreateMap<IndicadorAvaliacao, IndicadorAvaliacaoDTO>().ReverseMap();
+                    cfg.CreateMap<Competicao, CompeticaoDTO>().ReverseMap();
+                    cfg.CreateMap<AnotacaoAtleta, AnotacaoAtletaDTO>().ReverseMap();
+                    cfg.CreateMap<MetaAtleta, MetaAtletaDTO>().ReverseMap();
 
                     cfg.CreateMap<Presenca, PresencaDTO>().ReverseMap();
                     cfg.CreateMap<Aula, AulaDTO>().ReverseMap();

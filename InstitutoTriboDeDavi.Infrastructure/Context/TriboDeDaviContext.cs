@@ -44,6 +44,12 @@ namespace InstitutoTriboDeDavi.Infrastructure.Context
             builder.ApplyConfiguration(new MensagemSolicitacaoMap());
             builder.ApplyConfiguration(new ProdutoMap());
             builder.ApplyConfiguration(new VariacaoProdutoMap());
+            builder.ApplyConfiguration(new AtletaMap());
+            builder.ApplyConfiguration(new AvaliacaoFisicaMap());
+            builder.ApplyConfiguration(new IndicadorAvaliacaoMap());
+            builder.ApplyConfiguration(new CompeticaoMap());
+            builder.ApplyConfiguration(new AnotacaoAtletaMap());
+            builder.ApplyConfiguration(new MetaAtletaMap());
             builder.ApplyConfiguration(new ContaFinanceiraMap());
             builder.ApplyConfiguration(new MovimentacaoFinanceiraMap());
             builder.ApplyConfiguration(new InscricaoMap());
@@ -100,6 +106,11 @@ namespace InstitutoTriboDeDavi.Infrastructure.Context
         public DbSet<MensagemSolicitacao> MensagensSolicitacao { get; set; }
         public DbSet<Produto> Produtos { get; set; }
         public DbSet<VariacaoProduto> VariacoesProduto { get; set; }
+        public DbSet<Atleta> Atletas { get; set; }
+        public DbSet<AvaliacaoFisica> AvaliacoesFisicas { get; set; }
+        public DbSet<Competicao> Competicoes { get; set; }
+        public DbSet<AnotacaoAtleta> AnotacoesAtleta { get; set; }
+        public DbSet<MetaAtleta> MetasAtleta { get; set; }
         public DbSet<ContaFinanceira> ContasFinanceiras { get; set; }
         public DbSet<MovimentacaoFinanceira> MovimentacoesFinanceiras { get; set; }
         public DbSet<Inscricao> Inscricoes { get; set; }

@@ -31,6 +31,7 @@ namespace InstitutoTriboDeDavi.Infrastructure.Repositories
                 .Include(a => a.Competicoes.OrderByDescending(c => c.Data))
                 .Include(a => a.Anotacoes.OrderByDescending(an => an.Data))
                 .Include(a => a.Metas)
+                .Include(a => a.Lesoes.OrderByDescending(l => l.Data))
                 .AsNoTracking()
                 .FirstOrDefaultAsync(a => a.Id == id);
         }
@@ -132,6 +133,29 @@ namespace InstitutoTriboDeDavi.Infrastructure.Repositories
         {
             var m = await _context.MetasAtleta.FirstOrDefaultAsync(x => x.Id == id);
             if (m != null) { _context.MetasAtleta.Remove(m); await _context.SaveChangesAsync(); }
+        }
+
+        public async Task<Lesao> AdicionarLesaoAsync(Lesao lesao)
+        {
+            _context.Lesoes.Add(lesao);
+            await _context.SaveChangesAsync();
+            return lesao;
+        }
+
+        public async Task<Lesao> MarcarRecuperadaAsync(long id, bool recuperado)
+        {
+            var l = await _context.Lesoes.FirstOrDefaultAsync(x => x.Id == id);
+            if (l == null) return null;
+            l.Recuperado = recuperado;
+            if (recuperado && l.DataRetorno == null) l.DataRetorno = DateTime.Now;
+            await _context.SaveChangesAsync();
+            return l;
+        }
+
+        public async Task RemoverLesaoAsync(long id)
+        {
+            var l = await _context.Lesoes.FirstOrDefaultAsync(x => x.Id == id);
+            if (l != null) { _context.Lesoes.Remove(l); await _context.SaveChangesAsync(); }
         }
     }
 }

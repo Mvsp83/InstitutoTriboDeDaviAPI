@@ -21,5 +21,8 @@ namespace InstitutoTriboDeDavi.Application.Repositories
         Task<MetaAtleta> AdicionarMetaAsync(MetaAtleta meta);
         Task<MetaAtleta> AtualizarMetaAsync(long id, int status);
         Task RemoverMetaAsync(long id);
+        Task<Lesao> AdicionarLesaoAsync(Lesao lesao);
+        Task<Lesao> MarcarRecuperadaAsync(long id, bool recuperado);
+        Task RemoverLesaoAsync(long id);
     }
 }

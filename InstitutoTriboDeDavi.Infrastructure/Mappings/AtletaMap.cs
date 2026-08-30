@@ -27,6 +27,27 @@ namespace InstitutoTriboDeDavi.Infrastructure.Mappings
                 .HasForeignKey(x => x.AtletaId).OnDelete(DeleteBehavior.Cascade);
             builder.HasMany(x => x.Metas).WithOne()
                 .HasForeignKey(x => x.AtletaId).OnDelete(DeleteBehavior.Cascade);
+            builder.HasMany(x => x.Lesoes).WithOne()
+                .HasForeignKey(x => x.AtletaId).OnDelete(DeleteBehavior.Cascade);
+        }
+    }
+
+    public class LesaoMap : IEntityTypeConfiguration<Lesao>
+    {
+        public void Configure(EntityTypeBuilder<Lesao> builder)
+        {
+            builder.ToTable("ATLETA_LESAO");
+            builder.HasKey(x => x.Id);
+            builder.Property(x => x.Id).UseIdentityColumn().HasColumnType("BIGINT");
+            builder.Property(x => x.AtletaId).IsRequired();
+            builder.Property(x => x.Data).IsRequired();
+            builder.Property(x => x.Descricao).HasMaxLength(500).IsRequired();
+            builder.Property(x => x.Local).HasMaxLength(80).IsRequired(false);
+            builder.Property(x => x.Gravidade).IsRequired();
+            builder.Property(x => x.DataRetorno).IsRequired(false);
+            builder.Property(x => x.Recuperado).IsRequired();
+            builder.Property(x => x.Observacao).HasMaxLength(1000).IsRequired(false);
+            builder.HasIndex(x => x.AtletaId);
         }
     }
 

@@ -20,6 +20,20 @@ namespace InstitutoTriboDeDavi.Application.DTO
         public List<CompeticaoDTO> Competicoes { get; set; } = new();
         public List<AnotacaoAtletaDTO> Anotacoes { get; set; } = new();
         public List<MetaAtletaDTO> Metas { get; set; } = new();
+        public List<LesaoDTO> Lesoes { get; set; } = new();
+    }
+
+    public class LesaoDTO
+    {
+        public long Id { get; set; }
+        public long AtletaId { get; set; }
+        public DateTime Data { get; set; }
+        public string Descricao { get; set; }
+        public string Local { get; set; }
+        public int Gravidade { get; set; }
+        public DateTime? DataRetorno { get; set; }
+        public bool Recuperado { get; set; }
+        public string Observacao { get; set; }
     }
 
     public class AvaliacaoFisicaDTO

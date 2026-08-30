@@ -13,4 +13,11 @@ namespace InstitutoTriboDeDavi.Domain.Enums
         Concluida = 1,
         Cancelada = 2,
     }
+
+    public enum GravidadeLesao
+    {
+        Leve = 0,
+        Moderada = 1,
+        Grave = 2,
+    }
 }

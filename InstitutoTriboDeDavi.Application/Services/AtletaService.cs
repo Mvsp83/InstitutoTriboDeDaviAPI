@@ -153,6 +153,28 @@ namespace InstitutoTriboDeDavi.Application.Services
 
         public Task RemoverMeta(long id) => _repository.RemoverMetaAsync(id);
 
+        // ── Lesões ───────────────────────────────────────────────────────────
+
+        public async Task<LesaoDTO> AdicionarLesao(long atletaId, LesaoDTO dto)
+        {
+            var lesao = _mapper.Map<Lesao>(dto);
+            lesao.Id = 0;
+            lesao.AtletaId = atletaId;
+            if (string.IsNullOrWhiteSpace(lesao.Descricao))
+                throw new DomainException("Descreva a lesão.");
+            var salva = await _repository.AdicionarLesaoAsync(lesao);
+            return _mapper.Map<LesaoDTO>(salva);
+        }
+
+        public async Task<LesaoDTO> MarcarLesaoRecuperada(long id, bool recuperado)
+        {
+            var lesao = await _repository.MarcarRecuperadaAsync(id, recuperado);
+            if (lesao == null) throw new DomainException("Lesão não encontrada.");
+            return _mapper.Map<LesaoDTO>(lesao);
+        }
+
+        public Task RemoverLesao(long id) => _repository.RemoverLesaoAsync(id);
+
         // ── Auxiliar ─────────────────────────────────────────────────────────
 
         private static void PreencherAluno(

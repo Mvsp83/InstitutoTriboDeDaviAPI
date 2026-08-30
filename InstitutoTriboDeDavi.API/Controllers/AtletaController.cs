@@ -102,5 +102,19 @@ namespace InstitutoTriboDeDavi.API.Controllers
         [HttpDelete("metas/{id}")]
         public Task<IActionResult> RemoverMeta(long id) =>
             ExecuteAsync(async () => { await _service.RemoverMeta(id); return Sucesso(null, "Meta removida."); });
+
+        // ── Lesões ───────────────────────────────────────────────────────────
+
+        [HttpPost("{id}/lesoes")]
+        public Task<IActionResult> AdicionarLesao(long id, [FromBody] LesaoDTO dto) =>
+            ExecuteAsync(async () => Sucesso(await _service.AdicionarLesao(id, dto), "Lesão registrada."));
+
+        [HttpPost("lesoes/{id}/recuperada")]
+        public Task<IActionResult> MarcarLesaoRecuperada(long id, [FromQuery] bool recuperado) =>
+            ExecuteAsync(async () => Sucesso(await _service.MarcarLesaoRecuperada(id, recuperado), "Lesão atualizada."));
+
+        [HttpDelete("lesoes/{id}")]
+        public Task<IActionResult> RemoverLesao(long id) =>
+            ExecuteAsync(async () => { await _service.RemoverLesao(id); return Sucesso(null, "Lesão removida."); });
     }
 }

@@ -20,6 +20,7 @@ namespace InstitutoTriboDeDavi.Domain.Entities
         public List<Competicao> Competicoes { get; set; } = new();
         public List<AnotacaoAtleta> Anotacoes { get; set; } = new();
         public List<MetaAtleta> Metas { get; set; } = new();
+        public List<Lesao> Lesoes { get; set; } = new();
 
         public override bool Validate()
         {

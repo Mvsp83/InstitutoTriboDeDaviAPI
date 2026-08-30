@@ -333,6 +333,7 @@ namespace InstitutoTriboDeDavi.API
                     cfg.CreateMap<Competicao, CompeticaoDTO>().ReverseMap();
                     cfg.CreateMap<AnotacaoAtleta, AnotacaoAtletaDTO>().ReverseMap();
                     cfg.CreateMap<MetaAtleta, MetaAtletaDTO>().ReverseMap();
+                    cfg.CreateMap<Lesao, LesaoDTO>().ReverseMap();
 
                     cfg.CreateMap<Presenca, PresencaDTO>().ReverseMap();
                     cfg.CreateMap<Aula, AulaDTO>().ReverseMap();

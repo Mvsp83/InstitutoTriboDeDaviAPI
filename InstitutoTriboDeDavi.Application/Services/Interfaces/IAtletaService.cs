@@ -22,5 +22,9 @@ namespace InstitutoTriboDeDavi.Application.Services.Interfaces
         Task<MetaAtletaDTO> AdicionarMeta(long atletaId, MetaAtletaDTO dto);
         Task<MetaAtletaDTO> AlterarStatusMeta(long id, int status);
         Task RemoverMeta(long id);
+
+        Task<LesaoDTO> AdicionarLesao(long atletaId, LesaoDTO dto);
+        Task<LesaoDTO> MarcarLesaoRecuperada(long id, bool recuperado);
+        Task RemoverLesao(long id);
     }
 }

@@ -81,7 +81,9 @@ namespace InstitutoTriboDeDavi.Application.Services
             var avisos = (await _avisoRepository.ObterAtivosAsync())
                 .Where(a => a.PublicoAlvo == PublicoTodos);
 
+            // Só o calendário do instituto vai para os pais — nunca os internos.
             var eventos = (await _eventoRepository.ObterPorAnoAsync(DateTime.Now.Year))
+                .Where(e => !e.Interno)
                 .Where(e => e.PoloId == null || e.PoloId == aluno.PoloId);
 
             var ocorrencias = await _ocorrenciaRepository.ListarPorAlunoAsync(alunoId);

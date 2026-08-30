@@ -18,6 +18,11 @@ namespace InstitutoTriboDeDavi.Domain.Entities
         public string Descricao { get; set; } = string.Empty;
         public long? PoloId { get; set; }
 
+        // Calendário interno (mais específico do jiu-jitsu): visível só à equipe
+        // (admin/professores/supervisores). Não vai para o portal do responsável
+        // nem para o público. false = calendário do instituto (visto por todos).
+        public bool Interno { get; set; }
+
         // Notificação por email. EmailsNotificacao aceita vários endereços
         // separados por vírgula ou ponto-e-vírgula. DiasAntecedencia = quantos
         // dias antes da data enviar (0 = no próprio dia). NotificacaoEnviada é

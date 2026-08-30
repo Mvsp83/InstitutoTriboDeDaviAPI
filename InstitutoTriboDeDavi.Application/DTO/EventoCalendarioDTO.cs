@@ -10,6 +10,7 @@ namespace InstitutoTriboDeDavi.Application.DTO
         public int Tipo { get; set; }
         public string Descricao { get; set; }
         public long? PoloId { get; set; }
+        public bool Interno { get; set; }
         public bool Notificar { get; set; }
         public string EmailsNotificacao { get; set; }
         public int DiasAntecedencia { get; set; }

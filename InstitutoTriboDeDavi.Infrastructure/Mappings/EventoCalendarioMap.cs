@@ -21,6 +21,7 @@ namespace InstitutoTriboDeDavi.Infrastructure.Mappings
             builder.Property(x => x.DataFim).IsRequired(false);
             builder.Property(x => x.Tipo).IsRequired();
             builder.Property(x => x.PoloId).IsRequired(false);
+            builder.Property(x => x.Interno).IsRequired();
 
             builder.Property(x => x.Titulo)
                 .IsRequired()

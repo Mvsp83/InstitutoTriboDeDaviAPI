@@ -42,6 +42,8 @@ namespace InstitutoTriboDeDavi.Infrastructure.Context
             builder.ApplyConfiguration(new AvisoCienteMap());
             builder.ApplyConfiguration(new SolicitacaoInternaMap());
             builder.ApplyConfiguration(new MensagemSolicitacaoMap());
+            builder.ApplyConfiguration(new ProdutoMap());
+            builder.ApplyConfiguration(new VariacaoProdutoMap());
             builder.ApplyConfiguration(new ContaFinanceiraMap());
             builder.ApplyConfiguration(new MovimentacaoFinanceiraMap());
             builder.ApplyConfiguration(new InscricaoMap());
@@ -96,6 +98,8 @@ namespace InstitutoTriboDeDavi.Infrastructure.Context
         public DbSet<AvisoCiente> AvisosCientes { get; set; }
         public DbSet<SolicitacaoInterna> SolicitacoesInternas { get; set; }
         public DbSet<MensagemSolicitacao> MensagensSolicitacao { get; set; }
+        public DbSet<Produto> Produtos { get; set; }
+        public DbSet<VariacaoProduto> VariacoesProduto { get; set; }
         public DbSet<ContaFinanceira> ContasFinanceiras { get; set; }
         public DbSet<MovimentacaoFinanceira> MovimentacoesFinanceiras { get; set; }
         public DbSet<Inscricao> Inscricoes { get; set; }

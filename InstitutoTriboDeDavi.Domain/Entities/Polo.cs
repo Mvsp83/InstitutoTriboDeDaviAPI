@@ -12,6 +12,11 @@ namespace InstitutoTriboDeDavi.Domain.Entities
         public string Bairro { get; set; }
         public string Cidade { get; set; }
 
+        // Limite de alunos ativos no ano. 0 = sem limite. Ao atingir, novas
+        // inscrições para este polo são bloqueadas até liberar vaga (inativar
+        // matrícula ou aumentar o limite).
+        public int LimiteAlunos { get; set; }
+
         // Horários de treino por turma (um item por dia da semana).
         public List<HorarioTurma> Horarios { get; set; } = new();
 

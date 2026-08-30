@@ -49,7 +49,12 @@ namespace InstitutoTriboDeDavi.API.Controllers
             {
                 var polos = await _poloService.GetAll();
                 var publicos = polos
-                    .Select(p => new PoloPublicoDTO { Id = p.Id, Nome = p.Nome })
+                    .Select(p => new PoloPublicoDTO
+                    {
+                        Id = p.Id,
+                        Nome = p.Nome,
+                        Lotado = p.LimiteAlunos > 0 && p.AlunosAtivos >= p.LimiteAlunos,
+                    })
                     .OrderBy(p => p.Nome)
                     .ToList();
 
@@ -271,6 +276,20 @@ namespace InstitutoTriboDeDavi.API.Controllers
                 Message = "Matrículas obtidas com sucesso!",
                 Success = true,
                 Data = await _service.ListarMatriculas(ano, PoloDoUsuario())
+            }));
+        }
+
+        // Liga/desliga a matrícula do aluno no ano: inativar libera vaga no polo;
+        // reativar reocupa (respeitando o limite).
+        [HttpPost("matriculas/{id}/ativa")]
+        [Authorize(Policy = AuthPolicies.ProfessorOuSuperior)]
+        public async Task<IActionResult> AlterarAtivaMatricula(long id, [FromQuery] bool ativa)
+        {
+            return await ExecuteAsync(async () => Ok(new ResultViewModel
+            {
+                Message = ativa ? "Matrícula reativada." : "Matrícula inativada.",
+                Success = true,
+                Data = await _service.AlterarAtivaMatricula(id, ativa)
             }));
         }
 

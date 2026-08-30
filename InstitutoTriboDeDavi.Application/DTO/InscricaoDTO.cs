@@ -92,6 +92,9 @@ namespace InstitutoTriboDeDavi.Application.DTO
         public bool Ativa { get; set; }
         public DateTime? DataEncerramento { get; set; }
         public string MotivoEncerramento { get; set; }
+        // Preenchidos na listagem para exibição.
+        public string AlunoNome { get; set; }
+        public string PoloNome { get; set; }
     }
 
     // Dado mínimo que o site público precisa para montar o formulário sem login.
@@ -99,5 +102,7 @@ namespace InstitutoTriboDeDavi.Application.DTO
     {
         public long Id { get; set; }
         public string Nome { get; set; }
+        // Sem vaga no momento (limite atingido) — o formulário bloqueia a escolha.
+        public bool Lotado { get; set; }
     }
 }

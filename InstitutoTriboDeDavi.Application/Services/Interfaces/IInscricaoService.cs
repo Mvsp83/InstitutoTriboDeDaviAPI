@@ -36,6 +36,10 @@ namespace InstitutoTriboDeDavi.Application.Services.Interfaces
 
         Task<List<MatriculaDTO>> ListarMatriculas(int ano, long? poloId);
 
+        // Liga/desliga a matrícula do aluno no ano (inativar libera vaga;
+        // reativar reocupa, respeitando o limite do polo).
+        Task<MatriculaDTO> AlterarAtivaMatricula(long matriculaId, bool ativa);
+
         // Virada de ano: matricula em lote os alunos ativos ainda sem matrícula
         // no ano (polo/turma do cadastro atual). Idempotente. poloId nulo = todos.
         Task<MatriculaLoteResultado> MatricularAno(int ano, long? poloId);

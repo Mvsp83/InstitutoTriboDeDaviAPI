@@ -22,6 +22,8 @@ namespace InstitutoTriboDeDavi.Infrastructure.Mappings
                 .HasColumnName("Nome")
                 .HasColumnType("VARCHAR(120)");
 
+            builder.Property(x => x.LimiteAlunos).IsRequired();
+
             // Horários por turma: apagar o polo apaga os horários.
             builder.HasMany(x => x.Horarios)
                 .WithOne()

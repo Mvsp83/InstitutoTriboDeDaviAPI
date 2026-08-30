@@ -12,11 +12,16 @@ namespace InstitutoTriboDeDavi.Application.Services
     {
         private readonly IMapper _mapper;
         private readonly IPoloRepository _poloRepository;
+        private readonly IInscricaoRepository _inscricaoRepository;
 
-        public PoloService(IMapper mapper, IPoloRepository poloRepository)
+        public PoloService(
+            IMapper mapper,
+            IPoloRepository poloRepository,
+            IInscricaoRepository inscricaoRepository)
         {
             _mapper = mapper;
             _poloRepository = poloRepository;
+            _inscricaoRepository = inscricaoRepository;
         }
         public async Task<PoloDTO> Create(PoloDTO poloDTO)
         {
@@ -51,8 +56,15 @@ namespace InstitutoTriboDeDavi.Application.Services
         public async Task<List<PoloDTO>> GetAll()
         {
             var allPolos = await _poloRepository.GetAllAsync();
+            var dtos = _mapper.Map<List<PoloDTO>>(allPolos);
 
-            return _mapper.Map<List<PoloDTO>>(allPolos);
+            // Ocupação: matrículas ativas do ano corrente por polo.
+            var ativosPorPolo = await _inscricaoRepository
+                .ContarMatriculasAtivasPorPoloAsync(DateTime.Now.Year);
+            foreach (var dto in dtos)
+                dto.AlunosAtivos = ativosPorPolo.TryGetValue(dto.Id, out var n) ? n : 0;
+
+            return dtos;
         }
 
         public async Task<PoloDTO> GetByNome(string nome)

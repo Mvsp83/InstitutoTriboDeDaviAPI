@@ -33,5 +33,13 @@ namespace InstitutoTriboDeDavi.Application.Repositories
 
         // Cria várias matrículas de uma vez (virada de ano). Retorna a quantidade.
         Task<int> CriarMatriculasAsync(IEnumerable<Matricula> matriculas);
+
+        // Ocupação de vagas: matrículas ATIVAS do ano por polo.
+        Task<int> ContarMatriculasAtivasAsync(int ano, long poloId);
+        Task<Dictionary<long, int>> ContarMatriculasAtivasPorPoloAsync(int ano);
+
+        // Liga/desliga da matrícula (libera/ocupa vaga no ano).
+        Task<Matricula> ObterMatriculaPorIdAsync(long id);
+        Task AtualizarMatriculaAsync(Matricula matricula);
     }
 }

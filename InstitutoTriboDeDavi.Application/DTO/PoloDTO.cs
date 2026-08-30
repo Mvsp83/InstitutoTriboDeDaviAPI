@@ -16,6 +16,10 @@ namespace InstitutoTriboDeDavi.Application.DTO
         public string Endereco { get; set; }
         public string Bairro { get; set; }
         public string Cidade { get; set; }
+        // Limite de alunos ativos no ano (0 = sem limite).
+        public int LimiteAlunos { get; set; }
+        // Preenchido nas listagens: matrículas ativas do ano corrente neste polo.
+        public int AlunosAtivos { get; set; }
         public List<HorarioTurmaDTO> Horarios { get; set; } = new();
     }
 

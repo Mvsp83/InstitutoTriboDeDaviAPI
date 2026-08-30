@@ -55,8 +55,16 @@ namespace InstitutoTriboDeDavi.Application.Services
 
             inscricao.Validate();
 
-            if (await _poloRepository.GetByIdAsync(inscricao.PoloId) == null)
+            var poloEscolhido = await _poloRepository.GetByIdAsync(inscricao.PoloId);
+            if (poloEscolhido == null)
                 throw new DomainException("O polo selecionado não existe.");
+
+            // Bloqueio por lotação: sem vaga, não aceita nova inscrição no polo.
+            if (poloEscolhido.LimiteAlunos > 0 &&
+                await _repository.ContarMatriculasAtivasAsync(inscricao.Ano, inscricao.PoloId)
+                    >= poloEscolhido.LimiteAlunos)
+                throw new DomainException(
+                    "As vagas deste polo estão esgotadas no momento. Escolha outro polo ou fale com a equipe.");
 
             var recentes = await _repository.ContarEnviosRecentesAsync(
                 inscricao.WhatsApp, JanelaMinutos);
@@ -107,7 +115,8 @@ namespace InstitutoTriboDeDavi.Application.Services
             var poloId = revisao.PoloId > 0 ? revisao.PoloId : inscricao.PoloId;
             var turma = revisao.Turma > 0 ? revisao.Turma : (inscricao.Turma ?? 1);
 
-            if (await _poloRepository.GetByIdAsync(poloId) == null)
+            var polo = await _poloRepository.GetByIdAsync(poloId);
+            if (polo == null)
                 throw new DomainException("O polo informado não existe.");
 
             // Rematrícula: se o aluno já existe, atualizamos o cadastro dele em
@@ -115,6 +124,20 @@ namespace InstitutoTriboDeDavi.Application.Services
             // data de nascimento.
             var aluno = await LocalizarAlunoExistente(inscricao);
             aluno ??= new Aluno();
+
+            // Bloqueio por lotação ao aprovar. Não bloqueia rematrícula de quem
+            // já ocupa vaga ativa neste polo/ano (não soma vaga nova).
+            if (polo.LimiteAlunos > 0)
+            {
+                var matriculaAtual = aluno.Id > 0
+                    ? await _repository.ObterMatriculaAsync(aluno.Id, inscricao.Ano)
+                    : null;
+                var jaOcupaVaga = matriculaAtual is { Ativa: true } && matriculaAtual.PoloId == poloId;
+                if (!jaOcupaVaga &&
+                    await _repository.ContarMatriculasAtivasAsync(inscricao.Ano, poloId) >= polo.LimiteAlunos)
+                    throw new DomainException(
+                        "Polo lotado: libere uma vaga (inative uma matrícula ou aumente o limite) antes de aprovar.");
+            }
 
             PreencherAluno(aluno, inscricao, poloId, turma);
             // Transfere a foto da ficha (se houver) sem apagar a atual numa
@@ -170,7 +193,50 @@ namespace InstitutoTriboDeDavi.Application.Services
         public async Task<List<MatriculaDTO>> ListarMatriculas(int ano, long? poloId)
         {
             var matriculas = await _repository.ListarMatriculasAsync(ano, poloId);
-            return _mapper.Map<List<MatriculaDTO>>(matriculas);
+            var dtos = _mapper.Map<List<MatriculaDTO>>(matriculas);
+
+            // Nomes para exibição (batch: uma consulta de alunos e uma de polos).
+            var alunos = (await _alunoRepository.GetAllAsync())
+                .ToDictionary(a => a.Id, a => a.Nome);
+            var polos = (await _poloRepository.GetAllAsync())
+                .ToDictionary(p => p.Id, p => p.Nome);
+            foreach (var dto in dtos)
+            {
+                dto.AlunoNome = alunos.TryGetValue(dto.AlunoId, out var an) ? an : "—";
+                dto.PoloNome = polos.TryGetValue(dto.PoloId, out var pn) ? pn : "—";
+            }
+            return dtos.OrderBy(d => d.AlunoNome).ToList();
+        }
+
+        public async Task<MatriculaDTO> AlterarAtivaMatricula(long matriculaId, bool ativa)
+        {
+            var matricula = await _repository.ObterMatriculaPorIdAsync(matriculaId);
+            if (matricula == null)
+                throw new DomainException("Matrícula não encontrada.");
+
+            if (ativa && !matricula.Ativa)
+            {
+                // Reativar reocupa vaga: respeita o limite do polo.
+                var polo = await _poloRepository.GetByIdAsync(matricula.PoloId);
+                if (polo != null && polo.LimiteAlunos > 0 &&
+                    await _repository.ContarMatriculasAtivasAsync(matricula.Ano, matricula.PoloId)
+                        >= polo.LimiteAlunos)
+                    throw new DomainException(
+                        "Polo lotado: não há vaga para reativar esta matrícula. Aumente o limite ou inative outra.");
+
+                matricula.Ativa = true;
+                matricula.DataEncerramento = null;
+                matricula.MotivoEncerramento = string.Empty;
+            }
+            else if (!ativa && matricula.Ativa)
+            {
+                matricula.Ativa = false;
+                matricula.DataEncerramento = DateTime.Now;
+                matricula.MotivoEncerramento = "Inativada pela gestão (liberação de vaga).";
+            }
+
+            await _repository.AtualizarMatriculaAsync(matricula);
+            return _mapper.Map<MatriculaDTO>(matricula);
         }
 
         public async Task<MatriculaLoteResultado> MatricularAno(int ano, long? poloId)

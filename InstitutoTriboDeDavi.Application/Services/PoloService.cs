@@ -82,7 +82,9 @@ namespace InstitutoTriboDeDavi.Application.Services
 
             polo.Validate();
 
-            var poloUpdated = await _poloRepository.UpdateAsync(polo);
+            // Update customizado: substitui os horários por turma (a coleção-filho
+            // não é tratada pelo UpdateAsync base).
+            var poloUpdated = await _poloRepository.AtualizarComHorariosAsync(polo);
 
             return _mapper.Map<PoloDTO>(poloUpdated);
         }

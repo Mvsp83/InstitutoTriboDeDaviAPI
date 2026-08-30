@@ -21,6 +21,28 @@ namespace InstitutoTriboDeDavi.Infrastructure.Mappings
                 .HasMaxLength(120)
                 .HasColumnName("Nome")
                 .HasColumnType("VARCHAR(120)");
+
+            // Horários por turma: apagar o polo apaga os horários.
+            builder.HasMany(x => x.Horarios)
+                .WithOne()
+                .HasForeignKey(h => h.PoloId)
+                .OnDelete(DeleteBehavior.Cascade);
+        }
+    }
+
+    public class HorarioTurmaMap : IEntityTypeConfiguration<HorarioTurma>
+    {
+        public void Configure(EntityTypeBuilder<HorarioTurma> builder)
+        {
+            builder.ToTable("POLO_HORARIO_TURMA");
+            builder.HasKey(x => x.Id);
+            builder.Property(x => x.Id).UseIdentityColumn().HasColumnType("BIGINT");
+            builder.Property(x => x.PoloId).IsRequired();
+            builder.Property(x => x.Turma).IsRequired();
+            builder.Property(x => x.DiaSemana).IsRequired();
+            builder.Property(x => x.HoraInicio).IsRequired().HasMaxLength(5);
+            builder.Property(x => x.HoraFim).HasMaxLength(5).IsRequired(false);
+            builder.HasIndex(x => x.PoloId);
         }
     }
 }

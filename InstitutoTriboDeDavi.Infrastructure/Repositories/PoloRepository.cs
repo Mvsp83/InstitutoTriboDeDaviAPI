@@ -39,5 +39,55 @@ namespace InstitutoTriboDeDavi.Infrastructure.Repositories
             return await _context.Polos.ToListAsync();
         }
 
+        // Sobrescreve os GETs base para trazer os horários por turma junto.
+        public override async Task<List<Polo>> GetAllAsync()
+        {
+            return await _context.Polos
+                .Include(p => p.Horarios)
+                .AsNoTracking()
+                .ToListAsync();
+        }
+
+        public override async Task<Polo> GetByIdAsync(long id)
+        {
+            return await _context.Polos
+                .Include(p => p.Horarios)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(p => p.Id == id);
+        }
+
+        // Atualiza os campos do polo e troca os horários (estratégia replace):
+        // remove os antigos e insere os novos vindos do formulário.
+        public async Task<Polo> AtualizarComHorariosAsync(Polo polo)
+        {
+            var existente = await _context.Polos
+                .Include(p => p.Horarios)
+                .FirstOrDefaultAsync(p => p.Id == polo.Id);
+
+            if (existente == null)
+                return null;
+
+            existente.Nome = polo.Nome;
+            existente.Informacoes = polo.Informacoes;
+            existente.Endereco = polo.Endereco;
+            existente.Bairro = polo.Bairro;
+            existente.Cidade = polo.Cidade;
+
+            _context.HorariosTurma.RemoveRange(existente.Horarios);
+            foreach (var h in polo.Horarios ?? new List<HorarioTurma>())
+            {
+                _context.HorariosTurma.Add(new HorarioTurma
+                {
+                    PoloId = existente.Id,
+                    Turma = h.Turma,
+                    DiaSemana = h.DiaSemana,
+                    HoraInicio = h.HoraInicio,
+                    HoraFim = h.HoraFim,
+                });
+            }
+
+            await _context.SaveChangesAsync();
+            return existente;
+        }
     }
 }

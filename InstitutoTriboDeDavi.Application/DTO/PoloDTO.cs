@@ -16,5 +16,16 @@ namespace InstitutoTriboDeDavi.Application.DTO
         public string Endereco { get; set; }
         public string Bairro { get; set; }
         public string Cidade { get; set; }
+        public List<HorarioTurmaDTO> Horarios { get; set; } = new();
+    }
+
+    public class HorarioTurmaDTO
+    {
+        public long Id { get; set; }
+        public long PoloId { get; set; }
+        public int Turma { get; set; }
+        public int DiaSemana { get; set; }
+        public string HoraInicio { get; set; }
+        public string HoraFim { get; set; }
     }
 }

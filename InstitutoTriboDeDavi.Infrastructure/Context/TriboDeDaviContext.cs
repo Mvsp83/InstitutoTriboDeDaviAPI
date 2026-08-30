@@ -23,6 +23,7 @@ namespace InstitutoTriboDeDavi.Infrastructure.Context
             builder.ApplyConfiguration(new UsuarioMap());
             builder.ApplyConfiguration(new AlunoMap());
             builder.ApplyConfiguration(new PoloMap());
+            builder.ApplyConfiguration(new HorarioTurmaMap());
             builder.ApplyConfiguration(new AulaMap());
             builder.ApplyConfiguration(new PresencaMap());
             builder.ApplyConfiguration(new PlanoDeAulaMap());
@@ -75,6 +76,7 @@ namespace InstitutoTriboDeDavi.Infrastructure.Context
         public DbSet<RefreshToken> RefreshTokens { get; set; }
         public DbSet<Aluno> Alunos { get; set; }
         public DbSet<Polo> Polos { get; set; }
+        public DbSet<HorarioTurma> HorariosTurma { get; set; }
         public DbSet<Aula> Aulas { get; set; }
         public DbSet<Presenca> Presencas { get; set; }
         public DbSet<SincronizacaoHistorico> SincronizacaoHistoricos { get; set; }

@@ -12,6 +12,9 @@ namespace InstitutoTriboDeDavi.Domain.Entities
         public string Bairro { get; set; }
         public string Cidade { get; set; }
 
+        // Horários de treino por turma (um item por dia da semana).
+        public List<HorarioTurma> Horarios { get; set; } = new();
+
         public override bool Validate()
         {
             var validator = new PoloValidator();

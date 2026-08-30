@@ -298,6 +298,7 @@ namespace InstitutoTriboDeDavi.API
                         .ReverseMap()
                         .ForMember(d => d.FotoArquivoId, o => o.Ignore());
                     cfg.CreateMap<Polo, PoloDTO>().ReverseMap();
+                    cfg.CreateMap<HorarioTurma, HorarioTurmaDTO>().ReverseMap();
                     cfg.CreateMap<ConfiguracaoDocumento, ConfiguracaoDocumentoDTO>().ReverseMap();
                     cfg.CreateMap<ConfiguracaoDashboard, ConfiguracaoDashboardDTO>().ReverseMap();
                     cfg.CreateMap<ContaFinanceira, ContaFinanceiraDTO>().ReverseMap();

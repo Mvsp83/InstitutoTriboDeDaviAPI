@@ -14,29 +14,40 @@ namespace InstitutoTriboDeDavi.Application.Services
         private readonly IAtletaRepository _repository;
         private readonly IAlunoRepository _alunoRepository;
         private readonly IPoloRepository _poloRepository;
+        private readonly IPresencaRepository _presencaRepository;
 
         public AtletaService(
             IMapper mapper,
             IAtletaRepository repository,
             IAlunoRepository alunoRepository,
-            IPoloRepository poloRepository)
+            IPoloRepository poloRepository,
+            IPresencaRepository presencaRepository)
         {
             _mapper = mapper;
             _repository = repository;
             _alunoRepository = alunoRepository;
             _poloRepository = poloRepository;
+            _presencaRepository = presencaRepository;
         }
 
         public async Task<List<AtletaDTO>> Listar()
         {
-            var atletas = await _repository.ListarAsync();
+            var atletas = await _repository.ListarComDetalhesAsync();
             var dtos = _mapper.Map<List<AtletaDTO>>(atletas);
 
             var alunos = (await _alunoRepository.GetAllAsync()).ToDictionary(a => a.Id);
             var polos = (await _poloRepository.GetAllAsync()).ToDictionary(p => p.Id, p => p.Nome);
-            foreach (var dto in dtos)
-                PreencherAluno(dto, alunos, polos);
-
+            for (var i = 0; i < dtos.Count; i++)
+            {
+                PreencherAluno(dtos[i], alunos, polos);
+                PreencherAgregados(dtos[i], atletas[i]);
+                // Lista fica leve: mantém só os agregados, não a coleção inteira.
+                dtos[i].Avaliacoes = new();
+                dtos[i].Competicoes = new();
+                dtos[i].Anotacoes = new();
+                dtos[i].Metas = new();
+                dtos[i].Lesoes = new();
+            }
             return dtos;
         }
 
@@ -49,6 +60,16 @@ namespace InstitutoTriboDeDavi.Application.Services
             var alunos = (await _alunoRepository.GetAllAsync()).ToDictionary(a => a.Id);
             var polos = (await _poloRepository.GetAllAsync()).ToDictionary(p => p.Id, p => p.Nome);
             PreencherAluno(dto, alunos, polos);
+            PreencherAgregados(dto, atleta);
+
+            // Frequência de treino (presenças do aluno vinculado).
+            var presencas = await _presencaRepository.ObterPorAlunoAsync(atleta.AlunoId);
+            dto.FrequenciaTotal = presencas.Count;
+            dto.FrequenciaPresentes = presencas.Count(p => p.EstaPresente);
+            dto.FrequenciaPercentual = dto.FrequenciaTotal > 0
+                ? (int)Math.Round(dto.FrequenciaPresentes * 100.0 / dto.FrequenciaTotal)
+                : 0;
+
             return dto;
         }
 
@@ -176,6 +197,27 @@ namespace InstitutoTriboDeDavi.Application.Services
         public Task RemoverLesao(long id) => _repository.RemoverLesaoAsync(id);
 
         // ── Auxiliar ─────────────────────────────────────────────────────────
+
+        private void PreencherAgregados(AtletaDTO dto, Atleta atleta)
+        {
+            dto.MedalhasOuro = atleta.Competicoes.Count(c => c.Colocacao == 1);
+            dto.MedalhasPrata = atleta.Competicoes.Count(c => c.Colocacao == 2);
+            dto.MedalhasBronze = atleta.Competicoes.Count(c => c.Colocacao == 3);
+            dto.TotalCompeticoes = atleta.Competicoes.Count;
+
+            var ativas = atleta.Lesoes.Where(l => !l.Recuperado).ToList();
+            dto.LesoesAtivas = ativas.Count;
+            dto.LesaoAtivaMaisAntiga = ativas.Count > 0 ? ativas.Min(l => l.Data) : null;
+
+            var limite = DateTime.Today.AddDays(7);
+            dto.MetasAtencao = atleta.Metas.Count(m =>
+                m.Status == (int)StatusMeta.Aberta && m.Prazo.HasValue && m.Prazo.Value.Date <= limite);
+
+            var ultima = atleta.Avaliacoes.OrderByDescending(a => a.Data).FirstOrDefault();
+            dto.UltimosIndicadores = ultima != null
+                ? _mapper.Map<List<IndicadorAvaliacaoDTO>>(ultima.Indicadores)
+                : new();
+        }
 
         private static void PreencherAluno(
             AtletaDTO dto,

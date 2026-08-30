@@ -15,6 +15,21 @@ namespace InstitutoTriboDeDavi.Application.DTO
         public int Faixa { get; set; }
         public string PoloNome { get; set; }
 
+        // Agregados (listagem + resumo), calculados no serviço.
+        public int MedalhasOuro { get; set; }
+        public int MedalhasPrata { get; set; }
+        public int MedalhasBronze { get; set; }
+        public int TotalCompeticoes { get; set; }
+        public int LesoesAtivas { get; set; }
+        public DateTime? LesaoAtivaMaisAntiga { get; set; }
+        public int MetasAtencao { get; set; } // abertas com prazo vencido ou <=7 dias
+        public List<IndicadorAvaliacaoDTO> UltimosIndicadores { get; set; } = new();
+
+        // Frequência de treino (só no detalhe).
+        public int FrequenciaTotal { get; set; }
+        public int FrequenciaPresentes { get; set; }
+        public int FrequenciaPercentual { get; set; }
+
         // Carregados no detalhe.
         public List<AvaliacaoFisicaDTO> Avaliacoes { get; set; } = new();
         public List<CompeticaoDTO> Competicoes { get; set; } = new();

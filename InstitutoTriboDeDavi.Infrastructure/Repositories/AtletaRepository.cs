@@ -23,6 +23,18 @@ namespace InstitutoTriboDeDavi.Infrastructure.Repositories
                 .ToListAsync();
         }
 
+        public async Task<List<Atleta>> ListarComDetalhesAsync()
+        {
+            return await _context.Atletas
+                .Include(a => a.Avaliacoes).ThenInclude(av => av.Indicadores)
+                .Include(a => a.Competicoes)
+                .Include(a => a.Metas)
+                .Include(a => a.Lesoes)
+                .AsNoTracking()
+                .OrderByDescending(a => a.DataInclusao)
+                .ToListAsync();
+        }
+
         public async Task<Atleta> ObterComTudoAsync(long id)
         {
             return await _context.Atletas

@@ -5,6 +5,8 @@ namespace InstitutoTriboDeDavi.Application.Repositories
     public interface IAtletaRepository
     {
         Task<List<Atleta>> ListarAsync();
+        // Todos com os filhos, para calcular agregados (medalhas, lesões, metas).
+        Task<List<Atleta>> ListarComDetalhesAsync();
         Task<Atleta> ObterComTudoAsync(long id);
         Task<Atleta> ObterPorAlunoAsync(long alunoId);
         Task<Atleta> CriarAsync(Atleta atleta);

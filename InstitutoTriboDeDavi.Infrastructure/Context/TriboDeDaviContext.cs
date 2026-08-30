@@ -51,6 +51,8 @@ namespace InstitutoTriboDeDavi.Infrastructure.Context
             builder.ApplyConfiguration(new AnotacaoAtletaMap());
             builder.ApplyConfiguration(new MetaAtletaMap());
             builder.ApplyConfiguration(new LesaoMap());
+            builder.ApplyConfiguration(new CompeticaoEventoMap());
+            builder.ApplyConfiguration(new ParticipacaoAtletaMap());
             builder.ApplyConfiguration(new ContaFinanceiraMap());
             builder.ApplyConfiguration(new MovimentacaoFinanceiraMap());
             builder.ApplyConfiguration(new InscricaoMap());
@@ -113,6 +115,8 @@ namespace InstitutoTriboDeDavi.Infrastructure.Context
         public DbSet<AnotacaoAtleta> AnotacoesAtleta { get; set; }
         public DbSet<MetaAtleta> MetasAtleta { get; set; }
         public DbSet<Lesao> Lesoes { get; set; }
+        public DbSet<CompeticaoEvento> CompeticoesEvento { get; set; }
+        public DbSet<ParticipacaoAtleta> ParticipacoesAtleta { get; set; }
         public DbSet<ContaFinanceira> ContasFinanceiras { get; set; }
         public DbSet<MovimentacaoFinanceira> MovimentacoesFinanceiras { get; set; }
         public DbSet<Inscricao> Inscricoes { get; set; }

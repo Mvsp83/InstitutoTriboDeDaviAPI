@@ -39,6 +39,8 @@ namespace InstitutoTriboDeDavi.Infrastructure.Context
             builder.ApplyConfiguration(new BemPatrimonialMap());
             builder.ApplyConfiguration(new AvisoMap());
             builder.ApplyConfiguration(new AvisoCienteMap());
+            builder.ApplyConfiguration(new SolicitacaoInternaMap());
+            builder.ApplyConfiguration(new MensagemSolicitacaoMap());
             builder.ApplyConfiguration(new ContaFinanceiraMap());
             builder.ApplyConfiguration(new MovimentacaoFinanceiraMap());
             builder.ApplyConfiguration(new InscricaoMap());
@@ -90,6 +92,8 @@ namespace InstitutoTriboDeDavi.Infrastructure.Context
         public DbSet<BemPatrimonial> BensPatrimoniais { get; set; }
         public DbSet<Aviso> Avisos { get; set; }
         public DbSet<AvisoCiente> AvisosCientes { get; set; }
+        public DbSet<SolicitacaoInterna> SolicitacoesInternas { get; set; }
+        public DbSet<MensagemSolicitacao> MensagensSolicitacao { get; set; }
         public DbSet<ContaFinanceira> ContasFinanceiras { get; set; }
         public DbSet<MovimentacaoFinanceira> MovimentacoesFinanceiras { get; set; }
         public DbSet<Inscricao> Inscricoes { get; set; }

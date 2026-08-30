@@ -75,6 +75,9 @@ namespace InstitutoTriboDeDavi.Application.DTO
         public long PoloId { get; set; }
         public int Turma { get; set; }
         public string Observacao { get; set; }
+        // Quando true, a foto da inscrição não é levada ao aluno (fora das
+        // diretrizes) e o binário é descartado na aprovação.
+        public bool DescartarFoto { get; set; }
     }
 
     public class MatriculaDTO

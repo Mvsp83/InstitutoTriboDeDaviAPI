@@ -118,8 +118,9 @@ namespace InstitutoTriboDeDavi.Application.Services
 
             PreencherAluno(aluno, inscricao, poloId, turma);
             // Transfere a foto da ficha (se houver) sem apagar a atual numa
-            // rematrícula quando a inscrição veio sem foto.
-            if (!string.IsNullOrEmpty(inscricao.FotoArquivoId))
+            // rematrícula quando a inscrição veio sem foto. O revisor pode
+            // descartar uma foto fora das diretrizes (não vai para o aluno).
+            if (!revisao.DescartarFoto && !string.IsNullOrEmpty(inscricao.FotoArquivoId))
                 aluno.FotoArquivoId = inscricao.FotoArquivoId;
             aluno.Validate();
 

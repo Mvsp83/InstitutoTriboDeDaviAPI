@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using InstitutoTriboDeDavi.API.Utilities;
@@ -180,6 +181,40 @@ namespace InstitutoTriboDeDavi.API.Controllers
             });
         }
 
+        // Foto da inscrição para o revisor conferir antes de aprovar. Devolve um
+        // data URI (base64); o revisor decide se respeita as diretrizes.
+        [HttpGet("{id}/foto")]
+        [Authorize(Policy = AuthPolicies.ProfessorOuSuperior)]
+        public async Task<IActionResult> ObterFoto(long id)
+        {
+            return await ExecuteAsync(async () =>
+            {
+                var inscricao = await _service.Obter(id);
+                ValidatePoloUsuario(inscricao.PoloId);
+
+                if (string.IsNullOrEmpty(inscricao.FotoArquivoId))
+                    return StatusCode(404, new ResultViewModel
+                    {
+                        Message = "Sem foto nesta inscrição.",
+                        Success = false,
+                        Data = null
+                    });
+
+                var download = await _fotoStorage.BaixarAsync(inscricao.FotoArquivoId);
+                using var ms = new MemoryStream();
+                await download.Conteudo.CopyToAsync(ms);
+                var dataUri =
+                    $"data:{download.ContentType};base64,{Convert.ToBase64String(ms.ToArray())}";
+
+                return Ok(new ResultViewModel
+                {
+                    Message = "Foto da inscrição.",
+                    Success = true,
+                    Data = new { dataUri }
+                });
+            });
+        }
+
         [HttpPost("{id}/aprovar")]
         [Authorize(Policy = AuthPolicies.ProfessorOuSuperior)]
         public async Task<IActionResult> Aprovar(long id, [FromBody] RevisaoInscricaoDTO revisao)
@@ -193,6 +228,10 @@ namespace InstitutoTriboDeDavi.API.Controllers
                 if (revisao.PoloId > 0) ValidatePoloUsuario(revisao.PoloId);
 
                 var matricula = await _service.Aprovar(id, revisao, UsuarioAutenticado.Login);
+
+                // Foto fora das diretrizes: descarta o binário do storage.
+                if (revisao.DescartarFoto && !string.IsNullOrEmpty(inscricao.FotoArquivoId))
+                    await _fotoStorage.ExcluirAsync(inscricao.FotoArquivoId);
 
                 return Ok(new ResultViewModel
                 {

@@ -280,6 +280,35 @@ namespace InstitutoTriboDeDavi.Application.Services
             await _usuarioRepository.UpdateAsync(usuario);
         }
 
+        public async Task<PerfilSiteDTO> ObterMeuPerfilSiteAsync(string login)
+        {
+            var usuario = await _usuarioRepository.ObterUsuarioPorLoginAsync(login);
+            return new PerfilSiteDTO
+            {
+                Nome = usuario?.Nome,
+                Faixa = usuario?.Faixa,
+                FotoSite = usuario?.FotoSite,
+                MostrarNoSite = usuario?.MostrarNoSite ?? false,
+            };
+        }
+
+        public async Task AtualizarMeuPerfilSiteAsync(string login, PerfilSiteDTO dto)
+        {
+            var usuario = await _usuarioRepository.ObterUsuarioPorLoginAsync(login)
+                ?? throw new DomainException("Usuário não encontrado.");
+
+            usuario.Nome = string.IsNullOrWhiteSpace(dto.Nome) ? null : dto.Nome.Trim();
+            usuario.Faixa = dto.Faixa;
+            // Reaproveita a validação do avatar (só data URI de imagem ou vazio).
+            usuario.FotoSite = dto.FotoSite?.StartsWith("data:image/") == true
+                ? dto.FotoSite
+                : null;
+            // Só aparece no site se, de fato, tiver foto.
+            usuario.MostrarNoSite = dto.MostrarNoSite && usuario.FotoSite != null;
+
+            await _usuarioRepository.UpdateAsync(usuario);
+        }
+
         // Aceita apenas: vazio (limpa), "preset:N" dentro do intervalo, ou um
         // data URI de imagem dentro do limite. URLs externas são recusadas.
         private static string? NormalizarAvatar(string? avatar)

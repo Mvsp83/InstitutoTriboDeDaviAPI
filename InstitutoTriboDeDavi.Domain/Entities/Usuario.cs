@@ -22,6 +22,14 @@ namespace InstitutoTriboDeDavi.Domain.Entities
         // data URI. Anulável = sem avatar (a UI cai nas iniciais).
         public string? Avatar { get; set; }
 
+        // Perfil público do professor (seção "Polos e Endereços" do site).
+        // Nome de exibição, faixa (base 0..40, mesmo sistema dos alunos), foto
+        // de rosto profissional (data URI) e o opt-in de aparecer no site.
+        public string? Nome { get; set; }
+        public int? Faixa { get; set; }
+        public string? FotoSite { get; set; }
+        public bool MostrarNoSite { get; set; }
+
         // Autenticação em dois fatores (TOTP). Secret em base32; nulo = sem 2FA.
         // Confirmado só depois que o usuário valida o primeiro código — antes
         // disso o secret existe mas o login ainda não exige o segundo fator.

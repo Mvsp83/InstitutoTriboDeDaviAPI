@@ -289,6 +289,41 @@ namespace InstitutoTriboDeDavi.API.Controllers
             });
         }
 
+        // Perfil público do professor (foto de rosto + faixa na seção do polo).
+        [HttpGet("meu-perfil-site")]
+        [Authorize]
+        public async Task<IActionResult> ObterMeuPerfilSite()
+        {
+            return await ExecuteAsync(async () =>
+            {
+                var perfil = await _usuarioService.ObterMeuPerfilSiteAsync(UsuarioAutenticado.Login);
+
+                return Ok(new ResultViewModel
+                {
+                    Message = "Perfil obtido com sucesso!",
+                    Success = true,
+                    Data = perfil
+                });
+            });
+        }
+
+        [HttpPut("meu-perfil-site")]
+        [Authorize]
+        public async Task<IActionResult> AtualizarMeuPerfilSite([FromBody] PerfilSiteDTO model)
+        {
+            return await ExecuteAsync(async () =>
+            {
+                await _usuarioService.AtualizarMeuPerfilSiteAsync(UsuarioAutenticado.Login, model);
+
+                return Ok(new ResultViewModel
+                {
+                    Message = "Perfil atualizado com sucesso!",
+                    Success = true,
+                    Data = null
+                });
+            });
+        }
+
         [HttpGet("get-por-polo")]
         [Authorize]
         public async Task<IActionResult> ObterUsuarios([FromQuery] List<int> turmas)

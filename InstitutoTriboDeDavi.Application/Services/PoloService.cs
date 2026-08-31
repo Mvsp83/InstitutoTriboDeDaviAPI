@@ -13,15 +13,18 @@ namespace InstitutoTriboDeDavi.Application.Services
         private readonly IMapper _mapper;
         private readonly IPoloRepository _poloRepository;
         private readonly IInscricaoRepository _inscricaoRepository;
+        private readonly IUsuarioRepository _usuarioRepository;
 
         public PoloService(
             IMapper mapper,
             IPoloRepository poloRepository,
-            IInscricaoRepository inscricaoRepository)
+            IInscricaoRepository inscricaoRepository,
+            IUsuarioRepository usuarioRepository)
         {
             _mapper = mapper;
             _poloRepository = poloRepository;
             _inscricaoRepository = inscricaoRepository;
+            _usuarioRepository = usuarioRepository;
         }
         public async Task<PoloDTO> Create(PoloDTO poloDTO)
         {
@@ -119,6 +122,24 @@ namespace InstitutoTriboDeDavi.Application.Services
         public async Task<List<PoloPublicoDetalhadoDTO>> ListarPublicos()
         {
             var polos = await _poloRepository.ObterTodosAsync(); // já inclui horários
+
+            // Professores que optaram por aparecer no site e têm foto de rosto.
+            var usuarios = await _usuarioRepository.ObterTodosAsync();
+            var professoresPorPolo = usuarios
+                .Where(u => u.MostrarNoSite
+                    && !string.IsNullOrEmpty(u.FotoSite)
+                    && u.PoloId != null)
+                .GroupBy(u => u.PoloId!.Value)
+                .ToDictionary(g => g.Key, g => g
+                    .OrderBy(u => u.Nome)
+                    .Select(u => new ProfessorPublicoDTO
+                    {
+                        Nome = u.Nome,
+                        Faixa = u.Faixa,
+                        Foto = u.FotoSite,
+                    })
+                    .ToList());
+
             return polos
                 .OrderBy(p => p.Nome)
                 .Select(p => new PoloPublicoDetalhadoDTO
@@ -129,6 +150,9 @@ namespace InstitutoTriboDeDavi.Application.Services
                     Cidade = p.Cidade,
                     Informacoes = p.Informacoes,
                     Horarios = _mapper.Map<List<HorarioTurmaDTO>>(p.Horarios),
+                    Professores = professoresPorPolo.TryGetValue(p.Id, out var profs)
+                        ? profs
+                        : new List<ProfessorPublicoDTO>(),
                 })
                 .ToList();
         }

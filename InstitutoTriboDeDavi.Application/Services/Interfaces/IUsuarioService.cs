@@ -19,6 +19,10 @@ namespace InstitutoTriboDeDavi.Application.Services.Interfaces
         Task<string?> ObterAvatarAsync(string login);
         Task AtualizarAvatarAsync(string login, string? avatar);
 
+        // Perfil público do professor (foto de rosto + faixa na seção do polo).
+        Task<PerfilSiteDTO> ObterMeuPerfilSiteAsync(string login);
+        Task AtualizarMeuPerfilSiteAsync(string login, PerfilSiteDTO dto);
+
         // ── 2FA (TOTP) ──────────────────────────────────────────────────────
         Task<Setup2FADTO> Iniciar2FAAsync(string login);
         Task Confirmar2FAAsync(string login, string codigo);

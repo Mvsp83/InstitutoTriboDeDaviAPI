@@ -33,6 +33,17 @@ namespace InstitutoTriboDeDavi.Application.DTO
         public string Cidade { get; set; }
         public string Informacoes { get; set; }
         public List<HorarioTurmaDTO> Horarios { get; set; } = new();
+        // Professores do polo que optaram por aparecer no site (foto + faixa).
+        public List<ProfessorPublicoDTO> Professores { get; set; } = new();
+    }
+
+    // Professor exibido na seção pública do polo: só nome, faixa e foto de rosto
+    // (a moldura recebe a cor da faixa no front). Nada sensível.
+    public class ProfessorPublicoDTO
+    {
+        public string Nome { get; set; }
+        public int? Faixa { get; set; }
+        public string Foto { get; set; }
     }
 
     public class HorarioTurmaDTO

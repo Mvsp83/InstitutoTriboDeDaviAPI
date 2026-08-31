@@ -23,6 +23,20 @@ namespace InstitutoTriboDeDavi.API.Controllers
             _logger = logger;
         }
 
+        // Público: usado na página de Informações do site para listar os polos
+        // com endereço e horários (dados do próprio cadastro).
+        [HttpGet("publicos")]
+        [AllowAnonymous]
+        public async Task<IActionResult> Publicos()
+        {
+            return await ExecuteAsync(async () => new OkObjectResult(new ResultViewModel
+            {
+                Message = "Polos.",
+                Success = true,
+                Data = await _poloService.ListarPublicos()
+            }));
+        }
+
         [HttpGet("get-por-polo")]
         [Authorize]
         public async Task<IActionResult> GetAll([FromQuery] List<int> turmas)

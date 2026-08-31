@@ -12,5 +12,7 @@ namespace InstitutoTriboDeDavi.Application.Services.Interfaces
         Task<PoloDTO> GetByNome(string nome);
         Task<List<PoloDTO>> SearchByNome(string nome);
         Task<List<PoloDTO>> ObterPolosAsync(UsuarioDTO usuarioDTO, List<int> turmas);
+        // Polos para a página pública de Informações (com endereço e horários).
+        Task<List<PoloPublicoDetalhadoDTO>> ListarPublicos();
     }
 }

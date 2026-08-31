@@ -115,5 +115,22 @@ namespace InstitutoTriboDeDavi.Application.Services
 
             return dtos;
         }
+
+        public async Task<List<PoloPublicoDetalhadoDTO>> ListarPublicos()
+        {
+            var polos = await _poloRepository.ObterTodosAsync(); // já inclui horários
+            return polos
+                .OrderBy(p => p.Nome)
+                .Select(p => new PoloPublicoDetalhadoDTO
+                {
+                    Nome = p.Nome,
+                    Endereco = p.Endereco,
+                    Bairro = p.Bairro,
+                    Cidade = p.Cidade,
+                    Informacoes = p.Informacoes,
+                    Horarios = _mapper.Map<List<HorarioTurmaDTO>>(p.Horarios),
+                })
+                .ToList();
+        }
     }
 }

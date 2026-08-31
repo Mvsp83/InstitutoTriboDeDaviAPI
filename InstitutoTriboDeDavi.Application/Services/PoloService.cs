@@ -104,8 +104,16 @@ namespace InstitutoTriboDeDavi.Application.Services
         public async Task<List<PoloDTO>> ObterPolosAsync(UsuarioDTO usuarioDTO, List<int> turmas)
         {
             var listaTodos = await _poloRepository.ObterTodosAsync();
+            var dtos = _mapper.Map<List<PoloDTO>>(listaTodos);
 
-            return _mapper.Map<List<PoloDTO>>(listaTodos);
+            // Ocupação: matrículas ativas do ano corrente por polo (mesma regra
+            // do GetAll) — é a listagem que a tela de polos consome.
+            var ativosPorPolo = await _inscricaoRepository
+                .ContarMatriculasAtivasPorPoloAsync(DateTime.Now.Year);
+            foreach (var dto in dtos)
+                dto.AlunosAtivos = ativosPorPolo.TryGetValue(dto.Id, out var n) ? n : 0;
+
+            return dtos;
         }
     }
 }

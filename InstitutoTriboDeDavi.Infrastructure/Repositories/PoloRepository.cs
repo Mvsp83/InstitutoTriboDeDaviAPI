@@ -36,7 +36,11 @@ namespace InstitutoTriboDeDavi.Infrastructure.Repositories
 
         public async Task<List<Polo>> ObterTodosAsync()
         {
-            return await _context.Polos.ToListAsync();
+            // Inclui os horários por turma — é a listagem que a tela de polos usa.
+            return await _context.Polos
+                .Include(p => p.Horarios)
+                .AsNoTracking()
+                .ToListAsync();
         }
 
         // Sobrescreve os GETs base para trazer os horários por turma junto.
@@ -88,7 +92,13 @@ namespace InstitutoTriboDeDavi.Infrastructure.Repositories
             }
 
             await _context.SaveChangesAsync();
-            return existente;
+
+            // Recarrega com os horários recém-gravados para a resposta refletir
+            // o estado real (o SaveChanges acima não repovoa a navegação).
+            return await _context.Polos
+                .Include(p => p.Horarios)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(p => p.Id == existente.Id);
         }
     }
 }

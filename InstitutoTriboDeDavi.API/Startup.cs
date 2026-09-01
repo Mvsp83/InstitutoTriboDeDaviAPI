@@ -203,7 +203,7 @@ namespace InstitutoTriboDeDavi.API
 
             services.AddDbContext<TriboDeDaviContext>((sp, options) =>
                 options
-                    .UseSqlServer(Configuration["ConnectionStrings:TRIBODEDAVIAPI"])
+                    .UseNpgsql(Configuration["ConnectionStrings:TRIBODEDAVIAPI"])
                     .AddInterceptors(sp.GetRequiredService<AuditoriaInterceptor>()));
 
             // Health check com verificação do banco — usado pelo monitoramento do provedor

@@ -16,7 +16,7 @@ namespace InstitutoTriboDeDavi.Infrastructure.Mappings
             builder.ToTable("PLANO_MENSALIDADE");
 
             builder.HasKey(x => x.Id);
-            builder.Property(x => x.Id).UseIdentityColumn().HasColumnType("BIGINT");
+            builder.Property(x => x.Id).HasColumnType("BIGINT");
 
             builder.Property(x => x.Nome).IsRequired().HasMaxLength(120);
             builder.Property(x => x.Valor).HasColumnType("decimal(18,2)");
@@ -49,7 +49,7 @@ namespace InstitutoTriboDeDavi.Infrastructure.Mappings
             builder.ToTable("MATRICULA_FINANCEIRA");
 
             builder.HasKey(x => x.Id);
-            builder.Property(x => x.Id).UseIdentityColumn().HasColumnType("BIGINT");
+            builder.Property(x => x.Id).HasColumnType("BIGINT");
 
             builder.Property(x => x.AlunoId).IsRequired();
             builder.Property(x => x.PlanoId).IsRequired();
@@ -72,7 +72,7 @@ namespace InstitutoTriboDeDavi.Infrastructure.Mappings
             builder.ToTable("COBRANCA");
 
             builder.HasKey(x => x.Id);
-            builder.Property(x => x.Id).UseIdentityColumn().HasColumnType("BIGINT");
+            builder.Property(x => x.Id).HasColumnType("BIGINT");
 
             builder.Property(x => x.AlunoId).IsRequired();
             builder.Property(x => x.PlanoId).IsRequired(false);

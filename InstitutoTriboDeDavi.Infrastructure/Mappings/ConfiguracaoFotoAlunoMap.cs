@@ -11,7 +11,7 @@ namespace InstitutoTriboDeDavi.Infrastructure.Mappings
             builder.ToTable("CONFIG_FOTO_ALUNO");
 
             builder.HasKey(x => x.Id);
-            builder.Property(x => x.Id).UseIdentityColumn().HasColumnType("BIGINT");
+            builder.Property(x => x.Id).HasColumnType("BIGINT");
 
             builder.Property(x => x.MostrarNoCadastro).IsRequired();
             builder.Property(x => x.MostrarNaChamada).IsRequired();

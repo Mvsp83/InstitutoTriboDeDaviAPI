@@ -11,7 +11,7 @@ namespace InstitutoTriboDeDavi.Infrastructure.Mappings
             builder.ToTable("FOTO_TREINO");
 
             builder.HasKey(x => x.Id);
-            builder.Property(x => x.Id).UseIdentityColumn().HasColumnType("BIGINT");
+            builder.Property(x => x.Id).HasColumnType("BIGINT");
 
             builder.Property(x => x.Categoria).IsRequired().HasMaxLength(20);
             builder.Property(x => x.PoloId).IsRequired();
@@ -27,7 +27,7 @@ namespace InstitutoTriboDeDavi.Infrastructure.Mappings
             // coleções do admin podem ter várias fotos por data).
             builder.HasIndex(x => new { x.PoloId, x.Turma, x.DataAula })
                 .IsUnique()
-                .HasFilter("[Categoria] = 'polo'");
+                .HasFilter("\"Categoria\" = 'polo'");
             // O álbum público filtra por publicada e por categoria.
             builder.HasIndex(x => x.Publicada);
             builder.HasIndex(x => x.Categoria);
@@ -41,7 +41,7 @@ namespace InstitutoTriboDeDavi.Infrastructure.Mappings
             builder.ToTable("FOTO_ARQUIVO");
 
             builder.HasKey(x => x.Id);
-            builder.Property(x => x.Id).UseIdentityColumn().HasColumnType("BIGINT");
+            builder.Property(x => x.Id).HasColumnType("BIGINT");
 
             builder.Property(x => x.Conteudo).IsRequired();
             builder.Property(x => x.ContentType).IsRequired().HasMaxLength(100);
@@ -55,7 +55,7 @@ namespace InstitutoTriboDeDavi.Infrastructure.Mappings
             builder.ToTable("POLO_FOTO_CONFIG");
 
             builder.HasKey(x => x.Id);
-            builder.Property(x => x.Id).UseIdentityColumn().HasColumnType("BIGINT");
+            builder.Property(x => x.Id).HasColumnType("BIGINT");
 
             builder.Property(x => x.PoloId).IsRequired();
             builder.Property(x => x.RequerAutorizacao).IsRequired();

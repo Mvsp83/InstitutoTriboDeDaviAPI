@@ -10,7 +10,7 @@ namespace InstitutoTriboDeDavi.Infrastructure.Mappings
         {
             builder.ToTable("COMPETICAO_EVENTO");
             builder.HasKey(x => x.Id);
-            builder.Property(x => x.Id).UseIdentityColumn().HasColumnType("BIGINT");
+            builder.Property(x => x.Id).HasColumnType("BIGINT");
             builder.Property(x => x.Nome).HasMaxLength(150).IsRequired();
             builder.Property(x => x.Data).IsRequired();
             builder.Property(x => x.DataFim).IsRequired(false);
@@ -33,7 +33,7 @@ namespace InstitutoTriboDeDavi.Infrastructure.Mappings
         {
             builder.ToTable("COMPETICAO_PARTICIPACAO");
             builder.HasKey(x => x.Id);
-            builder.Property(x => x.Id).UseIdentityColumn().HasColumnType("BIGINT");
+            builder.Property(x => x.Id).HasColumnType("BIGINT");
             builder.Property(x => x.CompeticaoEventoId).IsRequired();
             builder.Property(x => x.AtletaId).IsRequired();
             builder.Property(x => x.CategoriaPeso).HasMaxLength(60).IsRequired(false);

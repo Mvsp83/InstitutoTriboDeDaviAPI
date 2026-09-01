@@ -11,7 +11,7 @@ namespace InstitutoTriboDeDavi.Infrastructure.Mappings
             builder.ToTable("VIDEO_GALERIA");
 
             builder.HasKey(x => x.Id);
-            builder.Property(x => x.Id).UseIdentityColumn().HasColumnType("BIGINT");
+            builder.Property(x => x.Id).HasColumnType("BIGINT");
 
             builder.Property(x => x.Titulo).IsRequired().HasMaxLength(150);
             builder.Property(x => x.YoutubeId).IsRequired().HasMaxLength(20);

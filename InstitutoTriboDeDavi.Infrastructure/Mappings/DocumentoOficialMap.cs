@@ -13,7 +13,7 @@ namespace InstitutoTriboDeDavi.Infrastructure.Mappings
             builder.HasKey(x => x.Id);
 
             builder.Property(x => x.Id)
-                .UseIdentityColumn()
+                
                 .HasColumnType("BIGINT");
 
             builder.Property(x => x.Tipo).IsRequired();
@@ -38,7 +38,7 @@ namespace InstitutoTriboDeDavi.Infrastructure.Mappings
             // aprovados (rascunhos têm Numero = 0 e ficam de fora do filtro).
             builder.HasIndex(x => new { x.Tipo, x.Ano, x.Numero })
                 .IsUnique()
-                .HasFilter("[Status] = 1");
+                .HasFilter("\"Status\" = 1");
         }
     }
 }

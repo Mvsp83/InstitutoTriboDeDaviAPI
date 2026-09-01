@@ -10,7 +10,7 @@ namespace InstitutoTriboDeDavi.Infrastructure.Mappings
         {
             builder.ToTable("ATLETA");
             builder.HasKey(x => x.Id);
-            builder.Property(x => x.Id).UseIdentityColumn().HasColumnType("BIGINT");
+            builder.Property(x => x.Id).HasColumnType("BIGINT");
             builder.Property(x => x.AlunoId).IsRequired();
             builder.Property(x => x.CategoriaPeso).HasMaxLength(60).IsRequired(false);
             builder.Property(x => x.Objetivo).HasMaxLength(500).IsRequired(false);
@@ -38,7 +38,7 @@ namespace InstitutoTriboDeDavi.Infrastructure.Mappings
         {
             builder.ToTable("ATLETA_LESAO");
             builder.HasKey(x => x.Id);
-            builder.Property(x => x.Id).UseIdentityColumn().HasColumnType("BIGINT");
+            builder.Property(x => x.Id).HasColumnType("BIGINT");
             builder.Property(x => x.AtletaId).IsRequired();
             builder.Property(x => x.Data).IsRequired();
             builder.Property(x => x.Descricao).HasMaxLength(500).IsRequired();
@@ -57,7 +57,7 @@ namespace InstitutoTriboDeDavi.Infrastructure.Mappings
         {
             builder.ToTable("ATLETA_AVALIACAO");
             builder.HasKey(x => x.Id);
-            builder.Property(x => x.Id).UseIdentityColumn().HasColumnType("BIGINT");
+            builder.Property(x => x.Id).HasColumnType("BIGINT");
             builder.Property(x => x.AtletaId).IsRequired();
             builder.Property(x => x.Data).IsRequired();
             builder.Property(x => x.Observacao).HasMaxLength(1000).IsRequired(false);
@@ -74,7 +74,7 @@ namespace InstitutoTriboDeDavi.Infrastructure.Mappings
         {
             builder.ToTable("ATLETA_AVALIACAO_INDICADOR");
             builder.HasKey(x => x.Id);
-            builder.Property(x => x.Id).UseIdentityColumn().HasColumnType("BIGINT");
+            builder.Property(x => x.Id).HasColumnType("BIGINT");
             builder.Property(x => x.AvaliacaoFisicaId).IsRequired();
             builder.Property(x => x.Nome).HasMaxLength(80).IsRequired();
             builder.Property(x => x.Valor).HasColumnType("decimal(10,2)");
@@ -89,7 +89,7 @@ namespace InstitutoTriboDeDavi.Infrastructure.Mappings
         {
             builder.ToTable("ATLETA_COMPETICAO");
             builder.HasKey(x => x.Id);
-            builder.Property(x => x.Id).UseIdentityColumn().HasColumnType("BIGINT");
+            builder.Property(x => x.Id).HasColumnType("BIGINT");
             builder.Property(x => x.AtletaId).IsRequired();
             builder.Property(x => x.Data).IsRequired();
             builder.Property(x => x.Evento).HasMaxLength(150).IsRequired();
@@ -105,7 +105,7 @@ namespace InstitutoTriboDeDavi.Infrastructure.Mappings
         {
             builder.ToTable("ATLETA_ANOTACAO");
             builder.HasKey(x => x.Id);
-            builder.Property(x => x.Id).UseIdentityColumn().HasColumnType("BIGINT");
+            builder.Property(x => x.Id).HasColumnType("BIGINT");
             builder.Property(x => x.AtletaId).IsRequired();
             builder.Property(x => x.Data).IsRequired();
             builder.Property(x => x.Texto).HasMaxLength(2000).IsRequired();
@@ -120,7 +120,7 @@ namespace InstitutoTriboDeDavi.Infrastructure.Mappings
         {
             builder.ToTable("ATLETA_META");
             builder.HasKey(x => x.Id);
-            builder.Property(x => x.Id).UseIdentityColumn().HasColumnType("BIGINT");
+            builder.Property(x => x.Id).HasColumnType("BIGINT");
             builder.Property(x => x.AtletaId).IsRequired();
             builder.Property(x => x.Descricao).HasMaxLength(500).IsRequired();
             builder.Property(x => x.Prazo).IsRequired(false);

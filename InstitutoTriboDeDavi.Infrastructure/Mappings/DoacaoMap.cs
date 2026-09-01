@@ -11,7 +11,7 @@ namespace InstitutoTriboDeDavi.Infrastructure.Mappings
             builder.ToTable("DOADOR");
 
             builder.HasKey(x => x.Id);
-            builder.Property(x => x.Id).UseIdentityColumn().HasColumnType("BIGINT");
+            builder.Property(x => x.Id).HasColumnType("BIGINT");
 
             builder.Property(x => x.TipoPessoa).IsRequired();
             builder.Property(x => x.Nome).IsRequired().HasMaxLength(160);
@@ -34,7 +34,7 @@ namespace InstitutoTriboDeDavi.Infrastructure.Mappings
             builder.ToTable("DOACAO");
 
             builder.HasKey(x => x.Id);
-            builder.Property(x => x.Id).UseIdentityColumn().HasColumnType("BIGINT");
+            builder.Property(x => x.Id).HasColumnType("BIGINT");
 
             builder.Property(x => x.DoadorId).IsRequired(false);
             builder.Property(x => x.Valor).HasColumnType("decimal(18,2)").IsRequired();

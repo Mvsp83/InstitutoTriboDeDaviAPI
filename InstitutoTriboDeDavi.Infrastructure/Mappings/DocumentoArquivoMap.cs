@@ -12,12 +12,12 @@ namespace InstitutoTriboDeDavi.Infrastructure.Mappings
 
             builder.HasKey(x => x.Id);
             builder.Property(x => x.Id)
-                .UseIdentityColumn()
+                
                 .HasColumnType("BIGINT");
 
             builder.Property(x => x.Nome).HasMaxLength(300).IsRequired();
             builder.Property(x => x.ContentType).HasMaxLength(150).IsRequired();
-            builder.Property(x => x.Conteudo).HasColumnType("varbinary(max)").IsRequired();
+            builder.Property(x => x.Conteudo).HasColumnType("bytea").IsRequired();
 
             builder.HasIndex(x => x.Categoria);
         }

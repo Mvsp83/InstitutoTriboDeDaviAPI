@@ -13,7 +13,7 @@ namespace InstitutoTriboDeDavi.Infrastructure.Mappings
             builder.HasKey(x => x.Id);
 
             builder.Property(x => x.Id)
-                .UseIdentityColumn()
+                
                 .HasColumnType("BIGINT");
 
             builder.Property(x => x.Nome)
@@ -38,7 +38,7 @@ namespace InstitutoTriboDeDavi.Infrastructure.Mappings
         {
             builder.ToTable("POLO_HORARIO_TURMA");
             builder.HasKey(x => x.Id);
-            builder.Property(x => x.Id).UseIdentityColumn().HasColumnType("BIGINT");
+            builder.Property(x => x.Id).HasColumnType("BIGINT");
             builder.Property(x => x.PoloId).IsRequired();
             builder.Property(x => x.Turma).IsRequired();
             builder.Property(x => x.DiaSemana).IsRequired();

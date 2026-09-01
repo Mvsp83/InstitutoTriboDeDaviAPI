@@ -11,7 +11,7 @@ namespace InstitutoTriboDeDavi.Infrastructure.Mappings
             builder.ToTable("LOG_AUDITORIA");
 
             builder.HasKey(x => x.Id);
-            builder.Property(x => x.Id).UseIdentityColumn().HasColumnType("BIGINT");
+            builder.Property(x => x.Id).HasColumnType("BIGINT");
 
             builder.Property(x => x.Data).IsRequired();
             builder.Property(x => x.UsuarioLogin).HasMaxLength(120).IsRequired(false);

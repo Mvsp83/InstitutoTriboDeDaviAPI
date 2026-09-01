@@ -56,8 +56,11 @@ namespace InstitutoTriboDeDavi.Infrastructure.Repositories
 
         public async Task<Usuario> ObterUsuarioPorLoginAsync(string login)
         {
+            // Case-insensitive: o SQL Server usava collation CI; o PostgreSQL é
+            // case-sensitive, então normalizamos para não quebrar o login.
+            var alvo = (login ?? string.Empty).ToLower();
             return await _context.Usuarios
-                .FirstOrDefaultAsync(u => u.Login == login);
+                .FirstOrDefaultAsync(u => u.Login.ToLower() == alvo);
         }
 
         public async Task<List<Usuario>> ObterTodosAsync()

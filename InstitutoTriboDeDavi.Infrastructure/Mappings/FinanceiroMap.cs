@@ -13,7 +13,7 @@ namespace InstitutoTriboDeDavi.Infrastructure.Mappings
             builder.HasKey(x => x.Id);
 
             builder.Property(x => x.Id)
-                .UseIdentityColumn()
+                
                 .HasColumnType("BIGINT");
 
             builder.Property(x => x.Tipo).IsRequired().HasMaxLength(20);
@@ -37,7 +37,7 @@ namespace InstitutoTriboDeDavi.Infrastructure.Mappings
             builder.HasKey(x => x.Id);
 
             builder.Property(x => x.Id)
-                .UseIdentityColumn()
+                
                 .HasColumnType("BIGINT");
 
             builder.Property(x => x.ContaId).IsRequired();

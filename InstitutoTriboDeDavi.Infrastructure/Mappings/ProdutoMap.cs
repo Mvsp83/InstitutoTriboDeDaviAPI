@@ -10,7 +10,7 @@ namespace InstitutoTriboDeDavi.Infrastructure.Mappings
         {
             builder.ToTable("PRODUTO");
             builder.HasKey(x => x.Id);
-            builder.Property(x => x.Id).UseIdentityColumn().HasColumnType("BIGINT");
+            builder.Property(x => x.Id).HasColumnType("BIGINT");
 
             builder.Property(x => x.Nome).IsRequired().HasMaxLength(120);
             builder.Property(x => x.Descricao).HasMaxLength(2000).IsRequired(false);
@@ -35,7 +35,7 @@ namespace InstitutoTriboDeDavi.Infrastructure.Mappings
         {
             builder.ToTable("PRODUTO_VARIACAO");
             builder.HasKey(x => x.Id);
-            builder.Property(x => x.Id).UseIdentityColumn().HasColumnType("BIGINT");
+            builder.Property(x => x.Id).HasColumnType("BIGINT");
             builder.Property(x => x.ProdutoId).IsRequired();
             builder.Property(x => x.Tamanho).HasMaxLength(40).IsRequired(false);
             builder.Property(x => x.Cor).HasMaxLength(40).IsRequired(false);

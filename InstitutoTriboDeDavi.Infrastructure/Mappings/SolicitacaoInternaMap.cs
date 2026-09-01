@@ -10,7 +10,7 @@ namespace InstitutoTriboDeDavi.Infrastructure.Mappings
         {
             builder.ToTable("SOLICITACAO_INTERNA");
             builder.HasKey(x => x.Id);
-            builder.Property(x => x.Id).UseIdentityColumn().HasColumnType("BIGINT");
+            builder.Property(x => x.Id).HasColumnType("BIGINT");
 
             builder.Property(x => x.Assunto).IsRequired().HasMaxLength(150);
             builder.Property(x => x.Categoria).IsRequired();
@@ -41,7 +41,7 @@ namespace InstitutoTriboDeDavi.Infrastructure.Mappings
         {
             builder.ToTable("SOLICITACAO_MENSAGEM");
             builder.HasKey(x => x.Id);
-            builder.Property(x => x.Id).UseIdentityColumn().HasColumnType("BIGINT");
+            builder.Property(x => x.Id).HasColumnType("BIGINT");
 
             builder.Property(x => x.SolicitacaoInternaId).IsRequired();
             builder.Property(x => x.AutorLogin).IsRequired().HasMaxLength(60);

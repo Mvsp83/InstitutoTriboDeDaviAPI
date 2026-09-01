@@ -13,7 +13,7 @@ namespace InstitutoTriboDeDavi.Infrastructure.Mappings
             builder.HasKey(x => x.Id);
 
             builder.Property(x => x.Id)
-                .UseIdentityColumn()
+                
                 .HasColumnType("BIGINT");
 
             builder.Property(x => x.Login)
@@ -37,7 +37,7 @@ namespace InstitutoTriboDeDavi.Infrastructure.Mappings
             builder.Property(x => x.Avatar)
                 .IsRequired(false)
                 .HasColumnName("Avatar")
-                .HasColumnType("VARCHAR(MAX)");
+                .HasColumnType("text");
 
             // 2FA (TOTP). Secret base32 curto; nulo enquanto o usuário não ativa.
             builder.Property(x => x.TotpSecret)

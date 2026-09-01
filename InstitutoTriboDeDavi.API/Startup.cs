@@ -136,6 +136,27 @@ namespace InstitutoTriboDeDavi.API
                             PermitLimit = 20,
                             QueueLimit = 0
                         }));
+
+                // Rede de segurança global por IP (~4 req/s sustentado): protege
+                // os endpoints públicos (balanços, polos, vitrine, perfil) contra
+                // abuso/scraping sem atrapalhar o uso normal. Os limites estritos
+                // acima (login/inscrição) continuam sendo aplicados por cima.
+                // O health check do provedor fica de fora.
+                options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(http =>
+                {
+                    var path = http.Request.Path.Value ?? string.Empty;
+                    if (path.StartsWith("/health", StringComparison.OrdinalIgnoreCase))
+                        return RateLimitPartition.GetNoLimiter("health");
+
+                    var ip = http.Connection.RemoteIpAddress?.ToString() ?? "desconhecido";
+                    return RateLimitPartition.GetFixedWindowLimiter(ip, _ =>
+                        new FixedWindowRateLimiterOptions
+                        {
+                            Window = TimeSpan.FromMinutes(1),
+                            PermitLimit = 240,
+                            QueueLimit = 0
+                        });
+                });
             });
 
             #endregion

@@ -5,6 +5,7 @@ using InstitutoTriboDeDavi.Application.Services.Interfaces;
 using InstitutoTriboDeDavi.Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 
 namespace InstitutoTriboDeDavi.API.Controllers
 {
@@ -26,6 +27,7 @@ namespace InstitutoTriboDeDavi.API.Controllers
 
         [HttpGet]
         [AllowAnonymous]
+        [OutputCache(PolicyName = "publico")]
         public async Task<IActionResult> Listar()
         {
             return await ExecuteAsync(async () => Ok(new ResultViewModel

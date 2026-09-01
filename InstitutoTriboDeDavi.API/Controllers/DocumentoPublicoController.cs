@@ -3,6 +3,7 @@ using InstitutoTriboDeDavi.Application.Services.Interfaces;
 using InstitutoTriboDeDavi.Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 
 namespace InstitutoTriboDeDavi.API.Controllers
 {
@@ -26,6 +27,7 @@ namespace InstitutoTriboDeDavi.API.Controllers
         }
 
         [HttpGet("balancos")]
+        [OutputCache(PolicyName = "publico")]
         public async Task<IActionResult> Balancos()
         {
             return await ExecuteAsync(async () =>

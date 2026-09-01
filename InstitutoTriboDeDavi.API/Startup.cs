@@ -161,6 +161,20 @@ namespace InstitutoTriboDeDavi.API
 
             #endregion
 
+            #region Output Cache
+
+            // Cache de saída para as rotas públicas de leitura (polos, balanços,
+            // vitrine, vídeos, álbum, inscrição/polos). Uma consulta ao banco por
+            // janela, independentemente de quantos visitantes — alivia o banco
+            // sob muitos acessos. TTL curto: mudanças aparecem em até 1 minuto.
+            services.AddOutputCache(options =>
+            {
+                options.AddPolicy("publico", policy =>
+                    policy.Expire(TimeSpan.FromSeconds(60)));
+            });
+
+            #endregion
+
             #region Autorização
 
             services.AddAuthorization(options =>
@@ -463,6 +477,10 @@ namespace InstitutoTriboDeDavi.API
             app.UseSerilogRequestLogging();
 
             app.UseRateLimiter();
+
+            // Antes da autenticação: um acerto de cache nas rotas públicas
+            // responde sem sequer tocar no resto do pipeline.
+            app.UseOutputCache();
 
             app.UseAuthentication();
 

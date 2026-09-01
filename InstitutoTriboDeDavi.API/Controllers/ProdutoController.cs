@@ -9,6 +9,7 @@ using InstitutoTriboDeDavi.Domain.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 
 namespace InstitutoTriboDeDavi.API.Controllers
 {
@@ -36,6 +37,7 @@ namespace InstitutoTriboDeDavi.API.Controllers
 
         [HttpGet("vitrine")]
         [AllowAnonymous]
+        [OutputCache(PolicyName = "publico")]
         public async Task<IActionResult> Vitrine()
         {
             return await ExecuteAsync(async () => Ok(new ResultViewModel

@@ -11,6 +11,7 @@ using InstitutoTriboDeDavi.Domain.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.AspNetCore.RateLimiting;
 
 namespace InstitutoTriboDeDavi.API.Controllers
@@ -43,6 +44,7 @@ namespace InstitutoTriboDeDavi.API.Controllers
         [HttpGet("polos")]
         [AllowAnonymous]
         [EnableRateLimiting(AuthPolicies.InscricaoRateLimit)]
+        [OutputCache(PolicyName = "publico")]
         public async Task<IActionResult> PolosPublicos()
         {
             return await ExecuteAsync(async () =>

@@ -7,6 +7,7 @@ using InstitutoTriboDeDavi.Domain.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 
 namespace InstitutoTriboDeDavi.API.Controllers
 {
@@ -129,6 +130,7 @@ namespace InstitutoTriboDeDavi.API.Controllers
         // Álbum público do site — só fotos aprovadas. Sem login.
         [HttpGet("publicas")]
         [AllowAnonymous]
+        [OutputCache(PolicyName = "publico")]
         public async Task<IActionResult> Publicas()
         {
             return await ExecuteAsync(async () => Ok(new ResultViewModel

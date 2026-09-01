@@ -5,6 +5,7 @@ using InstitutoTriboDeDavi.Application.DTO;
 using InstitutoTriboDeDavi.Application.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 
 namespace InstitutoTriboDeDavi.API.Controllers
 {
@@ -27,6 +28,7 @@ namespace InstitutoTriboDeDavi.API.Controllers
         // com endereço e horários (dados do próprio cadastro).
         [HttpGet("publicos")]
         [AllowAnonymous]
+        [OutputCache(PolicyName = "publico")]
         public async Task<IActionResult> Publicos()
         {
             return await ExecuteAsync(async () => new OkObjectResult(new ResultViewModel

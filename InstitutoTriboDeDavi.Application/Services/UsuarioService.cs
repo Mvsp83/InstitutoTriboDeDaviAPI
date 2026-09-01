@@ -263,6 +263,9 @@ namespace InstitutoTriboDeDavi.Application.Services
         private const int TotalPresets = 12;
         // Limite do data URI (~40 KB de imagem em base64). Mantém o banco leve.
         private const int TamanhoMaximoAvatar = 55_000;
+        // Foto do perfil público (rosto do professor). O front comprime para
+        // ~50 KB; a folga permite uma foto com um pouco mais de qualidade.
+        private const int TamanhoMaximoFotoSite = 120_000;
 
         public async Task<string?> ObterAvatarAsync(string login)
         {
@@ -299,14 +302,37 @@ namespace InstitutoTriboDeDavi.Application.Services
 
             usuario.Nome = string.IsNullOrWhiteSpace(dto.Nome) ? null : dto.Nome.Trim();
             usuario.Faixa = dto.Faixa;
-            // Reaproveita a validação do avatar (só data URI de imagem ou vazio).
-            usuario.FotoSite = dto.FotoSite?.StartsWith("data:image/") == true
-                ? dto.FotoSite
-                : null;
+            usuario.FotoSite = NormalizarFotoSite(dto.FotoSite);
             // Só aparece no site se, de fato, tiver foto.
             usuario.MostrarNoSite = dto.MostrarNoSite && usuario.FotoSite != null;
 
             await _usuarioRepository.UpdateAsync(usuario);
+        }
+
+        // Foto do perfil público: só data URI de imagem (png/jpeg/webp) dentro do
+        // limite; vazio ou formato não suportado = sem foto. Barra data URI grande
+        // (o front comprime, mas a API não pode confiar só no cliente).
+        private static string? NormalizarFotoSite(string? foto)
+        {
+            if (string.IsNullOrWhiteSpace(foto))
+                return null;
+
+            foto = foto.Trim();
+
+            var prefixosValidos = new[]
+            {
+                "data:image/png;base64,",
+                "data:image/jpeg;base64,",
+                "data:image/webp;base64,"
+            };
+
+            if (!prefixosValidos.Any(p => foto.StartsWith(p, StringComparison.OrdinalIgnoreCase)))
+                return null;
+
+            if (foto.Length > TamanhoMaximoFotoSite)
+                throw new DomainException("A foto do perfil é grande demais. Escolha uma foto menor.");
+
+            return foto;
         }
 
         // Aceita apenas: vazio (limpa), "preset:N" dentro do intervalo, ou um

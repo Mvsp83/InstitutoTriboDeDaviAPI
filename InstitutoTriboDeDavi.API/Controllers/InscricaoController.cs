@@ -168,6 +168,36 @@ namespace InstitutoTriboDeDavi.API.Controllers
             }));
         }
 
+        // Retenção/LGPD (admin): candidatas ao expurgo (inscrições recusadas
+        // antigas) e a anonimização dos dados pessoais de uma delas.
+        [HttpGet("retencao")]
+        [Authorize(Roles = nameof(UserRole.Administrador))]
+        public async Task<IActionResult> Retencao()
+        {
+            return await ExecuteAsync(async () => Ok(new ResultViewModel
+            {
+                Message = "Candidatas obtidas com sucesso!",
+                Success = true,
+                Data = await _service.ListarExpurgoLgpd()
+            }));
+        }
+
+        [HttpPut("retencao/{id}/anonimizar")]
+        [Authorize(Roles = nameof(UserRole.Administrador))]
+        public async Task<IActionResult> AnonimizarRetencao(long id)
+        {
+            return await ExecuteAsync(async () =>
+            {
+                await _service.AnonimizarLgpd(id);
+                return Ok(new ResultViewModel
+                {
+                    Message = "Dados pessoais da inscrição anonimizados.",
+                    Success = true,
+                    Data = null
+                });
+            });
+        }
+
         [HttpGet("{id}")]
         [Authorize(Policy = AuthPolicies.ProfessorOuSuperior)]
         public async Task<IActionResult> Obter(long id)

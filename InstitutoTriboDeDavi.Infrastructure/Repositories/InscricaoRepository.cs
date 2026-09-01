@@ -45,6 +45,16 @@ namespace InstitutoTriboDeDavi.Infrastructure.Repositories
             return await query.OrderBy(i => i.DataEnvio).ToListAsync();
         }
 
+        public async Task<List<Inscricao>> ListarRecusadasParaExpurgoAsync(DateTime limite)
+        {
+            return await _context.Inscricoes.AsNoTracking()
+                .Where(i => i.Status == (int)StatusInscricao.Recusada
+                    && i.DataEnvio < limite
+                    && !i.Anonimizada)
+                .OrderBy(i => i.DataEnvio)
+                .ToListAsync();
+        }
+
         public async Task<int> ContarPendentesAsync(long? poloId)
         {
             var query = _context.Inscricoes

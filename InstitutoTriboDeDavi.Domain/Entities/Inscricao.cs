@@ -94,6 +94,54 @@ namespace InstitutoTriboDeDavi.Domain.Entities
         public string RevisadoPor { get; set; } = string.Empty;
         public string ObservacaoRevisao { get; set; } = string.Empty;
 
+        // ── Retenção (LGPD) ───────────────────────────────────────────────
+        // Marca a inscrição cujos dados pessoais já foram apagados (expurgo de
+        // inscrições recusadas antigas). Mantém-se o registro anonimizado para
+        // estatística; nada de PII sobra.
+        public bool Anonimizada { get; set; }
+        public DateTime? AnonimizadaEm { get; set; }
+
+        // Apaga os dados pessoais mantendo os campos não-identificáveis (ano,
+        // polo, turma, faixa, status) e as evidências de que os aceites foram
+        // dados. Não chama Validate — o objetivo é justamente esvaziar o PII.
+        public void AnonimizarDados()
+        {
+            Nome = string.Empty;
+            DataNascimento = default;
+            Rg = string.Empty;
+            Cpf = string.Empty;
+            Peso = null;
+            Altura = null;
+            Escola = string.Empty;
+            Serie = string.Empty;
+            Periodo = string.Empty;
+
+            ParentescoOutro = string.Empty;
+            NomeResponsavel = string.Empty;
+            RgResponsavel = string.Empty;
+            CpfResponsavel = string.Empty;
+
+            Rua = string.Empty;
+            Numero = string.Empty;
+            Complemento = string.Empty;
+            Bairro = string.Empty;
+            Cidade = string.Empty;
+            WhatsApp = string.Empty;
+            Telefone2 = string.Empty;
+
+            RespostasSaudeJson = string.Empty;
+            RespostasFamiliarJson = string.Empty;
+            Medicamentos = string.Empty;
+
+            NomeAssinatura = string.Empty;
+            FotoArquivoId = string.Empty;
+            CodigoResponsavel = string.Empty;
+            ObservacaoRevisao = string.Empty;
+
+            Anonimizada = true;
+            AnonimizadaEm = DateTime.Now;
+        }
+
         public override bool Validate()
         {
             _errors.Clear();

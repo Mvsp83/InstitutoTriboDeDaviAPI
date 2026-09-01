@@ -29,6 +29,11 @@ namespace InstitutoTriboDeDavi.Application.Services.Interfaces
         Task<InscricaoDTO> Obter(long id);
         Task<int> ContarPendentes(long? poloId);
 
+        // Retenção/LGPD: candidatas ao expurgo (recusadas antigas) e a ação de
+        // anonimizar os dados pessoais de uma delas.
+        Task<List<ExpurgoInscricaoDTO>> ListarExpurgoLgpd();
+        Task AnonimizarLgpd(long id);
+
         // Aprovar cria/atualiza o aluno e a matrícula do ano; o revisor pode
         // corrigir polo e turma nesse momento.
         Task<MatriculaDTO> Aprovar(long id, RevisaoInscricaoDTO revisao, string revisor);

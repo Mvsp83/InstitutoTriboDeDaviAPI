@@ -91,6 +91,42 @@ namespace InstitutoTriboDeDavi.Application.Services
             return dtos;
         }
 
+        // ── Retenção / LGPD ───────────────────────────────────────────────
+        // Inscrições recusadas são guardadas apenas por um período; depois disso
+        // seus dados pessoais podem ser apagados (não viraram aluno).
+        private const int MesesRetencaoRecusadas = 12;
+        private static DateTime LimiteExpurgo() =>
+            DateTime.Now.AddMonths(-MesesRetencaoRecusadas);
+
+        public async Task<List<ExpurgoInscricaoDTO>> ListarExpurgoLgpd()
+        {
+            var lista = await _repository.ListarRecusadasParaExpurgoAsync(LimiteExpurgo());
+            return lista.Select(i => new ExpurgoInscricaoDTO
+            {
+                Id = i.Id,
+                Nome = i.Nome,
+                Ano = i.Ano,
+                DataEnvio = i.DataEnvio,
+            }).ToList();
+        }
+
+        public async Task AnonimizarLgpd(long id)
+        {
+            var insc = await _repository.ObterAsync(id)
+                ?? throw new DomainException("Inscrição não encontrada.");
+
+            // Só recusadas e fora do prazo de retenção; idempotente se já feita.
+            if (insc.Status != (int)StatusInscricao.Recusada)
+                throw new DomainException("Só inscrições recusadas podem ser anonimizadas.");
+            if (insc.DataEnvio >= LimiteExpurgo())
+                throw new DomainException("Esta inscrição ainda está dentro do prazo de retenção.");
+            if (insc.Anonimizada)
+                return;
+
+            insc.AnonimizarDados();
+            await _repository.AtualizarAsync(insc);
+        }
+
         public async Task<InscricaoDTO> Obter(long id)
         {
             var inscricao = await _repository.ObterAsync(id);

@@ -12,6 +12,10 @@ namespace InstitutoTriboDeDavi.Application.Repositories
         // Fila de revisão: status opcional, ano opcional, polo opcional
         // (professor/supervisor enxergam apenas o próprio polo).
         Task<List<Inscricao>> ListarAsync(int? status, int? ano, long? poloId);
+
+        // Retenção/LGPD: inscrições recusadas enviadas antes de `limite` e ainda
+        // não anonimizadas — candidatas ao expurgo de dados pessoais.
+        Task<List<Inscricao>> ListarRecusadasParaExpurgoAsync(System.DateTime limite);
         Task<int> ContarPendentesAsync(long? poloId);
 
         // Quantas inscrições o mesmo WhatsApp enviou no período — trava simples

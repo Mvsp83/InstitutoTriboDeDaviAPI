@@ -13,7 +13,8 @@ namespace InstitutoTriboDeDavi.Application.Services.Interfaces
         // entram publicadas e sem turma/polo.
         Task<FotoTreinoDTO> Postar(
             string categoria, long poloId, int turma, DateTime dataAula, string legenda,
-            long professorId, string nomeArquivo, string contentType, Stream conteudo);
+            long professorId, string nomeArquivo, string contentType, Stream conteudo,
+            bool consentimento);
 
         Task<List<FotoTreinoDTO>> Listar();                // admin/moderação
         Task<List<FotoTreinoPublicaDTO>> ListarPublicas(); // álbum público

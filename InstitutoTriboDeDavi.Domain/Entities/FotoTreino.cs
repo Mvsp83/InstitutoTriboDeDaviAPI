@@ -30,6 +30,11 @@ namespace InstitutoTriboDeDavi.Domain.Entities
         public bool Publicada { get; set; }
         public DateTime CriadoEm { get; set; }
 
+        // LGPD: registro de que quem postou confirmou ter a autorização de uso
+        // de imagem das pessoas na foto. Exigido no Validate; o "quem" e o
+        // "quando" do aceite vêm de ProfessorId e CriadoEm.
+        public bool ConsentimentoConfirmado { get; set; }
+
         public override bool Validate()
         {
             _errors.Clear();
@@ -52,6 +57,9 @@ namespace InstitutoTriboDeDavi.Domain.Entities
 
             if (Legenda != null && Legenda.Length > 300)
                 _errors.Add("A legenda deve ter no máximo 300 caracteres.");
+
+            if (!ConsentimentoConfirmado)
+                _errors.Add("Confirme a autorização de uso de imagem das pessoas na foto (LGPD).");
 
             if (_errors.Any())
                 throw new DomainException("Alguns campos estão inválidos!", _errors);

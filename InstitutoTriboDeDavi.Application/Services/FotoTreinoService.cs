@@ -27,8 +27,13 @@ namespace InstitutoTriboDeDavi.Application.Services
 
         public async Task<FotoTreinoDTO> Postar(
             string categoria, long poloId, int turma, DateTime dataAula, string legenda,
-            long professorId, string nomeArquivo, string contentType, Stream conteudo)
+            long professorId, string nomeArquivo, string contentType, Stream conteudo,
+            bool consentimento)
         {
+            // LGPD: sem a confirmação de autorização de imagem, não publica.
+            if (!consentimento)
+                throw new DomainException("Confirme a autorização de uso de imagem das pessoas na foto (LGPD).");
+
             categoria = string.IsNullOrWhiteSpace(categoria) ? "polo" : categoria.Trim().ToLowerInvariant();
             if (!Categorias.Contains(categoria))
                 throw new DomainException("Categoria inválida.");
@@ -73,6 +78,7 @@ namespace InstitutoTriboDeDavi.Application.Services
                     existente.ProfessorId = professorId;
                     existente.DataAula = dia;
                     existente.Publicada = jaPublica;
+                    existente.ConsentimentoConfirmado = consentimento;
                     existente.Validate();
 
                     var atualizada = await _repository.AtualizarAsync(existente);
@@ -92,6 +98,7 @@ namespace InstitutoTriboDeDavi.Application.Services
                 ProfessorId = professorId,
                 Publicada = jaPublica,
                 CriadoEm = DateTime.Now,
+                ConsentimentoConfirmado = consentimento,
             };
             foto.Validate();
 

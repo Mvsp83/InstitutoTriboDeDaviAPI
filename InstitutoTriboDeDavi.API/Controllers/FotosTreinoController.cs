@@ -39,7 +39,8 @@ namespace InstitutoTriboDeDavi.API.Controllers
             [FromForm] string categoria = "polo",
             [FromForm] int turma = 0,
             [FromForm] string legenda = "",
-            [FromForm] long poloId = 0)
+            [FromForm] long poloId = 0,
+            [FromForm] bool consentimento = false)
         {
             return await ExecuteAsync(async () =>
             {
@@ -67,7 +68,7 @@ namespace InstitutoTriboDeDavi.API.Controllers
                 using var stream = arquivo.OpenReadStream();
                 var dto = await _service.Postar(
                     cat, poloAlvo, turma, dataAula, legenda, UsuarioAutenticado.Id,
-                    arquivo.FileName, arquivo.ContentType, stream);
+                    arquivo.FileName, arquivo.ContentType, stream, consentimento);
 
                 return Ok(new ResultViewModel
                 {

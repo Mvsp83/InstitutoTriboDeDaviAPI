@@ -257,6 +257,8 @@ namespace InstitutoTriboDeDavi.API
             services.AddScoped<IAlunoFotoService, AlunoFotoService>();
             services.AddScoped<IVideoGaleriaRepository, VideoGaleriaRepository>();
             services.AddScoped<IVideoGaleriaService, VideoGaleriaService>();
+            services.AddScoped<IGovernancaRepository, GovernancaRepository>();
+            services.AddScoped<IGovernancaService, GovernancaService>();
             services.AddScoped<IInscricaoRepository, InscricaoRepository>();
             services.AddScoped<IInscricaoService, InscricaoService>();
             services.AddScoped<IGraduacaoRepository, GraduacaoRepository>();
@@ -348,6 +350,7 @@ namespace InstitutoTriboDeDavi.API
                     cfg.CreateMap<MatriculaFinanceira, MatriculaFinanceiraDTO>().ReverseMap();
                     cfg.CreateMap<Cobranca, CobrancaDTO>().ReverseMap();
                     cfg.CreateMap<VideoGaleria, VideoGaleriaDTO>().ReverseMap();
+                    cfg.CreateMap<MembroGovernanca, MembroGovernancaDTO>().ReverseMap();
                     cfg.CreateMap<Inscricao, InscricaoDTO>().ReverseMap();
                     cfg.CreateMap<Matricula, MatriculaDTO>().ReverseMap();
                     cfg.CreateMap<Graduacao, GraduacaoDTO>().ReverseMap();
@@ -540,6 +543,26 @@ namespace InstitutoTriboDeDavi.API
             });
 
             var app = builder.Build();
+
+            // Aplica as migrations pendentes ao subir (dev e produção). Facilita
+            // o deploy: não é preciso rodar "dotnet ef database update" à mão no
+            // banco da nuvem. Falha aqui não derruba a app — só registra o erro.
+            using (var scope = app.Services.CreateScope())
+            {
+                try
+                {
+                    scope.ServiceProvider
+                        .GetRequiredService<TriboDeDaviContext>()
+                        .Database.Migrate();
+                }
+                catch (Exception ex)
+                {
+                    scope.ServiceProvider
+                        .GetRequiredService<ILogger<Startup>>()
+                        .LogError(ex, "Falha ao aplicar migrations na inicialização.");
+                }
+            }
+
             app.UseCors("Default");
             startup.Configure(app, app.Environment);
 

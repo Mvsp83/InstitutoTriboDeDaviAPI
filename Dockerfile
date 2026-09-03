@@ -16,9 +16,9 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app
 COPY --from=build /app/publish .
 
-# Escuta na porta 8080 (padrão do Cloud Run; no Render define-se a porta 8080).
-ENV ASPNETCORE_URLS=http://+:8080
 ENV ASPNETCORE_ENVIRONMENT=Production
 EXPOSE 8080
 
-ENTRYPOINT ["dotnet", "InstitutoTriboDeDavi.API.dll"]
+# Escuta na porta que o host injeta (Render usa a variável PORT); sem ela
+# (Cloud Run/local) cai em 8080.
+ENTRYPOINT ["sh", "-c", "ASPNETCORE_URLS=http://+:${PORT:-8080} dotnet InstitutoTriboDeDavi.API.dll"]

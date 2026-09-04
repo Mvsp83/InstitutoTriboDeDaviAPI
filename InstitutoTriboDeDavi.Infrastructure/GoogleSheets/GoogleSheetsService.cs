@@ -113,19 +113,27 @@ namespace InstitutoTriboDeDavi.Infrastructure.GoogleSheets
 
         private SheetsService CriarSheetsService()
         {
-            var credenciaisPath = Path.Combine(AppContext.BaseDirectory, _config.CredenciaisJson);
+            var configurado = _config.CredenciaisJson ?? string.Empty;
 
-            GoogleCredential credential;
-            using (var fileStream = new FileStream(credenciaisPath, FileMode.Open, FileAccess.Read))
-            using (var reader = new StreamReader(fileStream, new UTF8Encoding(false)))
+            // Aceita duas formas: o CONTE\u00DADO do JSON (ideal para nuvem \u2014 vem de
+            // uma vari\u00E1vel de ambiente) ou um CAMINHO de arquivo (dev local).
+            // Distingue pelo primeiro caractere n\u00E3o-branco: '{' => \u00E9 o JSON.
+            string json;
+            if (configurado.TrimStart('\uFEFF', ' ', '\t', '\r', '\n').StartsWith("{"))
             {
-                var json = reader.ReadToEnd();
-                var bytes = Encoding.UTF8.GetBytes(json.TrimStart('\uFEFF'));
-                using var stream = new MemoryStream(bytes);
-                credential = GoogleCredential
-                    .FromStream(stream)
-                    .CreateScoped(SheetsService.Scope.SpreadsheetsReadonly);
+                json = configurado;
             }
+            else
+            {
+                var credenciaisPath = Path.Combine(AppContext.BaseDirectory, configurado);
+                json = File.ReadAllText(credenciaisPath, new UTF8Encoding(false));
+            }
+
+            var bytes = Encoding.UTF8.GetBytes(json.TrimStart('\uFEFF'));
+            using var stream = new MemoryStream(bytes);
+            var credential = GoogleCredential
+                .FromStream(stream)
+                .CreateScoped(SheetsService.Scope.SpreadsheetsReadonly);
 
             return new SheetsService(new BaseClientService.Initializer
             {

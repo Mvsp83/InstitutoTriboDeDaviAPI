@@ -17,13 +17,15 @@ namespace InstitutoTriboDeDavi.API.Controllers
         private readonly IUsuarioService _usuarioService;
         private readonly IRefreshTokenService _refreshTokenService;
         private readonly ILogger<UsuarioController> _logger;
+        private readonly IConfiguration _configuration;
 
-        public UsuarioController(IMapper mapper, IUsuarioService usuarioService, IRefreshTokenService refreshTokenService, ILogger<UsuarioController> logger) : base(logger)
+        public UsuarioController(IMapper mapper, IUsuarioService usuarioService, IRefreshTokenService refreshTokenService, ILogger<UsuarioController> logger, IConfiguration configuration) : base(logger)
         {
             _mapper = mapper;
             _usuarioService = usuarioService;
             _refreshTokenService = refreshTokenService;
             _logger = logger;
+            _configuration = configuration;
         }
 
         [HttpPost("create")]
@@ -43,10 +45,13 @@ namespace InstitutoTriboDeDavi.API.Controllers
             });
         }
 
-        // Endpoint público de bootstrap: só funciona enquanto não existe nenhum usuário
+        // Endpoint público de bootstrap: cria o primeiro admin e só funciona
+        // enquanto não existe nenhum usuário. Em produção, defina "Setup:Token"
+        // (env Setup__Token) para exigir um segredo e fechar a janela em que o
+        // banco vazio ficaria aberto a qualquer um.
         [HttpPost("setup")]
         [AllowAnonymous]
-        public async Task<IActionResult> Setup([FromBody] UsuarioViewModel usuarioViewModel)
+        public async Task<IActionResult> Setup([FromBody] PrimeiroAcessoViewModel model)
         {
             return await ExecuteAsync(async () =>
             {
@@ -55,9 +60,20 @@ namespace InstitutoTriboDeDavi.API.Controllers
                 if (jaExisteUsuario)
                     return Forbid();
 
-                usuarioViewModel.Role = UserRole.Administrador;
+                var tokenConfigurado = _configuration["Setup:Token"];
+                if (!string.IsNullOrWhiteSpace(tokenConfigurado) &&
+                    !string.Equals(tokenConfigurado, model?.Token, StringComparison.Ordinal))
+                    return Forbid();
 
-                var usuarioCreated = await _usuarioService.Create(_mapper.Map<UsuarioDTO>(usuarioViewModel));
+                var novoAdmin = new UsuarioViewModel
+                {
+                    Login = model.Login,
+                    Email = model.Email,
+                    Password = model.Password,
+                    Role = UserRole.Administrador
+                };
+
+                var usuarioCreated = await _usuarioService.Create(_mapper.Map<UsuarioDTO>(novoAdmin));
 
                 return Ok(new ResultViewModel
                 {

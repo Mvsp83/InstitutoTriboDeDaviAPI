@@ -32,6 +32,11 @@ namespace InstitutoTriboDeDavi.Infrastructure.Mappings
                 .HasColumnName("Email")
                 .HasColumnType("VARCHAR(180)");
 
+            // Admin/supervisor não pertencem a um polo específico — o nome do
+            // polo é opcional (assim como PoloId, que já é long?).
+            builder.Property(x => x.PoloNome)
+                .IsRequired(false);
+
             // Preset ("preset:7") ou miniatura em data URI. O limite de tamanho
             // real é imposto na aplicação (AtualizarAvatarAsync).
             builder.Property(x => x.Avatar)

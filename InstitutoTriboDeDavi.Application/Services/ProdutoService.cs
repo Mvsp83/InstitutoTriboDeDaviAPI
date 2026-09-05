@@ -21,8 +21,30 @@ namespace InstitutoTriboDeDavi.Application.Services
         public async Task<List<ProdutoDTO>> Listar() =>
             _mapper.Map<List<ProdutoDTO>>(await _repository.ListarTodosAsync());
 
-        public async Task<List<ProdutoDTO>> Vitrine() =>
-            _mapper.Map<List<ProdutoDTO>>(await _repository.ListarVitrineAsync());
+        // Projeção pública: esconde o estoque exato (só "disponível") e omite
+        // Ativo/DataCriacao. A vitrine já traz apenas produtos ativos.
+        public async Task<List<ProdutoVitrineDTO>> Vitrine()
+        {
+            var produtos = await _repository.ListarVitrineAsync();
+            return produtos.Select(p => new ProdutoVitrineDTO
+            {
+                Id = p.Id,
+                Nome = p.Nome,
+                Descricao = p.Descricao,
+                Preco = p.Preco,
+                FotoArquivoId = p.FotoArquivoId,
+                TemFoto = !string.IsNullOrEmpty(p.FotoArquivoId),
+                FormasPagamento = p.FormasPagamento,
+                Informacoes = p.Informacoes,
+                Variacoes = p.Variacoes.Select(v => new VariacaoVitrineDTO
+                {
+                    Id = v.Id,
+                    Tamanho = v.Tamanho,
+                    Cor = v.Cor,
+                    Disponivel = v.Quantidade > 0,
+                }).ToList(),
+            }).ToList();
+        }
 
         public async Task<ProdutoDTO> Obter(long id) =>
             _mapper.Map<ProdutoDTO>(await _repository.ObterComVariacoesAsync(id));

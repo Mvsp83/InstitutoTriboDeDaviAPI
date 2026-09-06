@@ -242,6 +242,8 @@ namespace InstitutoTriboDeDavi.API
             services.AddScoped<IAniversarianteService, AniversarianteService>();
             services.AddScoped<IConfiguracaoDocumentoRepository, ConfiguracaoDocumentoRepository>();
             services.AddScoped<IConfiguracaoDocumentoService, ConfiguracaoDocumentoService>();
+            services.AddScoped<IConfiguracaoLojaRepository, ConfiguracaoLojaRepository>();
+            services.AddScoped<IConfiguracaoLojaService, ConfiguracaoLojaService>();
             services.AddScoped<IConfiguracaoDashboardRepository, ConfiguracaoDashboardRepository>();
             services.AddScoped<IConfiguracaoDashboardService, ConfiguracaoDashboardService>();
             services.AddScoped<IFinanceiroRepository, FinanceiroRepository>();
@@ -343,6 +345,7 @@ namespace InstitutoTriboDeDavi.API
                     cfg.CreateMap<Polo, PoloDTO>().ReverseMap();
                     cfg.CreateMap<HorarioTurma, HorarioTurmaDTO>().ReverseMap();
                     cfg.CreateMap<ConfiguracaoDocumento, ConfiguracaoDocumentoDTO>().ReverseMap();
+                    cfg.CreateMap<ConfiguracaoLoja, ConfiguracaoLojaDTO>().ReverseMap();
                     cfg.CreateMap<ConfiguracaoDashboard, ConfiguracaoDashboardDTO>().ReverseMap();
                     cfg.CreateMap<ContaFinanceira, ContaFinanceiraDTO>().ReverseMap();
                     cfg.CreateMap<MovimentacaoFinanceira, MovimentacaoFinanceiraDTO>().ReverseMap();

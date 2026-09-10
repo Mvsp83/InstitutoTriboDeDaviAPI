@@ -18,6 +18,8 @@ namespace InstitutoTriboDeDavi.Application.DTO
         public string Cidade { get; set; }
         // Limite de alunos ativos no ano (0 = sem limite).
         public int LimiteAlunos { get; set; }
+        // Tem turma de adultos? Quando false, bloqueia inscrição de adultos.
+        public bool AceitaAdultos { get; set; } = true;
         // Preenchido nas listagens: matrículas ativas do ano corrente neste polo.
         public int AlunosAtivos { get; set; }
         // Inscrições pendentes do ano neste polo (vaga reservada, ainda não

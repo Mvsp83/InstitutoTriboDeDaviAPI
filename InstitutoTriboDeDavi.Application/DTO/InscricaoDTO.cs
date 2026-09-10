@@ -104,5 +104,7 @@ namespace InstitutoTriboDeDavi.Application.DTO
         public string Nome { get; set; }
         // Sem vaga no momento (limite atingido) — o formulário bloqueia a escolha.
         public bool Lotado { get; set; }
+        // Tem turma de adultos? A ficha de adultos só permite polos com true.
+        public bool AceitaAdultos { get; set; }
     }
 }

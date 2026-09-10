@@ -59,6 +59,11 @@ namespace InstitutoTriboDeDavi.Application.Services
             if (poloEscolhido == null)
                 throw new DomainException("O polo selecionado não existe.");
 
+            // Inscrição de adulto (Publico == 1) só em polo com turma de adultos.
+            if (inscricao.Publico == 1 && !poloEscolhido.AceitaAdultos)
+                throw new DomainException(
+                    "Este polo não tem turma de adultos. Escolha outro polo ou fale com a equipe.");
+
             // Bloqueio por lotação: conta matrículas ATIVAS + inscrições
             // PENDENTES (vaga reservada). Assim não se aceita inscrição além da
             // capacidade — quem envia dentro do limite tem vaga garantida na fila.

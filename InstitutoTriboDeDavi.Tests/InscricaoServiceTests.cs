@@ -212,6 +212,30 @@ namespace InstitutoTriboDeDavi.Tests
             Assert.NotNull(resultado);
         }
 
+        [Fact]
+        public async Task Enviar_AdultoEmPoloSemTurmaDeAdultos_Recusa()
+        {
+            _polos.Setup(r => r.GetByIdAsync(1))
+                  .ReturnsAsync(new Polo { Id = 1, Nome = "Polo 1", AceitaAdultos = false });
+            var dto = FichaValida();
+            dto.Publico = 1; // adulto
+
+            await Assert.ThrowsAsync<DomainException>(() => _service.Enviar(dto));
+        }
+
+        [Fact]
+        public async Task Enviar_AdultoEmPoloComTurmaDeAdultos_Aceita()
+        {
+            _polos.Setup(r => r.GetByIdAsync(1))
+                  .ReturnsAsync(new Polo { Id = 1, Nome = "Polo 1", AceitaAdultos = true });
+            var dto = FichaValida();
+            dto.Publico = 1; // adulto
+
+            var resultado = await _service.Enviar(dto);
+
+            Assert.NotNull(resultado);
+        }
+
         // ── Aprovação ─────────────────────────────────────────────────────
         [Fact]
         public async Task Aprovar_CriaAlunoEMatriculaDoAno()

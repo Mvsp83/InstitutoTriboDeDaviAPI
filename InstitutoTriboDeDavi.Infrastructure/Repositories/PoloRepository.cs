@@ -77,6 +77,7 @@ namespace InstitutoTriboDeDavi.Infrastructure.Repositories
             existente.Bairro = polo.Bairro;
             existente.Cidade = polo.Cidade;
             existente.LimiteAlunos = polo.LimiteAlunos;
+            existente.AceitaAdultos = polo.AceitaAdultos;
 
             _context.HorariosTurma.RemoveRange(existente.Horarios);
             foreach (var h in polo.Horarios ?? new List<HorarioTurma>())

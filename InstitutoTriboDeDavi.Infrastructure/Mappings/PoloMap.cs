@@ -24,6 +24,9 @@ namespace InstitutoTriboDeDavi.Infrastructure.Mappings
 
             builder.Property(x => x.LimiteAlunos).IsRequired();
 
+            // Default true no banco: polos existentes continuam aceitando adultos.
+            builder.Property(x => x.AceitaAdultos).IsRequired().HasDefaultValue(true);
+
             // Horários por turma: apagar o polo apaga os horários.
             builder.HasMany(x => x.Horarios)
                 .WithOne()

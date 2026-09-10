@@ -17,6 +17,11 @@ namespace InstitutoTriboDeDavi.Domain.Entities
         // matrícula ou aumentar o limite).
         public int LimiteAlunos { get; set; }
 
+        // O polo tem turma de adultos? Quando false, a inscrição de adultos é
+        // bloqueada neste polo (a ficha infantil segue permitida). Default true
+        // para não mudar o comportamento dos polos já existentes.
+        public bool AceitaAdultos { get; set; } = true;
+
         // Horários de treino por turma (um item por dia da semana).
         public List<HorarioTurma> Horarios { get; set; } = new();
 

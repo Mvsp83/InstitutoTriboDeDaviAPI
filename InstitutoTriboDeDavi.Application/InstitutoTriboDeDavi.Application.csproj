@@ -9,7 +9,9 @@
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="16.2.0" />
     <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="8.0.11" />
-    <PackageReference Include="SixLabors.ImageSharp" Version="4.1.1" />
+    <!-- v2.1.x = Apache-2.0 (grátis, sem licença no build). v3+/v4 exigem
+         licença paga. Mantém no ramo 2.1.* para receber correções de segurança. -->
+    <PackageReference Include="SixLabors.ImageSharp" Version="2.1.*" />
   </ItemGroup>
 
   <ItemGroup>

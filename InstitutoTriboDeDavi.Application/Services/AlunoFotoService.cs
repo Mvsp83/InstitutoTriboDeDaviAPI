@@ -72,27 +72,9 @@ namespace InstitutoTriboDeDavi.Application.Services
         // (foto não é do storage do banco, ou imagem inválida) → usa a cheia.
         private async Task<string> ObterMiniaturaDataUri(string fotoArquivoId)
         {
-            if (!long.TryParse(fotoArquivoId, out var id)) return null;
-
-            var arquivo = await _fotoArquivoRepository.ObterAsync(id);
-            if (arquivo?.Conteudo == null) return null;
-
-            var miniatura = arquivo.Miniatura;
-            if (miniatura == null || miniatura.Length == 0)
-            {
-                try
-                {
-                    miniatura = Imagem.GerarMiniatura(arquivo.Conteudo, 128);
-                }
-                catch
-                {
-                    return null; // imagem inválida/formato não suportado
-                }
-                await _fotoArquivoRepository.SalvarMiniaturaAsync(id, miniatura);
-            }
-
-            var base64 = Convert.ToBase64String(miniatura);
-            return $"data:image/jpeg;base64,{base64}";
+            var miniatura = await Miniaturas.ObterOuGerarAsync(_fotoArquivoRepository, fotoArquivoId, 128);
+            if (miniatura == null) return null;
+            return $"data:image/jpeg;base64,{Convert.ToBase64String(miniatura)}";
         }
 
         public async Task<long?> ObterPoloId(long alunoId)

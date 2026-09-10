@@ -2,7 +2,9 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using InstitutoTriboDeDavi.API.ViewModels.Result;
+using InstitutoTriboDeDavi.Application.Common;
 using InstitutoTriboDeDavi.Application.DTO;
+using InstitutoTriboDeDavi.Application.Repositories;
 using InstitutoTriboDeDavi.Application.Services.Interfaces;
 using InstitutoTriboDeDavi.Domain.Enums;
 using InstitutoTriboDeDavi.Domain.Exceptions;
@@ -21,15 +23,18 @@ namespace InstitutoTriboDeDavi.API.Controllers
     {
         private readonly IProdutoService _service;
         private readonly IFotoStorage _fotoStorage;
+        private readonly IFotoArquivoRepository _fotoArquivoRepository;
         private readonly ILogger<ProdutoController> _logger;
 
         public ProdutoController(
             IProdutoService service,
             IFotoStorage fotoStorage,
+            IFotoArquivoRepository fotoArquivoRepository,
             ILogger<ProdutoController> logger) : base(logger)
         {
             _service = service;
             _fotoStorage = fotoStorage;
+            _fotoArquivoRepository = fotoArquivoRepository;
             _logger = logger;
         }
 
@@ -49,13 +54,23 @@ namespace InstitutoTriboDeDavi.API.Controllers
         }
 
         // Imagem do produto (bytes) — usada direto no <img> da vitrine pública.
+        // mini=true devolve a miniatura (~400px) para a grade.
         [HttpGet("{id}/foto")]
         [AllowAnonymous]
-        public async Task<IActionResult> Foto(long id)
+        public async Task<IActionResult> Foto(long id, [FromQuery] bool mini = false)
         {
             var produto = await _service.Obter(id);
             if (produto == null || string.IsNullOrEmpty(produto.FotoArquivoId))
                 return NotFound();
+
+            Response.Headers["Cache-Control"] = "public, max-age=86400";
+
+            if (mini)
+            {
+                var thumb = await Miniaturas.ObterOuGerarAsync(
+                    _fotoArquivoRepository, produto.FotoArquivoId, 400);
+                if (thumb != null) return File(thumb, "image/jpeg");
+            }
 
             var download = await _fotoStorage.BaixarAsync(produto.FotoArquivoId);
             using var ms = new MemoryStream();

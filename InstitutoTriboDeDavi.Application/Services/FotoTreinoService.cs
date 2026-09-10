@@ -164,23 +164,9 @@ namespace InstitutoTriboDeDavi.Application.Services
             var foto = await _repository.ObterAsync(id);
             if (foto == null) return null;
 
-            if (long.TryParse(foto.ArquivoId, out var idArq))
-            {
-                var arquivo = await _fotoArquivoRepository.ObterAsync(idArq);
-                if (arquivo?.Conteudo != null)
-                {
-                    var mini = arquivo.Miniatura;
-                    if (mini == null || mini.Length == 0)
-                    {
-                        try { mini = Imagem.GerarMiniatura(arquivo.Conteudo, 400); }
-                        catch { mini = null; }
-                        if (mini != null)
-                            await _fotoArquivoRepository.SalvarMiniaturaAsync(idArq, mini);
-                    }
-                    if (mini != null)
-                        return new FotoDownload(new MemoryStream(mini), "image/jpeg");
-                }
-            }
+            var mini = await Miniaturas.ObterOuGerarAsync(_fotoArquivoRepository, foto.ArquivoId, 400);
+            if (mini != null)
+                return new FotoDownload(new MemoryStream(mini), "image/jpeg");
 
             return await _storage.BaixarAsync(foto.ArquivoId); // fallback
         }

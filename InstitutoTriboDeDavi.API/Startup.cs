@@ -221,6 +221,8 @@ namespace InstitutoTriboDeDavi.API
             services.AddScoped<IResponsavelService, ResponsavelService>();
             services.AddScoped<IAlunoRepository, AlunoRepository>();
             services.AddScoped<IAlunoService, AlunoService>();
+            services.AddScoped<IMetricaRepository, MetricaRepository>();
+            services.AddScoped<IMetricaService, MetricaService>();
             services.AddScoped<IPoloRepository, PoloRepository>();
             services.AddScoped<IPoloService, PoloService>();
 

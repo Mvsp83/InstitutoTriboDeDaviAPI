@@ -75,6 +75,7 @@ namespace InstitutoTriboDeDavi.Infrastructure.Context
             builder.ApplyConfiguration(new ConfiguracaoFotoAlunoMap());
             builder.ApplyConfiguration(new VideoGaleriaMap());
             builder.ApplyConfiguration(new MembroGovernancaMap());
+            builder.ApplyConfiguration(new MetricaDiariaMap());
             builder.Entity<SincronizacaoHistorico>(entity =>
             {
                 entity.ToTable("SINCRONIZACAO_HISTORICO");
@@ -140,5 +141,6 @@ namespace InstitutoTriboDeDavi.Infrastructure.Context
         public DbSet<ConfiguracaoFotoAluno> ConfiguracoesFotoAluno { get; set; }
         public DbSet<VideoGaleria> VideosGaleria { get; set; }
         public DbSet<MembroGovernanca> MembrosGovernanca { get; set; }
+        public DbSet<MetricaDiaria> MetricasDiarias { get; set; }
     }
 }

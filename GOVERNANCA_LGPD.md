@@ -16,7 +16,8 @@ precisa de contrato de tratamento. O sistema integra com:
 
 | Terceiro | O que trafega | Onde fica (residência) | Base p/ transferência |
 |---|---|---|---|
-| **Hospedagem da API + SQL Server** | Todo o banco (cadastro, frequência, inscrições) | ⚠️ **Confirmar**: Brasil ou exterior? | art. 33 se exterior |
+| **Render** (hospedagem da API) | Requisições/processamento | EUA | art. 33 |
+| **Neon** (PostgreSQL) | Todo o banco (cadastro, frequência, inscrições, financeiro) | EUA | art. 33 |
 | **Google Sheets** | Respostas dos formulários de inscrição (PII de menores) | Google — EUA | art. 33 |
 | **Google Drive** | Documentos contábeis (prestação de contas) | Google — EUA | art. 33 |
 | **SMTP / Gmail** | Emails de aviso (endereços, conteúdo) | Google — EUA | art. 33 |
@@ -24,38 +25,33 @@ precisa de contrato de tratamento. O sistema integra com:
 | **Sentry** (opcional) | Erros da aplicação — `SendDefaultPii: false` | Sentry — EUA | só liga com DSN |
 
 **Ações [organizacional]:**
-- [ ] Confirmar **onde a hospedagem/banco está** (Brasil evita a discussão de transferência internacional).
-- [ ] Contrato de operador com cada terceiro acima que fique ativo.
+- [ ] Como Render e Neon ficam nos **EUA**, apoiar a transferência nas cláusulas-padrão/adequação (art. 33).
+- [ ] Contrato de operador (DPA) com cada terceiro acima que fique ativo.
 - [ ] Para transferências ao exterior (Google/Sentry), apoiar-se nas cláusulas-padrão/adequação (art. 33).
 - [ ] Manter `Sentry:SendDefaultPii` em `false` (já é o padrão) para não vazar PII nos relatórios de erro.
 
 ## 2. Cifragem em repouso (art. 46)
 
-Hoje CPF, RG e endereço ficam em **texto puro** nas colunas do SQL Server. O
-padrão de cuidado para dado de menor recomenda cifrar o armazenamento.
+CPF, RG e endereço ficam em **texto puro** nas colunas do banco. O padrão de
+cuidado para dado de menor recomenda cifrar o armazenamento.
 
-**Recomendado — TDE (cifra o banco inteiro, transparente para a aplicação):**
-rode [`scripts/habilitar-tde.sql`](scripts/habilitar-tde.sql). Cifra arquivos de
-dados, log e backups; protege contra roubo do arquivo/backup. Requer SQL Server
-Standard 2019+ ou Enterprise (Azure SQL já vem cifrado). **Guarde o backup do
-certificado no cofre** — sem ele, backups cifrados são irrecuperáveis.
+**Hoje:** o **Neon cifra o armazenamento em repouso por padrão** (o banco
+gerenciado já entrega cifra de disco/backup). Isso cobre o risco de roubo do
+arquivo/backup no provedor.
 
-> TDE não protege contra acesso autenticado ao banco — para isso valem o
-> controle por papel e o log de auditoria, que já existem. Cifragem por coluna
-> (a nível de aplicação) foi considerada e **descartada por ora**: quebraria
-> busca e unicidade por CPF e exigiria gestão de chave própria; o ganho sobre
-> TDE + controle de acesso não justifica o risco.
+> Cifra por coluna (a nível de aplicação) foi considerada e **descartada por
+> ora**: quebraria busca e unicidade por CPF e exigiria gestão de chave própria;
+> o ganho sobre a cifra do provedor + controle de acesso não justifica o risco.
+> A cifra do provedor não protege contra acesso autenticado ao banco — para isso
+> valem o controle por papel e o log de auditoria, que já existem.
 
-- [ ] Rodar o script TDE em produção (ou confirmar que o provedor já cifra em repouso).
+- [x] Cifra em repouso no provedor (Neon).
 
 ## 3. Cifragem em trânsito
 
 - **Cliente ↔ API:** já coberto — HSTS + redirect HTTPS em produção ([Startup.cs](InstitutoTriboDeDavi.API/Startup.cs)).
-- **API ↔ SQL Server:** garantir `Encrypt=True` na connection string de produção.
-  O driver `Microsoft.Data.SqlClient` 4+ já usa `Encrypt=True` por padrão; se o
-  servidor não tiver certificado válido, adicione `TrustServerCertificate=False`
-  e instale um certificado, **em vez de** desligar a cifra. Exemplo:
-  `Server=...;Database=TRIBODEDAVIAPI;...;Encrypt=True;TrustServerCertificate=False`
+- **API ↔ Neon:** usar TLS na connection string (`SSL Mode=Require`) — o Npgsql
+  liga a cifra e valida o servidor gerenciado do Neon.
 
 ## 4. Minimização já implementada (não mexer)
 

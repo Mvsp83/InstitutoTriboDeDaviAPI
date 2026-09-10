@@ -11,6 +11,9 @@ namespace InstitutoTriboDeDavi.Application.Repositories
         Task<Aluno> GetByCpf(string cpf);
         Task<List<Aluno>> SearchByNome(string nome);
         Task<int> GetTotalAlunosAsync();
+        // Total de alunos ativos (não anonimizados) — número público de
+        // "crianças atendidas" exibido no site.
+        Task<int> GetTotalAtendidosAsync();
         Task<List<Aluno>> ObterTodosAsync();
         // Listagem paginada + enxuta (projeta no banco só as colunas usadas).
         // Devolve os itens da página e o total geral (após filtros).

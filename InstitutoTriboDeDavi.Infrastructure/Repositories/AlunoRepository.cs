@@ -60,6 +60,11 @@ namespace InstitutoTriboDeDavi.Infrastructure.Repositories
             return await _context.Set<Aluno>().CountAsync();
         }
 
+        public async Task<int> GetTotalAtendidosAsync()
+        {
+            return await _context.Alunos.CountAsync(a => a.AnonimizadoEm == null);
+        }
+
         public async Task<List<Aluno>> ObterTodosAsync()
         {
             return await _context.Alunos.ToListAsync();

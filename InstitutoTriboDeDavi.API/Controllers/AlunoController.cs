@@ -7,6 +7,7 @@ using InstitutoTriboDeDavi.Application.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 
 namespace InstitutoTriboDeDavi.API.Controllers
 {
@@ -60,6 +61,26 @@ namespace InstitutoTriboDeDavi.API.Controllers
                     Message = "Alunos encontrados com sucesso!",
                     Success = true,
                     Data = pagina
+                });
+            });
+        }
+
+        // Público: número de "crianças atendidas" (alunos ativos, não
+        // anonimizados) exibido no site. Só um agregado, sem dado pessoal.
+        [HttpGet("total-publico")]
+        [AllowAnonymous]
+        [OutputCache(PolicyName = "publico")]
+        public async Task<IActionResult> TotalPublico()
+        {
+            return await ExecuteAsync(async () =>
+            {
+                var total = await _alunoService.ObterTotalAtendidosAsync();
+
+                return Ok(new ResultViewModel
+                {
+                    Message = "Total de crianças atendidas.",
+                    Success = true,
+                    Data = new { total }
                 });
             });
         }

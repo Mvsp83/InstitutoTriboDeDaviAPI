@@ -12,6 +12,8 @@ namespace InstitutoTriboDeDavi.Application.Services.Interfaces
         Task<List<AlunoDTO>> GetAll();
         // Listagem paginada + enxuta para a tela de Alunos.
         Task<PagedResult<AlunoListaDTO>> ObterListaPaginadaAsync(AlunoListaFiltroDTO filtro);
+        // Total público de "crianças atendidas" (alunos ativos) para o site.
+        Task<int> ObterTotalAtendidosAsync();
         Task<AlunoDTO> GetByNome(string nome);
         Task<List<AlunoDTO>> SearchByNome(string nome);
         Task<List<AlunoDTO>> ObterAlunosPorTurmaAsync(UsuarioDTO usuario, List<int> turmas);

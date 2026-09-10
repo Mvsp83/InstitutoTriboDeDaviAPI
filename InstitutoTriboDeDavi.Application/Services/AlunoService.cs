@@ -72,6 +72,11 @@ namespace InstitutoTriboDeDavi.Application.Services
             };
         }
 
+        public async Task<int> ObterTotalAtendidosAsync()
+        {
+            return await _alunoRepository.GetTotalAtendidosAsync();
+        }
+
         public async Task<AlunoDTO> GetByNome(string nome)
         {
             var aluno = await _alunoRepository.GetByNome(nome);

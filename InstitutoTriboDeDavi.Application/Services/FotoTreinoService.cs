@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using InstitutoTriboDeDavi.Application.Common;
 using InstitutoTriboDeDavi.Application.DTO;
 using InstitutoTriboDeDavi.Application.Repositories;
 using InstitutoTriboDeDavi.Application.Services.Interfaces;
@@ -15,11 +16,16 @@ namespace InstitutoTriboDeDavi.Application.Services
     {
         private readonly IFotoTreinoRepository _repository;
         private readonly IFotoStorage _storage;
+        private readonly IFotoArquivoRepository _fotoArquivoRepository;
 
-        public FotoTreinoService(IFotoTreinoRepository repository, IFotoStorage storage)
+        public FotoTreinoService(
+            IFotoTreinoRepository repository,
+            IFotoStorage storage,
+            IFotoArquivoRepository fotoArquivoRepository)
         {
             _repository = repository;
             _storage = storage;
+            _fotoArquivoRepository = fotoArquivoRepository;
         }
 
         // Categorias válidas do álbum público.
@@ -149,6 +155,34 @@ namespace InstitutoTriboDeDavi.Application.Services
             var foto = await _repository.ObterAsync(id);
             if (foto == null) return null;
             return await _storage.BaixarAsync(foto.ArquivoId);
+        }
+
+        // Miniatura (grade da galeria): ~400px JPEG, gerada sob demanda e
+        // guardada (backfill automático). Cai na foto cheia se não der.
+        public async Task<FotoDownload> BaixarMiniatura(long id)
+        {
+            var foto = await _repository.ObterAsync(id);
+            if (foto == null) return null;
+
+            if (long.TryParse(foto.ArquivoId, out var idArq))
+            {
+                var arquivo = await _fotoArquivoRepository.ObterAsync(idArq);
+                if (arquivo?.Conteudo != null)
+                {
+                    var mini = arquivo.Miniatura;
+                    if (mini == null || mini.Length == 0)
+                    {
+                        try { mini = Imagem.GerarMiniatura(arquivo.Conteudo, 400); }
+                        catch { mini = null; }
+                        if (mini != null)
+                            await _fotoArquivoRepository.SalvarMiniaturaAsync(idArq, mini);
+                    }
+                    if (mini != null)
+                        return new FotoDownload(new MemoryStream(mini), "image/jpeg");
+                }
+            }
+
+            return await _storage.BaixarAsync(foto.ArquivoId); // fallback
         }
 
         public async Task<string> ObterPreviaDataUri(long id)

@@ -145,12 +145,14 @@ namespace InstitutoTriboDeDavi.API.Controllers
         // pendentes não podem sair por aqui, por LGPD). Preview de pendente: /previa.
         [HttpGet("{id}/arquivo")]
         [AllowAnonymous]
-        public async Task<IActionResult> Arquivo(long id)
+        public async Task<IActionResult> Arquivo(long id, [FromQuery] bool mini = false)
         {
             var meta = await _service.Obter(id);
             if (meta == null || !meta.Publicada) return NotFound();
 
-            var download = await _service.BaixarArquivo(id);
+            var download = mini
+                ? await _service.BaixarMiniatura(id)
+                : await _service.BaixarArquivo(id);
             if (download == null) return NotFound();
 
             Response.Headers["Cache-Control"] = "public, max-age=86400";

@@ -26,6 +26,8 @@ namespace InstitutoTriboDeDavi.Application.Services.Interfaces
         Task<FotoTreinoDTO> Obter(long id);
         // Stream do binário a partir do storage.
         Task<FotoDownload> BaixarArquivo(long id);
+        // Miniatura (grade da galeria), gerada sob demanda.
+        Task<FotoDownload> BaixarMiniatura(long id);
         // Imagem em data URI (base64) para preview de moderação. null se não existe.
         Task<string> ObterPreviaDataUri(long id);
 

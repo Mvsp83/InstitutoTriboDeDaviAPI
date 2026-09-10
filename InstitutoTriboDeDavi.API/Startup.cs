@@ -137,6 +137,19 @@ namespace InstitutoTriboDeDavi.API
                             QueueLimit = 0
                         }));
 
+                // Beacon de métricas: uma sessão real dispara poucos eventos,
+                // então 60/min por IP é folgado para o visitante e corta a
+                // inflação de contadores por robô.
+                options.AddPolicy(AuthPolicies.MetricaRateLimit, context =>
+                    RateLimitPartition.GetFixedWindowLimiter(
+                        context.Connection.RemoteIpAddress?.ToString() ?? "desconhecido",
+                        _ => new FixedWindowRateLimiterOptions
+                        {
+                            Window = TimeSpan.FromMinutes(1),
+                            PermitLimit = 60,
+                            QueueLimit = 0
+                        }));
+
                 // Rede de segurança global por IP (~4 req/s sustentado): protege
                 // os endpoints públicos (balanços, polos, vitrine, perfil) contra
                 // abuso/scraping sem atrapalhar o uso normal. Os limites estritos
@@ -326,6 +339,7 @@ namespace InstitutoTriboDeDavi.API
 
             // Background service dos avisos do calendário por email
             services.AddHostedService<NotificacaoCalendarioHostedService>();
+            services.AddHostedService<RetencaoMetricasHostedService>();
 
             services.AddScoped<IFactoryPlanilhaDB, FactoryPlanilhaDB>();
             services.AddScoped<ISincronizacaoHistoricoRepository, SincronizacaoHistoricoRepository>();

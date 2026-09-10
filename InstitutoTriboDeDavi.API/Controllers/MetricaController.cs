@@ -1,9 +1,11 @@
+using InstitutoTriboDeDavi.API.Utilities;
 using InstitutoTriboDeDavi.API.ViewModels.Result;
 using InstitutoTriboDeDavi.Domain.Enums;
 using InstitutoTriboDeDavi.Application.DTO;
 using InstitutoTriboDeDavi.Application.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace InstitutoTriboDeDavi.API.Controllers
 {
@@ -22,6 +24,7 @@ namespace InstitutoTriboDeDavi.API.Controllers
         // Sempre responde 200 (nunca atrapalha a navegação do visitante).
         [HttpPost("evento")]
         [AllowAnonymous]
+        [EnableRateLimiting(AuthPolicies.MetricaRateLimit)]
         public async Task<IActionResult> Registrar([FromBody] MetricaEventoDTO evento)
         {
             return await ExecuteAsync(async () =>

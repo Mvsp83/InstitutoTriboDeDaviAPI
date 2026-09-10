@@ -7,5 +7,7 @@ namespace InstitutoTriboDeDavi.API.Utilities
         public const string LoginRateLimit = "login";
         // Envio público da ficha de inscrição (site, sem login).
         public const string InscricaoRateLimit = "inscricao";
+        // Beacon público de métricas: corta inflação de contadores por IP.
+        public const string MetricaRateLimit = "metrica";
     }
 }

@@ -62,5 +62,13 @@ namespace InstitutoTriboDeDavi.Infrastructure.Repositories
                 .Where(m => m.Data >= dia)
                 .ToListAsync();
         }
+
+        public async Task<int> LimparAnterioresAsync(DateTime limite)
+        {
+            var dia = limite.Date;
+            return await _context.MetricasDiarias
+                .Where(m => m.Data < dia)
+                .ExecuteDeleteAsync();
+        }
     }
 }

@@ -9,7 +9,8 @@ namespace InstitutoTriboDeDavi.Application.Services.Interfaces
         Task SalvarFoto(long alunoId, string nomeArquivo, string contentType, Stream conteudo);
         Task RemoverFoto(long alunoId);
         // Imagem em data URI (base64). null se não há foto / aluno não existe.
-        Task<string> ObterFotoDataUri(long alunoId);
+        // mini = true devolve a miniatura (avatar/grade), muito menor.
+        Task<string> ObterFotoDataUri(long alunoId, bool mini = false);
         // Polo do aluno (para o controle de acesso). null se não existe.
         Task<long?> ObterPoloId(long alunoId);
 

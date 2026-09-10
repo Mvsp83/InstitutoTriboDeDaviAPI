@@ -455,7 +455,7 @@ namespace InstitutoTriboDeDavi.API.Controllers
         // do polo, ou o responsável do próprio aluno.
         [HttpGet("{id}/foto")]
         [Authorize]
-        public async Task<IActionResult> ObterFoto(long id)
+        public async Task<IActionResult> ObterFoto(long id, [FromQuery] bool mini = false)
         {
             return await ExecuteAsync(async () =>
             {
@@ -466,7 +466,7 @@ namespace InstitutoTriboDeDavi.API.Controllers
                 if (!ehResponsavel)
                     ValidatePoloUsuario(poloId.Value); // admin bypass; professor precisa ser do polo
 
-                var dataUri = await _fotoService.ObterFotoDataUri(id);
+                var dataUri = await _fotoService.ObterFotoDataUri(id, mini);
                 if (dataUri == null) return NotFound();
 
                 return Ok(new ResultViewModel { Message = "Foto obtida.", Success = true, Data = new { dataUri } });

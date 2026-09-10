@@ -9,6 +9,9 @@ namespace InstitutoTriboDeDavi.Domain.Entities
     {
         public byte[] Conteudo { get; set; }
         public string ContentType { get; set; } = "image/jpeg";
+        // Miniatura (JPEG) gerada sob demanda para avatares/grades. Null até o
+        // primeiro pedido de miniatura desta foto (aí é gerada e guardada).
+        public byte[] Miniatura { get; set; }
 
         public override bool Validate() => true;
     }

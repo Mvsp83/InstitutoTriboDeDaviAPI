@@ -38,5 +38,15 @@ namespace InstitutoTriboDeDavi.Infrastructure.Repositories
                 await _context.SaveChangesAsync();
             }
         }
+
+        public async Task SalvarMiniaturaAsync(long id, byte[] miniatura)
+        {
+            var arquivo = await _context.FotosArquivo.FirstOrDefaultAsync(a => a.Id == id);
+            if (arquivo != null)
+            {
+                arquivo.Miniatura = miniatura;
+                await _context.SaveChangesAsync();
+            }
+        }
     }
 }

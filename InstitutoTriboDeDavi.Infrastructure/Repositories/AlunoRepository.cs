@@ -1,4 +1,5 @@
 ﻿using InstitutoTriboDeDavi.Infrastructure.Repositories;
+using InstitutoTriboDeDavi.Application.DTO;
 using InstitutoTriboDeDavi.Application.Repositories;
 using InstitutoTriboDeDavi.Domain.Entities;
 using InstitutoTriboDeDavi.Domain.Entities.Business;
@@ -62,6 +63,58 @@ namespace InstitutoTriboDeDavi.Infrastructure.Repositories
         public async Task<List<Aluno>> ObterTodosAsync()
         {
             return await _context.Alunos.ToListAsync();
+        }
+
+        public async Task<(List<AlunoListaDTO> Itens, int Total)> ObterListaPaginadaAsync(AlunoListaFiltroDTO filtro)
+        {
+            var pagina = filtro.Pagina < 1 ? 1 : filtro.Pagina;
+            var tamanho = filtro.Tamanho < 1 ? 50 : (filtro.Tamanho > 200 ? 200 : filtro.Tamanho);
+
+            var query = _context.Alunos.AsNoTracking().AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(filtro.Busca))
+            {
+                var busca = filtro.Busca.Trim().ToLower();
+                query = query.Where(a => a.Nome.ToLower().Contains(busca));
+            }
+            if (filtro.PoloId.HasValue)
+                query = query.Where(a => a.PoloId == filtro.PoloId.Value);
+            if (filtro.Turma.HasValue)
+                query = query.Where(a => a.Turma == filtro.Turma.Value);
+
+            var total = await query.CountAsync();
+
+            var desc = string.Equals(filtro.Direcao, "desc", StringComparison.OrdinalIgnoreCase);
+            query = (filtro.OrdenarPor?.ToLower()) switch
+            {
+                "faixa" => desc ? query.OrderByDescending(a => a.Faixa).ThenBy(a => a.Nome)
+                                : query.OrderBy(a => a.Faixa).ThenBy(a => a.Nome),
+                "polo" => desc ? query.OrderByDescending(a => a.PoloId).ThenBy(a => a.Nome)
+                               : query.OrderBy(a => a.PoloId).ThenBy(a => a.Nome),
+                _ => desc ? query.OrderByDescending(a => a.Nome)
+                          : query.OrderBy(a => a.Nome),
+            };
+
+            // Projeta no banco: só as colunas do DTO enxuto trafegam.
+            var itens = await query
+                .Skip((pagina - 1) * tamanho)
+                .Take(tamanho)
+                .Select(a => new AlunoListaDTO
+                {
+                    Id = a.Id,
+                    Nome = a.Nome,
+                    Faixa = a.Faixa,
+                    PoloId = a.PoloId,
+                    Turma = a.Turma,
+                    TemFoto = !string.IsNullOrEmpty(a.FotoArquivoId),
+                    AutorizaImagem = a.AutorizaImagem,
+                    DataNascimento = a.DataNascimento,
+                    EhAdulto = a.EhAdulto,
+                    Responsavel = a.Responsavel,
+                })
+                .ToListAsync();
+
+            return (itens, total);
         }
 
         public async Task<List<Aluno>> ObterPorPoloTurmaAsync(long poloId, List<int> turmas)

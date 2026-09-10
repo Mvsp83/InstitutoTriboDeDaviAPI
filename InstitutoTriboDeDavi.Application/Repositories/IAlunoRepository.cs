@@ -1,3 +1,4 @@
+using InstitutoTriboDeDavi.Application.DTO;
 using InstitutoTriboDeDavi.Application.Repositories;
 using InstitutoTriboDeDavi.Domain.Entities;
 using InstitutoTriboDeDavi.Domain.Entities.Business;
@@ -11,6 +12,9 @@ namespace InstitutoTriboDeDavi.Application.Repositories
         Task<List<Aluno>> SearchByNome(string nome);
         Task<int> GetTotalAlunosAsync();
         Task<List<Aluno>> ObterTodosAsync();
+        // Listagem paginada + enxuta (projeta no banco só as colunas usadas).
+        // Devolve os itens da página e o total geral (após filtros).
+        Task<(List<AlunoListaDTO> Itens, int Total)> ObterListaPaginadaAsync(AlunoListaFiltroDTO filtro);
         Task<List<Aluno>> ObterPorPoloTurmaAsync(long poloId, List<int> turmas);
         Task<List<Aluno>> ObterPendentesPorPoloAsync(long poloId);
         Task<List<Aluno>> ObterTodosPendentesAsync();

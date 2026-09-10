@@ -44,6 +44,56 @@ namespace InstitutoTriboDeDavi.API.Controllers
             });
         }
 
+        // Listagem paginada e enxuta (sem PII desnecessária) para a tela de
+        // Alunos. Preferir este endpoint ao get-all: trafega menos dados e não
+        // expõe CPF/RG/endereço na listagem.
+        [HttpGet("lista")]
+        [Authorize(Roles = nameof(UserRole.Administrador))]
+        public async Task<IActionResult> ObterLista([FromQuery] AlunoListaFiltroDTO filtro)
+        {
+            return await ExecuteAsync(async () =>
+            {
+                var pagina = await _alunoService.ObterListaPaginadaAsync(filtro);
+
+                return Ok(new ResultViewModel
+                {
+                    Message = "Alunos encontrados com sucesso!",
+                    Success = true,
+                    Data = pagina
+                });
+            });
+        }
+
+        // Ficha completa de um aluno (todos os campos), para exibição/edição sob
+        // demanda — assim a listagem pode ser enxuta. Admin acessa qualquer um;
+        // professor/supervisor só os do próprio polo.
+        [HttpGet("{id:long}")]
+        [Authorize(Policy = AuthPolicies.ProfessorOuSuperior)]
+        public async Task<IActionResult> Get(long id)
+        {
+            return await ExecuteAsync(async () =>
+            {
+                var aluno = await _alunoService.Get(id);
+
+                if (aluno == null)
+                    return Ok(new ResultViewModel
+                    {
+                        Message = "Nenhum aluno foi encontrado com o ID informado!",
+                        Success = true,
+                        Data = null
+                    });
+
+                ValidatePoloUsuario(aluno.PoloId); // admin bypass; professor só o seu polo
+
+                return Ok(new ResultViewModel
+                {
+                    Message = "Aluno encontrado com sucesso!",
+                    Success = true,
+                    Data = aluno
+                });
+            });
+        }
+
         [HttpPost("create")]
         [Authorize(Roles = nameof(UserRole.Administrador))]
         public async Task<IActionResult> Create([FromBody] AlunoDTO alunoDTO)

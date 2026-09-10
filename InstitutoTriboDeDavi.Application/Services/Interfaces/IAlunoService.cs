@@ -1,4 +1,5 @@
-﻿using InstitutoTriboDeDavi.Application.DTO;
+﻿using InstitutoTriboDeDavi.Application.Common;
+using InstitutoTriboDeDavi.Application.DTO;
 
 namespace InstitutoTriboDeDavi.Application.Services.Interfaces
 {
@@ -9,6 +10,8 @@ namespace InstitutoTriboDeDavi.Application.Services.Interfaces
         Task Delete(long id);
         Task<AlunoDTO> Get(long id);
         Task<List<AlunoDTO>> GetAll();
+        // Listagem paginada + enxuta para a tela de Alunos.
+        Task<PagedResult<AlunoListaDTO>> ObterListaPaginadaAsync(AlunoListaFiltroDTO filtro);
         Task<AlunoDTO> GetByNome(string nome);
         Task<List<AlunoDTO>> SearchByNome(string nome);
         Task<List<AlunoDTO>> ObterAlunosPorTurmaAsync(UsuarioDTO usuario, List<int> turmas);

@@ -56,6 +56,22 @@ namespace InstitutoTriboDeDavi.Application.Services
             return _mapper.Map<List<AlunoDTO>>(allAlunos);
         }
 
+        public async Task<PagedResult<AlunoListaDTO>> ObterListaPaginadaAsync(AlunoListaFiltroDTO filtro)
+        {
+            var pagina = filtro.Pagina < 1 ? 1 : filtro.Pagina;
+            var tamanho = filtro.Tamanho < 1 ? 50 : (filtro.Tamanho > 200 ? 200 : filtro.Tamanho);
+
+            var (itens, total) = await _alunoRepository.ObterListaPaginadaAsync(filtro);
+
+            return new PagedResult<AlunoListaDTO>
+            {
+                Itens = itens,
+                Pagina = pagina,
+                Tamanho = tamanho,
+                Total = total,
+            };
+        }
+
         public async Task<AlunoDTO> GetByNome(string nome)
         {
             var aluno = await _alunoRepository.GetByNome(nome);

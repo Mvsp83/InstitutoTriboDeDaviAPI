@@ -55,7 +55,8 @@ namespace InstitutoTriboDeDavi.API.Controllers
                     {
                         Id = p.Id,
                         Nome = p.Nome,
-                        Lotado = p.LimiteAlunos > 0 && p.AlunosAtivos >= p.LimiteAlunos,
+                        Lotado = p.LimiteAlunos > 0
+                            && p.AlunosAtivos + p.InscricoesPendentes >= p.LimiteAlunos,
                     })
                     .OrderBy(p => p.Nome)
                     .ToList();

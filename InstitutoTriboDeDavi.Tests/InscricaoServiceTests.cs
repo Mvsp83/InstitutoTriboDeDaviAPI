@@ -186,6 +186,32 @@ namespace InstitutoTriboDeDavi.Tests
             await Assert.ThrowsAsync<DomainException>(() => _service.Enviar(FichaValida()));
         }
 
+        [Fact]
+        public async Task Enviar_PoloLotadoContandoAtivasEPendentes_Recusa()
+        {
+            _polos.Setup(r => r.GetByIdAsync(1))
+                  .ReturnsAsync(new Polo { Id = 1, Nome = "Polo 1", LimiteAlunos = 10 });
+            // 8 ativas + 2 pendentes = 10 (>= limite) → sem vaga.
+            _inscricoes.Setup(r => r.ContarMatriculasAtivasAsync(It.IsAny<int>(), 1)).ReturnsAsync(8);
+            _inscricoes.Setup(r => r.ContarInscricoesPendentesAsync(It.IsAny<int>(), 1)).ReturnsAsync(2);
+
+            await Assert.ThrowsAsync<DomainException>(() => _service.Enviar(FichaValida()));
+        }
+
+        [Fact]
+        public async Task Enviar_ComVagaAindaContandoPendentes_Aceita()
+        {
+            _polos.Setup(r => r.GetByIdAsync(1))
+                  .ReturnsAsync(new Polo { Id = 1, Nome = "Polo 1", LimiteAlunos = 10 });
+            // 7 ativas + 2 pendentes = 9 (< limite) → ainda há vaga.
+            _inscricoes.Setup(r => r.ContarMatriculasAtivasAsync(It.IsAny<int>(), 1)).ReturnsAsync(7);
+            _inscricoes.Setup(r => r.ContarInscricoesPendentesAsync(It.IsAny<int>(), 1)).ReturnsAsync(2);
+
+            var resultado = await _service.Enviar(FichaValida());
+
+            Assert.NotNull(resultado);
+        }
+
         // ── Aprovação ─────────────────────────────────────────────────────
         [Fact]
         public async Task Aprovar_CriaAlunoEMatriculaDoAno()

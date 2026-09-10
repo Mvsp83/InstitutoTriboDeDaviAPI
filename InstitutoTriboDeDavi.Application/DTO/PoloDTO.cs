@@ -20,6 +20,9 @@ namespace InstitutoTriboDeDavi.Application.DTO
         public int LimiteAlunos { get; set; }
         // Preenchido nas listagens: matrículas ativas do ano corrente neste polo.
         public int AlunosAtivos { get; set; }
+        // Inscrições pendentes do ano neste polo (vaga reservada, ainda não
+        // aprovada). Ativas + pendentes = ocupação para efeito de lotação.
+        public int InscricoesPendentes { get; set; }
         public List<HorarioTurmaDTO> Horarios { get; set; } = new();
     }
 

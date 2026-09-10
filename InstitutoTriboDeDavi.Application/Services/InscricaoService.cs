@@ -59,12 +59,17 @@ namespace InstitutoTriboDeDavi.Application.Services
             if (poloEscolhido == null)
                 throw new DomainException("O polo selecionado não existe.");
 
-            // Bloqueio por lotação: sem vaga, não aceita nova inscrição no polo.
-            if (poloEscolhido.LimiteAlunos > 0 &&
-                await _repository.ContarMatriculasAtivasAsync(inscricao.Ano, inscricao.PoloId)
-                    >= poloEscolhido.LimiteAlunos)
-                throw new DomainException(
-                    "As vagas deste polo estão esgotadas no momento. Escolha outro polo ou fale com a equipe.");
+            // Bloqueio por lotação: conta matrículas ATIVAS + inscrições
+            // PENDENTES (vaga reservada). Assim não se aceita inscrição além da
+            // capacidade — quem envia dentro do limite tem vaga garantida na fila.
+            if (poloEscolhido.LimiteAlunos > 0)
+            {
+                var ativas = await _repository.ContarMatriculasAtivasAsync(inscricao.Ano, inscricao.PoloId);
+                var pendentes = await _repository.ContarInscricoesPendentesAsync(inscricao.Ano, inscricao.PoloId);
+                if (ativas + pendentes >= poloEscolhido.LimiteAlunos)
+                    throw new DomainException(
+                        "As vagas deste polo estão esgotadas no momento. Escolha outro polo ou fale com a equipe.");
+            }
 
             var recentes = await _repository.ContarEnviosRecentesAsync(
                 inscricao.WhatsApp, JanelaMinutos);

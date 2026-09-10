@@ -42,6 +42,11 @@ namespace InstitutoTriboDeDavi.Application.Repositories
         Task<int> ContarMatriculasAtivasAsync(int ano, long poloId);
         Task<Dictionary<long, int>> ContarMatriculasAtivasPorPoloAsync(int ano);
 
+        // Inscrições PENDENTES do ano por polo — contam como vaga reservada
+        // (a lotação considera ativas + pendentes para não aceitar além da conta).
+        Task<int> ContarInscricoesPendentesAsync(int ano, long poloId);
+        Task<Dictionary<long, int>> ContarInscricoesPendentesPorPoloAsync(int ano);
+
         // Liga/desliga da matrícula (libera/ocupa vaga no ano).
         Task<Matricula> ObterMatriculaPorIdAsync(long id);
         Task AtualizarMatriculaAsync(Matricula matricula);

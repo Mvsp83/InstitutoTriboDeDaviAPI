@@ -61,11 +61,15 @@ namespace InstitutoTriboDeDavi.Application.Services
             var allPolos = await _poloRepository.GetAllAsync();
             var dtos = _mapper.Map<List<PoloDTO>>(allPolos);
 
-            // Ocupação: matrículas ativas do ano corrente por polo.
-            var ativosPorPolo = await _inscricaoRepository
-                .ContarMatriculasAtivasPorPoloAsync(DateTime.Now.Year);
+            // Ocupação: matrículas ativas + inscrições pendentes do ano por polo.
+            var ano = DateTime.Now.Year;
+            var ativosPorPolo = await _inscricaoRepository.ContarMatriculasAtivasPorPoloAsync(ano);
+            var pendentesPorPolo = await _inscricaoRepository.ContarInscricoesPendentesPorPoloAsync(ano);
             foreach (var dto in dtos)
+            {
                 dto.AlunosAtivos = ativosPorPolo.TryGetValue(dto.Id, out var n) ? n : 0;
+                dto.InscricoesPendentes = pendentesPorPolo.TryGetValue(dto.Id, out var p) ? p : 0;
+            }
 
             return dtos;
         }
@@ -109,12 +113,16 @@ namespace InstitutoTriboDeDavi.Application.Services
             var listaTodos = await _poloRepository.ObterTodosAsync();
             var dtos = _mapper.Map<List<PoloDTO>>(listaTodos);
 
-            // Ocupação: matrículas ativas do ano corrente por polo (mesma regra
-            // do GetAll) — é a listagem que a tela de polos consome.
-            var ativosPorPolo = await _inscricaoRepository
-                .ContarMatriculasAtivasPorPoloAsync(DateTime.Now.Year);
+            // Ocupação: matrículas ativas + inscrições pendentes do ano por polo
+            // (mesma regra do GetAll) — é a listagem que a tela de polos consome.
+            var ano = DateTime.Now.Year;
+            var ativosPorPolo = await _inscricaoRepository.ContarMatriculasAtivasPorPoloAsync(ano);
+            var pendentesPorPolo = await _inscricaoRepository.ContarInscricoesPendentesPorPoloAsync(ano);
             foreach (var dto in dtos)
+            {
                 dto.AlunosAtivos = ativosPorPolo.TryGetValue(dto.Id, out var n) ? n : 0;
+                dto.InscricoesPendentes = pendentesPorPolo.TryGetValue(dto.Id, out var p) ? p : 0;
+            }
 
             return dtos;
         }

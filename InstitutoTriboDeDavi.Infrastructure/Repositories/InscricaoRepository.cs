@@ -177,6 +177,22 @@ namespace InstitutoTriboDeDavi.Infrastructure.Repositories
                 .ToDictionaryAsync(x => x.PoloId, x => x.Total);
         }
 
+        public async Task<int> ContarInscricoesPendentesAsync(int ano, long poloId)
+        {
+            return await _context.Inscricoes
+                .CountAsync(i => i.Status == (int)StatusInscricao.Pendente
+                    && i.Ano == ano && i.PoloId == poloId);
+        }
+
+        public async Task<Dictionary<long, int>> ContarInscricoesPendentesPorPoloAsync(int ano)
+        {
+            return await _context.Inscricoes
+                .Where(i => i.Status == (int)StatusInscricao.Pendente && i.Ano == ano)
+                .GroupBy(i => i.PoloId)
+                .Select(g => new { PoloId = g.Key, Total = g.Count() })
+                .ToDictionaryAsync(x => x.PoloId, x => x.Total);
+        }
+
         public async Task<Matricula> ObterMatriculaPorIdAsync(long id)
         {
             return await _context.Matriculas.FirstOrDefaultAsync(m => m.Id == id);

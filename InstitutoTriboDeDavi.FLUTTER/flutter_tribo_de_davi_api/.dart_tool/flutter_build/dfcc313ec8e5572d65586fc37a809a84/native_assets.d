@@ -1,0 +1,1 @@
+ C:\\Users\\Vinni\\source\\repos\\InstitutoTriboDeDaviAPI\\InstitutoTriboDeDavi.FLUTTER\\flutter_tribo_de_davi_api\\.dart_tool\\flutter_build\\dfcc313ec8e5572d65586fc37a809a84\\native_assets.yaml: 

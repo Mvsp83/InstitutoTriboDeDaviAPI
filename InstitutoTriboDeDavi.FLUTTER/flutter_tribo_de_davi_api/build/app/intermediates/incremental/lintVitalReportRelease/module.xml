@@ -1,0 +1,18 @@
+<lint-module
+    format="1"
+    dir="C:\Users\Vinni\source\repos\InstitutoTriboDeDaviAPI\InstitutoTriboDeDavi.FLUTTER\flutter_tribo_de_davi_api\android\app"
+    name=":app"
+    type="APP"
+    maven="android:app:"
+    agpVersion="8.1.0"
+    buildFolder="C:\Users\Vinni\source\repos\InstitutoTriboDeDaviAPI\InstitutoTriboDeDavi.FLUTTER\flutter_tribo_de_davi_api\build\app"
+    bootClassPath="C:\Users\Vinni\AppData\Local\Android\sdk\platforms\android-34\android.jar;C:\Users\Vinni\AppData\Local\Android\sdk\build-tools\33.0.1\core-lambda-stubs.jar"
+    javaSourceLevel="1.8"
+    compileTarget="android-34">
+  <lintOptions
+      abortOnError="true"
+      absolutePaths="true"
+      checkReleaseBuilds="true"
+      explainIssues="true"/>
+  <variant name="release"/>
+</lint-module>

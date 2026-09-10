@@ -20,6 +20,12 @@ namespace InstitutoTriboDeDavi.Application.Services
             "doar_click", "inscricao_ok", "responsavel_acesso",
         };
 
+        // Dispositivos aceitos (lista fechada — evita chaves arbitrárias).
+        private static readonly HashSet<string> Dispositivos = new()
+        {
+            "celular", "tablet", "desktop",
+        };
+
         public async Task RegistrarAsync(MetricaEventoDTO evento)
         {
             var nome = (evento?.Evento ?? "").Trim().ToLowerInvariant();
@@ -36,6 +42,23 @@ namespace InstitutoTriboDeDavi.Application.Services
                 var texto = NormalizarTexto(evento.Dimensao);
                 if (string.IsNullOrEmpty(texto)) return;
                 chave = $"davizinho:{texto}";
+            }
+            else if (nome == "origem")
+            {
+                var slug = NormalizarSlug(evento.Dimensao);
+                chave = $"origem:{(string.IsNullOrEmpty(slug) ? "direto" : slug)}";
+            }
+            else if (nome == "dispositivo")
+            {
+                var d = (evento.Dimensao ?? "").Trim().ToLowerInvariant();
+                if (!Dispositivos.Contains(d)) return;
+                chave = $"dispositivo:{d}";
+            }
+            else if (nome == "inscricao_etapa")
+            {
+                var slug = NormalizarSlug(evento.Dimensao);
+                if (string.IsNullOrEmpty(slug)) return;
+                chave = $"funil:{slug}";
             }
             else if (EventosSimples.Contains(nome))
             {
@@ -86,16 +109,25 @@ namespace InstitutoTriboDeDavi.Application.Services
                     Valor = visitasPorDiaMapa.TryGetValue(d, out var v) ? v : 0,
                 });
 
+            var inscricoesOk = SomaChave("evento:inscricao_ok");
+
+            // Funil: etapas (maior → menor, forma de funil) + a conclusão no fim.
+            var funil = TopPorPrefixo("funil:", 20);
+            funil.Add(new ItemContagemDTO { Rotulo = "concluída", Valor = inscricoesOk });
+
             return new MetricaResumoDTO
             {
                 Dias = dias,
                 Visitas = SomaPrefixo("pageview:"),
                 DoarCliques = SomaChave("evento:doar_click"),
-                InscricoesConcluidas = SomaChave("evento:inscricao_ok"),
+                InscricoesConcluidas = inscricoesOk,
                 AcessosResponsavel = SomaChave("evento:responsavel_acesso"),
                 VisitasPorDia = serie,
                 TopPaginas = TopPorPrefixo("pageview:", 10),
                 TopDavizinho = TopPorPrefixo("davizinho:", 10),
+                Origem = TopPorPrefixo("origem:", 8),
+                Dispositivos = TopPorPrefixo("dispositivo:", 5),
+                FunilInscricao = funil,
             };
         }
 
@@ -112,6 +144,18 @@ namespace InstitutoTriboDeDavi.Application.Services
             s = Regex.Replace(s, "[^a-z0-9/_-]", "");
             if (string.IsNullOrEmpty(s)) s = "/";
             if (s.Length > 100) s = s.Substring(0, 100);
+            return s;
+        }
+
+        // Rótulo curto (origem, etapa do funil): minúsculo, espaços viram "_",
+        // só caracteres seguros e tamanho bem limitado. Bom para chave/exibição.
+        private static string NormalizarSlug(string bruto)
+        {
+            var s = (bruto ?? "").Trim().ToLowerInvariant();
+            s = Regex.Replace(s, "\\s+", "_");
+            // Mantém letras acentuadas do português (à-ÿ) para rótulos legíveis.
+            s = Regex.Replace(s, "[^a-z0-9à-ÿ_-]", "");
+            if (s.Length > 40) s = s.Substring(0, 40);
             return s;
         }
 

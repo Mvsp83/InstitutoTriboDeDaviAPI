@@ -34,5 +34,9 @@ namespace InstitutoTriboDeDavi.Application.DTO
         public List<SerieDiaDTO> VisitasPorDia { get; set; } = new();
         public List<ItemContagemDTO> TopPaginas { get; set; } = new();
         public List<ItemContagemDTO> TopDavizinho { get; set; } = new();
+        // Fase 2: origem do tráfego, dispositivo e funil de inscrição.
+        public List<ItemContagemDTO> Origem { get; set; } = new();
+        public List<ItemContagemDTO> Dispositivos { get; set; } = new();
+        public List<ItemContagemDTO> FunilInscricao { get; set; } = new();
     }
 }

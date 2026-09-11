@@ -340,6 +340,7 @@ namespace InstitutoTriboDeDavi.API
             // Background service dos avisos do calendário por email
             services.AddHostedService<NotificacaoCalendarioHostedService>();
             services.AddHostedService<RetencaoMetricasHostedService>();
+            services.AddHostedService<RetencaoAuditoriaHostedService>();
 
             services.AddScoped<IFactoryPlanilhaDB, FactoryPlanilhaDB>();
             services.AddScoped<ISincronizacaoHistoricoRepository, SincronizacaoHistoricoRepository>();

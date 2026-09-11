@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -31,6 +32,13 @@ namespace InstitutoTriboDeDavi.Infrastructure.Repositories
                 .OrderByDescending(l => l.Data)
                 .Take(limite > 0 && limite <= 500 ? limite : 100)
                 .ToListAsync();
+        }
+
+        public async Task<int> LimparAnterioresAsync(DateTime limite)
+        {
+            return await _context.LogsAuditoria
+                .Where(l => l.Data < limite)
+                .ExecuteDeleteAsync();
         }
     }
 }

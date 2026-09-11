@@ -22,9 +22,10 @@ namespace InstitutoTriboDeDavi.Infrastructure.Mappings
             builder.Property(x => x.Alteracoes).IsRequired(false); // JSON -> nvarchar(max)
             builder.Property(x => x.Ip).HasMaxLength(60).IsRequired(false);
 
-            // A tela filtra por data (mais recentes) e por entidade.
+            // A tela filtra por data (mais recentes), por entidade e por usuário.
             builder.HasIndex(x => x.Data);
             builder.HasIndex(x => new { x.Entidade, x.EntidadeId });
+            builder.HasIndex(x => x.UsuarioLogin);
         }
     }
 }

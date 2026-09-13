@@ -9,5 +9,10 @@ namespace InstitutoTriboDeDavi.Application.Services.Interfaces
         Task<BemPatrimonialDTO> Create(BemPatrimonialDTO dto);
         Task<BemPatrimonialDTO> Update(BemPatrimonialDTO dto);
         Task Delete(long id);
+
+        // Empréstimo/comodato (quimono/faixa por aluno).
+        Task<EmprestimoBemDTO> Emprestar(EmprestarBemDTO dto, string registrador);
+        Task<EmprestimoBemDTO> Devolver(long bemId, string registrador);
+        Task<List<EmprestimoBemDTO>> HistoricoPorBem(long bemId);
     }
 }

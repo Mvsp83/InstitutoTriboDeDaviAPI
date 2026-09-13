@@ -39,6 +39,7 @@ namespace InstitutoTriboDeDavi.Infrastructure.Context
             builder.ApplyConfiguration(new EventoCalendarioMap());
             builder.ApplyConfiguration(new DocumentoOficialMap());
             builder.ApplyConfiguration(new BemPatrimonialMap());
+            builder.ApplyConfiguration(new EmprestimoBemMap());
             builder.ApplyConfiguration(new AvisoMap());
             builder.ApplyConfiguration(new AvisoCienteMap());
             builder.ApplyConfiguration(new SolicitacaoInternaMap());

@@ -100,5 +100,50 @@ namespace InstitutoTriboDeDavi.API.Controllers
                 });
             });
         }
+
+        [HttpPost("emprestar")]
+        public async Task<IActionResult> Emprestar([FromBody] EmprestarBemDTO dto)
+        {
+            return await ExecuteAsync(async () =>
+            {
+                var emprestimo = await _service.Emprestar(dto, UsuarioAutenticado.Login);
+                return Ok(new ResultViewModel
+                {
+                    Message = "Empréstimo registrado!",
+                    Success = true,
+                    Data = emprestimo
+                });
+            });
+        }
+
+        [HttpPost("devolver/{bemId}")]
+        public async Task<IActionResult> Devolver(long bemId)
+        {
+            return await ExecuteAsync(async () =>
+            {
+                var emprestimo = await _service.Devolver(bemId, UsuarioAutenticado.Login);
+                return Ok(new ResultViewModel
+                {
+                    Message = "Devolução registrada!",
+                    Success = true,
+                    Data = emprestimo
+                });
+            });
+        }
+
+        [HttpGet("historico/{bemId}")]
+        public async Task<IActionResult> Historico(long bemId)
+        {
+            return await ExecuteAsync(async () =>
+            {
+                var historico = await _service.HistoricoPorBem(bemId);
+                return Ok(new ResultViewModel
+                {
+                    Message = "Histórico obtido!",
+                    Success = true,
+                    Data = historico
+                });
+            });
+        }
     }
 }

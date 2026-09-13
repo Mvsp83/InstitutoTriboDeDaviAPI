@@ -13,6 +13,17 @@ namespace InstitutoTriboDeDavi.Domain.Enums
         [Description("Relatório de Atividades")]
         RelatorioAtividades,
         [Description("Modelos de Documentos")]
-        Modelos
+        Modelos,
+        // Documentos institucionais/de governança (subpastas próprias no Drive).
+        [Description("Estatuto")]
+        Estatuto,
+        [Description("Alterações do Estatuto")]
+        AlteracoesEstatuto,
+        [Description("Atas")]
+        Atas,
+        [Description("Pareceres")]
+        Pareceres,
+        [Description("Outros Documentos")]
+        OutrosDocumentos
     }
 }

@@ -65,8 +65,9 @@ namespace InstitutoTriboDeDavi.API.Controllers
             });
         }
 
-        // Público: número de "crianças atendidas" (alunos ativos, não
-        // anonimizados) exibido no site. Só um agregado, sem dado pessoal.
+        // Público: número de "crianças atendidas" (matrículas ativas do ano
+        // corrente; cai no cadastro quando o ano ainda não tem matrículas)
+        // exibido no site e na transparência. Só um agregado, sem dado pessoal.
         [HttpGet("total-publico")]
         [AllowAnonymous]
         [OutputCache(PolicyName = "publico")]

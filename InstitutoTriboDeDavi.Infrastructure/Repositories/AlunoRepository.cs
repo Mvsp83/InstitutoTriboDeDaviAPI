@@ -62,6 +62,16 @@ namespace InstitutoTriboDeDavi.Infrastructure.Repositories
 
         public async Task<int> GetTotalAtendidosAsync()
         {
+            // "Atendidos" = matrículas ATIVAS do ano corrente (o número de impacto
+            // do ciclo anual). Enquanto o ano ainda não tem matrículas (virada de
+            // ano / lote não rodado), cai no total de cadastros não anonimizados
+            // para não exibir 0.
+            var ano = DateTime.Now.Year;
+            var doAno = await _context.Matriculas
+                .CountAsync(m => m.Ano == ano && m.Ativa);
+            if (doAno > 0)
+                return doAno;
+
             return await _context.Alunos.CountAsync(a => a.AnonimizadoEm == null);
         }
 

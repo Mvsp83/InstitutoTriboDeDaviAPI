@@ -50,6 +50,10 @@ namespace InstitutoTriboDeDavi.Application.DTO
         public int Faixa { get; set; }
         public string Polo { get; set; } = string.Empty;
         public int Turma { get; set; }
+        // Aluno adulto (ficha de adulto). O portal usa para mostrar a próxima
+        // faixa na sequência certa: criança segue branca→cinza→amarela→laranja→
+        // verde; adulto segue branca→azul→roxa→marrom→preta.
+        public bool EhAdulto { get; set; }
         // Uso de imagem: null = não informado, true/false = decisão do responsável.
         public bool? AutorizaImagem { get; set; }
         public DateTime? AutorizaImagemEm { get; set; }

@@ -98,6 +98,7 @@ namespace InstitutoTriboDeDavi.Application.Services
                     Faixa = (int)aluno.Faixa,
                     Polo = await NomeDoPoloAsync(aluno.PoloId),
                     Turma = aluno.Turma,
+                    EhAdulto = aluno.EhAdulto,
                     AutorizaImagem = aluno.AutorizaImagem,
                     AutorizaImagemEm = aluno.AutorizaImagemEm,
                     FotoDataUri = fotoDataUri,

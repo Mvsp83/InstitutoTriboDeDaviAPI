@@ -36,6 +36,10 @@ namespace InstitutoTriboDeDavi.Infrastructure.Mappings
             builder.Property(x => x.Observacoes)
                 .HasMaxLength(1000)
                 .IsRequired(false);
+
+            builder.Property(x => x.Tamanho).HasMaxLength(30).IsRequired(false);
+            builder.Property(x => x.Cor).HasMaxLength(30).IsRequired(false);
+            builder.Property(x => x.AlunoId).IsRequired(false);
         }
     }
 }

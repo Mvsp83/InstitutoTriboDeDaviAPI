@@ -17,6 +17,12 @@ namespace InstitutoTriboDeDavi.Domain.Entities
         public long? PoloId { get; set; }
         public string NumeroPatrimonio { get; set; } = string.Empty;
         public string Observacoes { get; set; } = string.Empty;
+        // Atributos de vestuário (quimono/faixa): texto livre. Opcionais.
+        public string Tamanho { get; set; } = string.Empty;
+        public string Cor { get; set; } = string.Empty;
+        // Empréstimo/comodato: aluno com quem o item está. Nulo = disponível /
+        // não emprestado (itens em massa como tatame não usam este vínculo).
+        public long? AlunoId { get; set; }
 
         public override bool Validate()
         {

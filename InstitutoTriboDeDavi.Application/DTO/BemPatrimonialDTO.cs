@@ -12,5 +12,8 @@ namespace InstitutoTriboDeDavi.Application.DTO
         public long? PoloId { get; set; }
         public string NumeroPatrimonio { get; set; }
         public string Observacoes { get; set; }
+        public string Tamanho { get; set; }
+        public string Cor { get; set; }
+        public long? AlunoId { get; set; }
     }
 }

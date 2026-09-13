@@ -28,6 +28,8 @@ namespace InstitutoTriboDeDavi.Infrastructure.Mappings
             builder.Property(x => x.Cpf).HasMaxLength(20).IsRequired(false);
             builder.Property(x => x.Peso).HasColumnType("decimal(6,2)").IsRequired(false);
             builder.Property(x => x.Altura).HasColumnType("decimal(4,2)").IsRequired(false);
+            builder.Property(x => x.TamanhoCalca).HasMaxLength(20).IsRequired(false);
+            builder.Property(x => x.TamanhoBlusa).HasMaxLength(20).IsRequired(false);
             builder.Property(x => x.Escola).HasMaxLength(160).IsRequired(false);
             builder.Property(x => x.Serie).HasMaxLength(40).IsRequired(false);
             builder.Property(x => x.Periodo).HasMaxLength(20).IsRequired(false);

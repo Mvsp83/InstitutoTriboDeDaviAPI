@@ -40,6 +40,10 @@ namespace InstitutoTriboDeDavi.Domain.Entities
         public string Cpf { get; set; } = string.Empty;
         public decimal? Peso { get; set; }
         public decimal? Altura { get; set; }
+        // Tamanhos de roupa (opcionais) — ajudam a equipe a escolher o quimono
+        // de empréstimo. Texto livre (ex.: "10", "12", "P").
+        public string TamanhoCalca { get; set; } = string.Empty;
+        public string TamanhoBlusa { get; set; } = string.Empty;
         public int Faixa { get; set; }
         public string Escola { get; set; } = string.Empty;
         public string Serie { get; set; } = string.Empty;

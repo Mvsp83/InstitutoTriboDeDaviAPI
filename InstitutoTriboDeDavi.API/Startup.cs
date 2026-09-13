@@ -20,7 +20,6 @@ using InstitutoTriboDeDavi.Infrastructure.Configuration;
 using InstitutoTriboDeDavi.Infrastructure.Auditoria;
 using InstitutoTriboDeDavi.Infrastructure.Context;
 using InstitutoTriboDeDavi.Infrastructure.Seguranca;
-using InstitutoTriboDeDavi.Infrastructure.GoogleDrive;
 using InstitutoTriboDeDavi.Infrastructure.GoogleSheets;
 using InstitutoTriboDeDavi.Infrastructure.Email;
 using InstitutoTriboDeDavi.Infrastructure.Notificacoes;
@@ -32,7 +31,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -192,11 +190,25 @@ namespace InstitutoTriboDeDavi.API
 
             services.AddAuthorization(options =>
             {
-                // Fallback: todo endpoint exige usuário autenticado por padrão;
-                // exceções (login, setup) usam [AllowAnonymous] explícito
-                options.FallbackPolicy = new AuthorizationPolicyBuilder()
+                // Default + Fallback exigem PAPEL DE EQUIPE (não só estar autenticado).
+                // Assim, [Authorize] puro e endpoints sem metadata de autorização recusam
+                // quem não é Administrador/Supervisor/Professor — em especial o token do
+                // portal do responsável (role "Responsavel", que o Authorization resolve
+                // como UserRole.Default). Endpoints [Authorize(Roles=...)] e [AllowAnonymous]
+                // têm política própria e NÃO combinam com a Default, então seguem intactos
+                // (o portal do responsável usa só rotas [Authorize(Roles="Responsavel")]).
+                var equipeInterna = new AuthorizationPolicyBuilder()
                     .RequireAuthenticatedUser()
+                    .RequireRole(
+                        nameof(UserRole.Administrador),
+                        nameof(UserRole.Supervisor),
+                        nameof(UserRole.Professor))
                     .Build();
+
+                options.DefaultPolicy = equipeInterna;   // governa [Authorize] sem parâmetros
+                options.FallbackPolicy = equipeInterna;  // governa endpoints sem metadata
+
+                options.AddPolicy(AuthPolicies.EquipeInterna, equipeInterna);
 
                 options.AddPolicy(AuthPolicies.ProfessorOuSuperior, policy =>
                     policy.RequireRole(
@@ -526,7 +538,7 @@ namespace InstitutoTriboDeDavi.API
         public static WebApplicationBuilder UseStartup<TStartup>(this WebApplicationBuilder builder) where TStartup : IStartup
         {
             var startup = Activator.CreateInstance(typeof(TStartup), builder.Configuration) as IStartup;
-            if (startup == null) throw new ArgumentException("Classe Startup.cs inválida!");
+            if (startup == null) throw new ArgumentException("Classe  inválida!");
 
             // Observabilidade — Serilog governa o logging (console + arquivo
             // rotativo), lido da seção "Serilog" do appsettings. Substitui os

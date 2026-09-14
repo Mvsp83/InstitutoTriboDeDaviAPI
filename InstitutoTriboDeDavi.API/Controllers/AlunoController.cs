@@ -178,7 +178,7 @@ namespace InstitutoTriboDeDavi.API.Controllers
         }
 
         [HttpGet("alunos-mais-faltantes")]
-        [Authorize]
+        [Authorize(Policy = AuthPolicies.ProfessorOuSuperior)]
         public async Task<IActionResult> GetAlunosFaltas()
         {
             return await ExecuteAsync(async () =>
@@ -203,7 +203,7 @@ namespace InstitutoTriboDeDavi.API.Controllers
         }
 
         [HttpGet("get-por-polo")]
-        [Authorize]
+        [Authorize(Policy = AuthPolicies.ProfessorOuSuperior)]
         public async Task<IActionResult> ObterAlunos([FromQuery] List<int> turmas)
         {
             return await ExecuteAsync(async () =>

@@ -292,6 +292,8 @@ namespace InstitutoTriboDeDavi.API
             services.AddScoped<IBemPatrimonialRepository, BemPatrimonialRepository>();
             services.AddScoped<IEmprestimoBemRepository, EmprestimoBemRepository>();
             services.AddScoped<IBemPatrimonialService, BemPatrimonialService>();
+            services.AddScoped<IMensagemContatoRepository, MensagemContatoRepository>();
+            services.AddScoped<IMensagemContatoService, MensagemContatoService>();
             services.AddScoped<IAvisoRepository, AvisoRepository>();
             services.AddScoped<IAvisoService, AvisoService>();
             services.AddScoped<ISolicitacaoInternaRepository, SolicitacaoInternaRepository>();
@@ -382,6 +384,7 @@ namespace InstitutoTriboDeDavi.API
                     cfg.CreateMap<DocumentoOficial, DocumentoOficialDTO>().ReverseMap();
                     cfg.CreateMap<BemPatrimonial, BemPatrimonialDTO>().ReverseMap();
                     cfg.CreateMap<EmprestimoBem, EmprestimoBemDTO>().ReverseMap();
+                    cfg.CreateMap<MensagemContato, MensagemContatoDTO>().ReverseMap();
                     cfg.CreateMap<Aviso, AvisoDTO>().ReverseMap();
                     cfg.CreateMap<SolicitacaoInterna, SolicitacaoInternaDTO>().ReverseMap();
                     cfg.CreateMap<MensagemSolicitacao, MensagemSolicitacaoDTO>().ReverseMap();

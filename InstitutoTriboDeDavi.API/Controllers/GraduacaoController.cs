@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Threading.Tasks;
 using InstitutoTriboDeDavi.API.Utilities;
 using InstitutoTriboDeDavi.API.ViewModels.Result;
@@ -38,15 +39,27 @@ namespace InstitutoTriboDeDavi.API.Controllers
         }
 
         [HttpGet("aluno/{alunoId}")]
-        [Authorize]
+        [Authorize(Policy = AuthPolicies.ProfessorOuSuperior)]
         public async Task<IActionResult> PorAluno(long alunoId)
         {
-            return await ExecuteAsync(async () => Ok(new ResultViewModel
+            return await ExecuteAsync(async () =>
             {
-                Message = "Histórico obtido com sucesso!",
-                Success = true,
-                Data = await _service.ListarPorAluno(alunoId)
-            }));
+                var dados = await _service.ListarPorAluno(alunoId);
+
+                // Isolamento entre polos: o professor/supervisor só vê o histórico
+                // de alunos do próprio polo (admin vê tudo). Sem isso, bastaria o
+                // id de um aluno de outro polo para ler o histórico dele.
+                var polo = PoloDoUsuario();
+                if (polo.HasValue)
+                    dados = dados.Where(g => g.PoloId == polo.Value).ToList();
+
+                return Ok(new ResultViewModel
+                {
+                    Message = "Histórico obtido com sucesso!",
+                    Success = true,
+                    Data = dados
+                });
+            });
         }
 
         [HttpGet("aptidao")]

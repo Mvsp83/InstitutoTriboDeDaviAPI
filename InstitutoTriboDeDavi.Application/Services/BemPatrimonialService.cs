@@ -26,7 +26,14 @@ namespace InstitutoTriboDeDavi.Application.Services
         public async Task<List<BemPatrimonialDTO>> GetAll()
         {
             var bens = await _repository.ObterTodosAsync();
-            return _mapper.Map<List<BemPatrimonialDTO>>(bens);
+            var dtos = _mapper.Map<List<BemPatrimonialDTO>>(bens);
+
+            // Preenche as alocações em aberto por bem (para a disponibilidade).
+            var abertosPorBem = await _emprestimoRepository.ContarAbertosPorBemAsync();
+            foreach (var dto in dtos)
+                dto.AlocadosAbertos = abertosPorBem.TryGetValue(dto.Id, out var n) ? n : 0;
+
+            return dtos;
         }
 
         public async Task<BemPatrimonialDTO> Get(long id)
@@ -66,53 +73,38 @@ namespace InstitutoTriboDeDavi.Application.Services
             if (bem == null)
                 throw new DomainException("Bem não encontrado.");
 
-            var aberto = await _emprestimoRepository.ObterAbertoPorBemAsync(dto.BemPatrimonialId);
-            if (aberto != null || bem.AlunoId != null)
-                throw new DomainException("Este item já está emprestado. Registre a devolução primeiro.");
+            // Disponibilidade por estoque: uma unidade por alocação em aberto.
+            var doBem = await _emprestimoRepository.ListarPorBemAsync(dto.BemPatrimonialId);
+            var abertos = doBem.Count(e => e.DataDevolucao == null);
+            if (abertos >= bem.Quantidade)
+                throw new DomainException("Não há unidade disponível deste item para alocar.");
 
             var emprestimo = new EmprestimoBem
             {
                 BemPatrimonialId = dto.BemPatrimonialId,
-                AlunoId = dto.AlunoId,
+                AlunoId = dto.AlunoId.HasValue && dto.AlunoId.Value > 0 ? dto.AlunoId : null,
+                PoloId = dto.PoloId.HasValue && dto.PoloId.Value > 0 ? dto.PoloId : null,
                 DataEmprestimo = DateTime.Now,
                 Observacao = dto.Observacao ?? string.Empty,
                 RegistradoPor = registrador ?? string.Empty,
             };
             emprestimo.Validate();
             var criado = await _emprestimoRepository.CreateAsync(emprestimo);
-
-            // Mantém o "com quem está" no próprio bem (usado na lista/disponibilidade).
-            bem.AlunoId = dto.AlunoId;
-            await _repository.UpdateAsync(bem);
-
             return _mapper.Map<EmprestimoBemDTO>(criado);
         }
 
-        public async Task<EmprestimoBemDTO> Devolver(long bemId, string registrador)
+        public async Task<EmprestimoBemDTO> Devolver(long emprestimoId, string registrador)
         {
-            var bem = await _repository.GetByIdAsync(bemId);
-            if (bem == null)
-                throw new DomainException("Bem não encontrado.");
+            var emprestimo = await _emprestimoRepository.GetByIdAsync(emprestimoId);
+            if (emprestimo == null)
+                throw new DomainException("Empréstimo não encontrado.");
+            if (emprestimo.DataDevolucao != null)
+                throw new DomainException("Este empréstimo já foi devolvido.");
 
-            var aberto = await _emprestimoRepository.ObterAbertoPorBemAsync(bemId);
-            if (aberto == null)
-            {
-                // Sem empréstimo em aberto: só garante o bem como disponível.
-                if (bem.AlunoId != null)
-                {
-                    bem.AlunoId = null;
-                    await _repository.UpdateAsync(bem);
-                }
-                throw new DomainException("Não há empréstimo em aberto para este item.");
-            }
-
-            aberto.DataDevolucao = DateTime.Now;
+            emprestimo.DataDevolucao = DateTime.Now;
             if (!string.IsNullOrWhiteSpace(registrador))
-                aberto.RegistradoPor = registrador;
-            var atualizado = await _emprestimoRepository.UpdateAsync(aberto);
-
-            bem.AlunoId = null;
-            await _repository.UpdateAsync(bem);
+                emprestimo.RegistradoPor = registrador;
+            var atualizado = await _emprestimoRepository.UpdateAsync(emprestimo);
 
             return _mapper.Map<EmprestimoBemDTO>(atualizado);
         }
@@ -120,6 +112,18 @@ namespace InstitutoTriboDeDavi.Application.Services
         public async Task<List<EmprestimoBemDTO>> HistoricoPorBem(long bemId)
         {
             var lista = await _emprestimoRepository.ListarPorBemAsync(bemId);
+            return _mapper.Map<List<EmprestimoBemDTO>>(lista);
+        }
+
+        public async Task<List<EmprestimoBemDTO>> HistoricoPorAluno(long alunoId)
+        {
+            var lista = await _emprestimoRepository.ListarPorAlunoAsync(alunoId);
+            return _mapper.Map<List<EmprestimoBemDTO>>(lista);
+        }
+
+        public async Task<List<EmprestimoBemDTO>> HistoricoPorPolo(long poloId)
+        {
+            var lista = await _emprestimoRepository.ListarPorPoloAsync(poloId);
             return _mapper.Map<List<EmprestimoBemDTO>>(lista);
         }
     }

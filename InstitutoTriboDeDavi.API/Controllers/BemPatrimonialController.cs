@@ -116,12 +116,12 @@ namespace InstitutoTriboDeDavi.API.Controllers
             });
         }
 
-        [HttpPost("devolver/{bemId}")]
-        public async Task<IActionResult> Devolver(long bemId)
+        [HttpPost("devolver/{emprestimoId}")]
+        public async Task<IActionResult> Devolver(long emprestimoId)
         {
             return await ExecuteAsync(async () =>
             {
-                var emprestimo = await _service.Devolver(bemId, UsuarioAutenticado.Login);
+                var emprestimo = await _service.Devolver(emprestimoId, UsuarioAutenticado.Login);
                 return Ok(new ResultViewModel
                 {
                     Message = "Devolução registrada!",
@@ -137,6 +137,36 @@ namespace InstitutoTriboDeDavi.API.Controllers
             return await ExecuteAsync(async () =>
             {
                 var historico = await _service.HistoricoPorBem(bemId);
+                return Ok(new ResultViewModel
+                {
+                    Message = "Histórico obtido!",
+                    Success = true,
+                    Data = historico
+                });
+            });
+        }
+
+        [HttpGet("historico/aluno/{alunoId}")]
+        public async Task<IActionResult> HistoricoAluno(long alunoId)
+        {
+            return await ExecuteAsync(async () =>
+            {
+                var historico = await _service.HistoricoPorAluno(alunoId);
+                return Ok(new ResultViewModel
+                {
+                    Message = "Histórico obtido!",
+                    Success = true,
+                    Data = historico
+                });
+            });
+        }
+
+        [HttpGet("historico/polo/{poloId}")]
+        public async Task<IActionResult> HistoricoPolo(long poloId)
+        {
+            return await ExecuteAsync(async () =>
+            {
+                var historico = await _service.HistoricoPorPolo(poloId);
                 return Ok(new ResultViewModel
                 {
                     Message = "Histórico obtido!",

@@ -4,12 +4,16 @@ using InstitutoTriboDeDavi.Domain.Exceptions;
 
 namespace InstitutoTriboDeDavi.Domain.Entities
 {
-    // Histórico de empréstimo/comodato de um bem (quimono, faixa) a um aluno.
-    // Uma linha por empréstimo; DataDevolucao nula = ainda com o aluno (em aberto).
+    // Alocação/comodato de uma UNIDADE de um bem a um aluno (quimono, faixa) ou
+    // a um polo (tatame). Uma linha por alocação; DataDevolucao nula = em aberto
+    // (ainda alocado). Vários registros em aberto por bem, limitados à Quantidade
+    // do bem — a disponibilidade é Quantidade menos as alocações em aberto.
     public class EmprestimoBem : Base
     {
         public long BemPatrimonialId { get; set; }
-        public long AlunoId { get; set; }
+        // Exatamente um destino: aluno (quimono/faixa) OU polo (tatame).
+        public long? AlunoId { get; set; }
+        public long? PoloId { get; set; }
         public DateTime DataEmprestimo { get; set; }
         public DateTime? DataDevolucao { get; set; }
         public string Observacao { get; set; } = string.Empty;
@@ -19,8 +23,11 @@ namespace InstitutoTriboDeDavi.Domain.Entities
         {
             if (BemPatrimonialId <= 0)
                 _errors.Add("O bem do empréstimo é obrigatório.");
-            if (AlunoId <= 0)
-                _errors.Add("O aluno do empréstimo é obrigatório.");
+
+            var temAluno = AlunoId.HasValue && AlunoId.Value > 0;
+            var temPolo = PoloId.HasValue && PoloId.Value > 0;
+            if (temAluno == temPolo)
+                _errors.Add("Informe o aluno OU o polo do empréstimo (apenas um).");
 
             if (_errors.Any())
                 throw new DomainException("Alguns campos estão inválidos!", _errors);

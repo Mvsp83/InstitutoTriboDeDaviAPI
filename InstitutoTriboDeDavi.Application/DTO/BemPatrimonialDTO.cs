@@ -14,6 +14,8 @@ namespace InstitutoTriboDeDavi.Application.DTO
         public string Observacoes { get; set; }
         public string Tamanho { get; set; }
         public string Cor { get; set; }
-        public long? AlunoId { get; set; }
+        // Quantas unidades estão alocadas em aberto (a alunos/polos). Só leitura,
+        // preenchido no GetAll; disponível = Quantidade - AlocadosAbertos.
+        public int AlocadosAbertos { get; set; }
     }
 }

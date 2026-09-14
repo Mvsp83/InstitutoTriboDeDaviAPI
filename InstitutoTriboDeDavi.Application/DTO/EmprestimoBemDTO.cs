@@ -6,18 +6,21 @@ namespace InstitutoTriboDeDavi.Application.DTO
     {
         public long Id { get; set; }
         public long BemPatrimonialId { get; set; }
-        public long AlunoId { get; set; }
+        // Um destino por alocação: aluno (quimono/faixa) OU polo (tatame).
+        public long? AlunoId { get; set; }
+        public long? PoloId { get; set; }
         public DateTime DataEmprestimo { get; set; }
         public DateTime? DataDevolucao { get; set; }
         public string Observacao { get; set; }
         public string RegistradoPor { get; set; }
     }
 
-    // Payload para registrar um novo empréstimo.
+    // Payload para registrar uma nova alocação. Informe AlunoId OU PoloId.
     public class EmprestarBemDTO
     {
         public long BemPatrimonialId { get; set; }
-        public long AlunoId { get; set; }
+        public long? AlunoId { get; set; }
+        public long? PoloId { get; set; }
         public string Observacao { get; set; }
     }
 }

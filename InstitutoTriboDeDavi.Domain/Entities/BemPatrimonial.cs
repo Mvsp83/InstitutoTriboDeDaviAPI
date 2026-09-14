@@ -20,9 +20,8 @@ namespace InstitutoTriboDeDavi.Domain.Entities
         // Atributos de vestuário (quimono/faixa): texto livre. Opcionais.
         public string Tamanho { get; set; } = string.Empty;
         public string Cor { get; set; } = string.Empty;
-        // Empréstimo/comodato: aluno com quem o item está. Nulo = disponível /
-        // não emprestado (itens em massa como tatame não usam este vínculo).
-        public long? AlunoId { get; set; }
+        // "Com quem está" NÃO fica mais aqui: as alocações (a aluno ou polo) vivem
+        // em EmprestimoBem. A disponibilidade é Quantidade menos alocações abertas.
 
         public override bool Validate()
         {

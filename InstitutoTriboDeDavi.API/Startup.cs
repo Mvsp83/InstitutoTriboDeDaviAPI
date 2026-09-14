@@ -150,6 +150,19 @@ namespace InstitutoTriboDeDavi.API
                             QueueLimit = 0
                         }));
 
+                // Rematrícula: consulta anônima com chave de baixa entropia. Uma
+                // família legítima consulta uma vez; 5/10min por IP corta a
+                // varredura de dados de menores sem atrapalhar o uso real.
+                options.AddPolicy(AuthPolicies.RematriculaRateLimit, context =>
+                    RateLimitPartition.GetFixedWindowLimiter(
+                        context.Connection.RemoteIpAddress?.ToString() ?? "desconhecido",
+                        _ => new FixedWindowRateLimiterOptions
+                        {
+                            Window = TimeSpan.FromMinutes(10),
+                            PermitLimit = 5,
+                            QueueLimit = 0
+                        }));
+
                 // Rede de segurança global por IP (~4 req/s sustentado): protege
                 // os endpoints públicos (balanços, polos, vitrine, perfil) contra
                 // abuso/scraping sem atrapalhar o uso normal. Os limites estritos

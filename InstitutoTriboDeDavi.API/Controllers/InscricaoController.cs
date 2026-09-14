@@ -105,7 +105,7 @@ namespace InstitutoTriboDeDavi.API.Controllers
         // (mesma resposta para evitar enumeração de CPFs).
         [HttpPost("buscar-aluno")]
         [AllowAnonymous]
-        [EnableRateLimiting(AuthPolicies.InscricaoRateLimit)]
+        [EnableRateLimiting(AuthPolicies.RematriculaRateLimit)]
         public async Task<IActionResult> BuscarAluno([FromBody] ViewModels.Create.BuscarRematriculaViewModel model)
         {
             return await ExecuteAsync(async () =>

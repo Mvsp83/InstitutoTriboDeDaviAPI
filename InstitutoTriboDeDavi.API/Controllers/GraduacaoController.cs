@@ -5,6 +5,7 @@ using InstitutoTriboDeDavi.API.ViewModels.Result;
 using InstitutoTriboDeDavi.Application.DTO;
 using InstitutoTriboDeDavi.Application.Services.Interfaces;
 using InstitutoTriboDeDavi.Domain.Enums;
+using InstitutoTriboDeDavi.Domain.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,12 +18,14 @@ namespace InstitutoTriboDeDavi.API.Controllers
     public class GraduacaoController : BaseController
     {
         private readonly IGraduacaoService _service;
+        private readonly IAlunoFotoService _fotoService;
         private readonly ILogger<GraduacaoController> _logger;
 
-        public GraduacaoController(IGraduacaoService service, ILogger<GraduacaoController> logger)
+        public GraduacaoController(IGraduacaoService service, IAlunoFotoService fotoService, ILogger<GraduacaoController> logger)
             : base(logger)
         {
             _service = service;
+            _fotoService = fotoService;
             _logger = logger;
         }
 
@@ -44,20 +47,17 @@ namespace InstitutoTriboDeDavi.API.Controllers
         {
             return await ExecuteAsync(async () =>
             {
-                var dados = await _service.ListarPorAluno(alunoId);
-
-                // Isolamento entre polos: o professor/supervisor só vê o histórico
-                // de alunos do próprio polo (admin vê tudo). Sem isso, bastaria o
-                // id de um aluno de outro polo para ler o histórico dele.
-                var polo = PoloDoUsuario();
-                if (polo.HasValue)
-                    dados = dados.Where(g => g.PoloId == polo.Value).ToList();
+                // Posse: não-admin só enxerga aluno do próprio polo (evita IDOR por id).
+                var poloId = await _fotoService.ObterPoloId(alunoId);
+                if (poloId == null)
+                    throw new DomainException("Aluno não encontrado.");
+                ValidatePoloUsuario(poloId.Value);
 
                 return Ok(new ResultViewModel
                 {
                     Message = "Histórico obtido com sucesso!",
                     Success = true,
-                    Data = dados
+                    Data = await _service.ListarPorAluno(alunoId)
                 });
             });
         }

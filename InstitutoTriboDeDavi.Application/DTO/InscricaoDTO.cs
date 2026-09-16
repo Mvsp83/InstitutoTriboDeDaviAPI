@@ -22,6 +22,8 @@ namespace InstitutoTriboDeDavi.Application.DTO
         public string Cpf { get; set; }
         public decimal? Peso { get; set; }
         public decimal? Altura { get; set; }
+        public string TamanhoCalca { get; set; }
+        public string TamanhoBlusa { get; set; }
         public int Faixa { get; set; }
         public string Escola { get; set; }
         public string Serie { get; set; }

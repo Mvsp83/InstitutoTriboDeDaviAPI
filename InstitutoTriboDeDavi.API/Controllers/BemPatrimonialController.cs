@@ -100,5 +100,80 @@ namespace InstitutoTriboDeDavi.API.Controllers
                 });
             });
         }
+
+        [HttpPost("emprestar")]
+        public async Task<IActionResult> Emprestar([FromBody] EmprestarBemDTO dto)
+        {
+            return await ExecuteAsync(async () =>
+            {
+                var emprestimo = await _service.Emprestar(dto, UsuarioAutenticado.Login);
+                return Ok(new ResultViewModel
+                {
+                    Message = "Empréstimo registrado!",
+                    Success = true,
+                    Data = emprestimo
+                });
+            });
+        }
+
+        [HttpPost("devolver/{emprestimoId}")]
+        public async Task<IActionResult> Devolver(long emprestimoId)
+        {
+            return await ExecuteAsync(async () =>
+            {
+                var emprestimo = await _service.Devolver(emprestimoId, UsuarioAutenticado.Login);
+                return Ok(new ResultViewModel
+                {
+                    Message = "Devolução registrada!",
+                    Success = true,
+                    Data = emprestimo
+                });
+            });
+        }
+
+        [HttpGet("historico/{bemId}")]
+        public async Task<IActionResult> Historico(long bemId)
+        {
+            return await ExecuteAsync(async () =>
+            {
+                var historico = await _service.HistoricoPorBem(bemId);
+                return Ok(new ResultViewModel
+                {
+                    Message = "Histórico obtido!",
+                    Success = true,
+                    Data = historico
+                });
+            });
+        }
+
+        [HttpGet("historico/aluno/{alunoId}")]
+        public async Task<IActionResult> HistoricoAluno(long alunoId)
+        {
+            return await ExecuteAsync(async () =>
+            {
+                var historico = await _service.HistoricoPorAluno(alunoId);
+                return Ok(new ResultViewModel
+                {
+                    Message = "Histórico obtido!",
+                    Success = true,
+                    Data = historico
+                });
+            });
+        }
+
+        [HttpGet("historico/polo/{poloId}")]
+        public async Task<IActionResult> HistoricoPolo(long poloId)
+        {
+            return await ExecuteAsync(async () =>
+            {
+                var historico = await _service.HistoricoPorPolo(poloId);
+                return Ok(new ResultViewModel
+                {
+                    Message = "Histórico obtido!",
+                    Success = true,
+                    Data = historico
+                });
+            });
+        }
     }
 }

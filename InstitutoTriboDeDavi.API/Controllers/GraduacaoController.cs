@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Threading.Tasks;
 using InstitutoTriboDeDavi.API.Utilities;
 using InstitutoTriboDeDavi.API.ViewModels.Result;
@@ -41,7 +42,7 @@ namespace InstitutoTriboDeDavi.API.Controllers
         }
 
         [HttpGet("aluno/{alunoId}")]
-        [Authorize]
+        [Authorize(Policy = AuthPolicies.ProfessorOuSuperior)]
         public async Task<IActionResult> PorAluno(long alunoId)
         {
             return await ExecuteAsync(async () =>

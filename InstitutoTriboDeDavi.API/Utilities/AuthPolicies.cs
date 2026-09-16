@@ -13,5 +13,8 @@ namespace InstitutoTriboDeDavi.API.Utilities
         public const string InscricaoRateLimit = "inscricao";
         // Beacon público de métricas: corta inflação de contadores por IP.
         public const string MetricaRateLimit = "metrica";
+        // Busca pública de rematrícula: chave de baixa entropia (CPF+nascimento),
+        // então limite estrito por IP contra enumeração de dados de menores.
+        public const string RematriculaRateLimit = "rematricula";
     }
 }

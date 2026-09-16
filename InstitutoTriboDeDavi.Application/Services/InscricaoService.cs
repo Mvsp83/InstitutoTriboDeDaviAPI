@@ -324,8 +324,10 @@ namespace InstitutoTriboDeDavi.Application.Services
 
         public async Task<DadosPreMatriculaDTO> BuscarParaRematricula(string cpfResponsavel, DateTime dataNascimento)
         {
+            // Exige CPF completo (11 dígitos): endpoint anônimo, então um CPF
+            // parcial não pode servir de chave — reduz enumeração/adivinhação.
             var cpf = SomenteDigitos(cpfResponsavel);
-            if (cpf.Length == 0)
+            if (cpf.Length != 11)
                 return null;
 
             var alunos = await _alunoRepository.GetAllAsync();
@@ -337,13 +339,19 @@ namespace InstitutoTriboDeDavi.Application.Services
             if (aluno == null)
                 return null;
 
+            // Minimização (LGPD): este endpoint é ANÔNIMO e a chave (CPF do
+            // responsável + nascimento) é de baixa entropia. Não devolvemos os
+            // números de documento (RG/CPF do aluno e do responsável) para não
+            // expor identificadores de um menor a quem apenas adivinhou a chave.
+            // Os demais campos servem só ao pré-preenchimento da rematrícula; a
+            // família redigita os documentos, que já conhece.
             return new DadosPreMatriculaDTO
             {
                 AlunoId = aluno.Id,
                 Nome = aluno.Nome ?? string.Empty,
                 DataNascimento = aluno.DataNascimento.ToString("yyyy-MM-dd"),
-                Rg = aluno.RG ?? string.Empty,
-                Cpf = aluno.CPF ?? string.Empty,
+                Rg = string.Empty,
+                Cpf = string.Empty,
                 Peso = aluno.Peso,
                 Altura = aluno.Altura,
                 Faixa = (int)aluno.Faixa,
@@ -352,8 +360,8 @@ namespace InstitutoTriboDeDavi.Application.Services
                 Periodo = aluno.Periodo ?? string.Empty,
                 Parentesco = (int)(aluno.Parentesco ?? 0),
                 NomeResponsavel = aluno.Responsavel ?? string.Empty,
-                RgResponsavel = aluno.RGResponsavel ?? string.Empty,
-                CpfResponsavel = aluno.CPFResponsavel ?? string.Empty,
+                RgResponsavel = string.Empty,
+                CpfResponsavel = string.Empty,
                 Rua = aluno.Endereco ?? string.Empty,
                 Numero = aluno.Numero ?? string.Empty,
                 Complemento = aluno.Complemento ?? string.Empty,

@@ -148,6 +148,19 @@ namespace InstitutoTriboDeDavi.API
                             QueueLimit = 0
                         }));
 
+                // Rematrícula: consulta anônima com chave de baixa entropia. Uma
+                // família legítima consulta uma vez; 5/10min por IP corta a
+                // varredura de dados de menores sem atrapalhar o uso real.
+                options.AddPolicy(AuthPolicies.RematriculaRateLimit, context =>
+                    RateLimitPartition.GetFixedWindowLimiter(
+                        context.Connection.RemoteIpAddress?.ToString() ?? "desconhecido",
+                        _ => new FixedWindowRateLimiterOptions
+                        {
+                            Window = TimeSpan.FromMinutes(10),
+                            PermitLimit = 5,
+                            QueueLimit = 0
+                        }));
+
                 // Rede de segurança global por IP (~4 req/s sustentado): protege
                 // os endpoints públicos (balanços, polos, vitrine, perfil) contra
                 // abuso/scraping sem atrapalhar o uso normal. Os limites estritos
@@ -302,7 +315,10 @@ namespace InstitutoTriboDeDavi.API
             services.AddScoped<IDocumentoOficialRepository, DocumentoOficialRepository>();
             services.AddScoped<IDocumentoOficialService, DocumentoOficialService>();
             services.AddScoped<IBemPatrimonialRepository, BemPatrimonialRepository>();
+            services.AddScoped<IEmprestimoBemRepository, EmprestimoBemRepository>();
             services.AddScoped<IBemPatrimonialService, BemPatrimonialService>();
+            services.AddScoped<IMensagemContatoRepository, MensagemContatoRepository>();
+            services.AddScoped<IMensagemContatoService, MensagemContatoService>();
             services.AddScoped<IAvisoRepository, AvisoRepository>();
             services.AddScoped<IAvisoService, AvisoService>();
             services.AddScoped<ISolicitacaoInternaRepository, SolicitacaoInternaRepository>();
@@ -392,6 +408,8 @@ namespace InstitutoTriboDeDavi.API
                     cfg.CreateMap<EventoCalendario, EventoCalendarioDTO>().ReverseMap();
                     cfg.CreateMap<DocumentoOficial, DocumentoOficialDTO>().ReverseMap();
                     cfg.CreateMap<BemPatrimonial, BemPatrimonialDTO>().ReverseMap();
+                    cfg.CreateMap<EmprestimoBem, EmprestimoBemDTO>().ReverseMap();
+                    cfg.CreateMap<MensagemContato, MensagemContatoDTO>().ReverseMap();
                     cfg.CreateMap<Aviso, AvisoDTO>().ReverseMap();
                     cfg.CreateMap<SolicitacaoInterna, SolicitacaoInternaDTO>().ReverseMap();
                     cfg.CreateMap<MensagemSolicitacao, MensagemSolicitacaoDTO>().ReverseMap();

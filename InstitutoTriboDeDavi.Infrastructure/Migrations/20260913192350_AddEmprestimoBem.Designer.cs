@@ -3,6 +3,7 @@ using System;
 using InstitutoTriboDeDavi.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace InstitutoTriboDeDavi.Infrastructure.Migrations
 {
     [DbContext(typeof(TriboDeDaviContext))]
-    partial class TriboDeDaviContextModelSnapshot : ModelSnapshot
+    [Migration("20260913192350_AddEmprestimoBem")]
+    partial class AddEmprestimoBem
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -293,6 +296,9 @@ namespace InstitutoTriboDeDavi.Infrastructure.Migrations
                         .HasColumnType("BIGINT");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long?>("AlunoId")
+                        .HasColumnType("bigint");
 
                     b.Property<int>("Categoria")
                         .HasColumnType("integer");
@@ -1290,7 +1296,7 @@ namespace InstitutoTriboDeDavi.Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
-                    b.Property<long?>("AlunoId")
+                    b.Property<long>("AlunoId")
                         .HasColumnType("bigint");
 
                     b.Property<long>("BemPatrimonialId")
@@ -1306,20 +1312,13 @@ namespace InstitutoTriboDeDavi.Infrastructure.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
-                    b.Property<long?>("PoloId")
-                        .HasColumnType("bigint");
-
                     b.Property<string>("RegistradoPor")
                         .HasMaxLength(120)
                         .HasColumnType("character varying(120)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AlunoId");
-
                     b.HasIndex("BemPatrimonialId");
-
-                    b.HasIndex("PoloId");
 
                     b.ToTable("EMPRESTIMO_BEM", (string)null);
                 });
@@ -1977,49 +1976,6 @@ namespace InstitutoTriboDeDavi.Infrastructure.Migrations
                     b.HasIndex("Ano");
 
                     b.ToTable("MEMBRO_GOVERNANCA", (string)null);
-                });
-
-            modelBuilder.Entity("InstitutoTriboDeDavi.Domain.Entities.MensagemContato", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("BIGINT");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("Assunto")
-                        .HasMaxLength(160)
-                        .HasColumnType("character varying(160)");
-
-                    b.Property<DateTime>("DataCriacao")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<string>("Email")
-                        .HasMaxLength(160)
-                        .HasColumnType("character varying(160)");
-
-                    b.Property<bool>("Lida")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("Mensagem")
-                        .IsRequired()
-                        .HasMaxLength(4000)
-                        .HasColumnType("character varying(4000)");
-
-                    b.Property<string>("Nome")
-                        .IsRequired()
-                        .HasMaxLength(160)
-                        .HasColumnType("character varying(160)");
-
-                    b.Property<string>("Telefone")
-                        .HasMaxLength(40)
-                        .HasColumnType("character varying(40)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("DataCriacao");
-
-                    b.ToTable("MENSAGEM_CONTATO", (string)null);
                 });
 
             modelBuilder.Entity("InstitutoTriboDeDavi.Domain.Entities.MensagemSolicitacao", b =>

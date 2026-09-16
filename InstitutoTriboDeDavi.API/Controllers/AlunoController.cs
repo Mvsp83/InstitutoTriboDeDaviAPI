@@ -65,8 +65,9 @@ namespace InstitutoTriboDeDavi.API.Controllers
             });
         }
 
-        // Público: número de "crianças atendidas" (alunos ativos, não
-        // anonimizados) exibido no site. Só um agregado, sem dado pessoal.
+        // Público: número de "crianças atendidas" (matrículas ativas do ano
+        // corrente; cai no cadastro quando o ano ainda não tem matrículas)
+        // exibido no site e na transparência. Só um agregado, sem dado pessoal.
         [HttpGet("total-publico")]
         [AllowAnonymous]
         [OutputCache(PolicyName = "publico")]
@@ -177,7 +178,7 @@ namespace InstitutoTriboDeDavi.API.Controllers
         }
 
         [HttpGet("alunos-mais-faltantes")]
-        [Authorize]
+        [Authorize(Policy = AuthPolicies.ProfessorOuSuperior)]
         public async Task<IActionResult> GetAlunosFaltas()
         {
             return await ExecuteAsync(async () =>
@@ -202,7 +203,7 @@ namespace InstitutoTriboDeDavi.API.Controllers
         }
 
         [HttpGet("get-por-polo")]
-        [Authorize]
+        [Authorize(Policy = AuthPolicies.ProfessorOuSuperior)]
         public async Task<IActionResult> ObterAlunos([FromQuery] List<int> turmas)
         {
             return await ExecuteAsync(async () =>

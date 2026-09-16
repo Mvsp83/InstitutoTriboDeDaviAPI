@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using InstitutoTriboDeDavi.API.Utilities;
 using InstitutoTriboDeDavi.API.ViewModels.Result;
+using InstitutoTriboDeDavi.Application.Common;
 using InstitutoTriboDeDavi.Application.DTO;
 using InstitutoTriboDeDavi.Application.Services.Interfaces;
 using InstitutoTriboDeDavi.Domain.Enums;
@@ -86,7 +87,16 @@ namespace InstitutoTriboDeDavi.API.Controllers
                 if (!(arquivo.ContentType ?? "").StartsWith("image/"))
                     throw new DomainException("O arquivo enviado não é uma imagem.");
 
-                using var stream = arquivo.OpenReadStream();
+                // Bufferiza e valida as dimensões pelo cabeçalho ANTES de guardar:
+                // o ContentType é falsificável e um arquivo pequeno pode declarar
+                // dimensões enormes (bomba de descompressão) que estouram a memória
+                // ao gerar a miniatura depois. Assim uma bomba nunca é armazenada.
+                using var buffer = new MemoryStream();
+                await arquivo.CopyToAsync(buffer);
+                var bytes = buffer.ToArray();
+                Imagem.ValidarDimensoes(bytes);
+
+                using var stream = new MemoryStream(bytes);
                 var fotoArquivoId = await _fotoStorage.UploadAsync(
                     arquivo.FileName, arquivo.ContentType, stream);
 
@@ -105,7 +115,7 @@ namespace InstitutoTriboDeDavi.API.Controllers
         // (mesma resposta para evitar enumeração de CPFs).
         [HttpPost("buscar-aluno")]
         [AllowAnonymous]
-        [EnableRateLimiting(AuthPolicies.InscricaoRateLimit)]
+        [EnableRateLimiting(AuthPolicies.RematriculaRateLimit)]
         public async Task<IActionResult> BuscarAluno([FromBody] ViewModels.Create.BuscarRematriculaViewModel model)
         {
             return await ExecuteAsync(async () =>

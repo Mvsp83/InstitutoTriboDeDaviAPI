@@ -12,5 +12,10 @@ namespace InstitutoTriboDeDavi.Application.Services.Interfaces
         Task<RecadoDTO> Create(RecadoDTO dto, UsuarioDTO usuario);
         Task<RecadoDTO> Update(RecadoDTO dto, UsuarioDTO usuario);
         Task Delete(long id, UsuarioDTO usuario);
+
+        // Denúncias (moderação): qualquer logado denuncia; a equipe lista e resolve.
+        Task Denunciar(long recadoId, string motivo, string quem);
+        Task<List<DenunciaRecadoDTO>> ListarDenunciasPendentes();
+        Task ResolverDenuncia(long denunciaId, string login);
     }
 }

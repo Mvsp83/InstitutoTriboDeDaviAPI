@@ -322,6 +322,7 @@ namespace InstitutoTriboDeDavi.API
             services.AddScoped<IAvisoRepository, AvisoRepository>();
             services.AddScoped<IAvisoService, AvisoService>();
             services.AddScoped<IRecadoRepository, RecadoRepository>();
+            services.AddScoped<IDenunciaRecadoRepository, DenunciaRecadoRepository>();
             services.AddScoped<IRecadoService, RecadoService>();
             services.AddScoped<ISolicitacaoInternaRepository, SolicitacaoInternaRepository>();
             services.AddScoped<ISolicitacaoInternaService, SolicitacaoInternaService>();

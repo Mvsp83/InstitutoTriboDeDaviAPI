@@ -44,6 +44,7 @@ namespace InstitutoTriboDeDavi.Infrastructure.Context
             builder.ApplyConfiguration(new AvisoMap());
             builder.ApplyConfiguration(new AvisoCienteMap());
             builder.ApplyConfiguration(new RecadoMap());
+            builder.ApplyConfiguration(new DenunciaRecadoMap());
             builder.ApplyConfiguration(new SolicitacaoInternaMap());
             builder.ApplyConfiguration(new MensagemSolicitacaoMap());
             builder.ApplyConfiguration(new ProdutoMap());
@@ -113,6 +114,7 @@ namespace InstitutoTriboDeDavi.Infrastructure.Context
         public DbSet<Aviso> Avisos { get; set; }
         public DbSet<AvisoCiente> AvisosCientes { get; set; }
         public DbSet<Recado> Recados { get; set; }
+        public DbSet<DenunciaRecado> DenunciasRecado { get; set; }
         public DbSet<SolicitacaoInterna> SolicitacoesInternas { get; set; }
         public DbSet<MensagemSolicitacao> MensagensSolicitacao { get; set; }
         public DbSet<Produto> Produtos { get; set; }

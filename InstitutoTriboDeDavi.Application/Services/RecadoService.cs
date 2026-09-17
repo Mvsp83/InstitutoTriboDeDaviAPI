@@ -15,11 +15,16 @@ namespace InstitutoTriboDeDavi.Application.Services
 
         private readonly IMapper _mapper;
         private readonly IRecadoRepository _repository;
+        private readonly IDenunciaRecadoRepository _denuncias;
 
-        public RecadoService(IMapper mapper, IRecadoRepository repository)
+        public RecadoService(
+            IMapper mapper,
+            IRecadoRepository repository,
+            IDenunciaRecadoRepository denuncias)
         {
             _mapper = mapper;
             _repository = repository;
+            _denuncias = denuncias;
         }
 
         public async Task<List<RecadoDTO>> ListarVigentes()
@@ -83,7 +88,58 @@ namespace InstitutoTriboDeDavi.Application.Services
                 throw new DomainException("Recado não encontrado.");
 
             GarantirDono(existente, usuario);
+            await _denuncias.RemoverPorRecadoAsync(id); // limpa a fila do recado
             await _repository.DeleteAsync(id);
+        }
+
+        public async Task Denunciar(long recadoId, string motivo, string quem)
+        {
+            var recado = await _repository.GetByIdAsync(recadoId);
+            if (recado == null)
+                throw new DomainException("Recado não encontrado.");
+
+            var denuncia = new DenunciaRecado
+            {
+                RecadoId = recadoId,
+                Motivo = (motivo ?? string.Empty).Trim(),
+                DenunciadoPor = quem ?? string.Empty,
+                DataCriacao = DateTime.Now,
+                Resolvida = false,
+            };
+            denuncia.Validate();
+            await _denuncias.CreateAsync(denuncia);
+        }
+
+        public async Task<List<DenunciaRecadoDTO>> ListarDenunciasPendentes()
+        {
+            var pendentes = await _denuncias.ListarPendentesAsync();
+            var lista = new List<DenunciaRecadoDTO>(pendentes.Count);
+            foreach (var d in pendentes)
+            {
+                var recado = await _repository.GetByIdAsync(d.RecadoId);
+                lista.Add(new DenunciaRecadoDTO
+                {
+                    Id = d.Id,
+                    RecadoId = d.RecadoId,
+                    RecadoTitulo = recado?.Titulo ?? "(recado removido)",
+                    Motivo = d.Motivo,
+                    DenunciadoPor = d.DenunciadoPor,
+                    DataCriacao = d.DataCriacao,
+                });
+            }
+            return lista;
+        }
+
+        public async Task ResolverDenuncia(long denunciaId, string login)
+        {
+            var denuncia = await _denuncias.GetByIdAsync(denunciaId);
+            if (denuncia == null)
+                throw new DomainException("Denúncia não encontrada.");
+
+            denuncia.Resolvida = true;
+            denuncia.ResolvidoPor = login ?? string.Empty;
+            denuncia.DataResolucao = DateTime.Now;
+            await _denuncias.UpdateAsync(denuncia);
         }
 
         // Só o autor do recado ou um Administrador podem editar/remover.

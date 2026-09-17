@@ -10,6 +10,12 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace InstitutoTriboDeDavi.API.Controllers
 {
+    // Corpo da denúncia (motivo é opcional).
+    public class DenunciarRecadoRequest
+    {
+        public string Motivo { get; set; }
+    }
+
     // Mural de recados (classificados da comunidade). Leitura para qualquer pessoa
     // logada — inclui o portal do responsável; criar/editar/remover é da equipe.
     [ApiController]
@@ -157,6 +163,53 @@ namespace InstitutoTriboDeDavi.API.Controllers
                     Message = "Foto do recado.",
                     Success = true,
                     Data = new { dataUri }
+                });
+            });
+        }
+
+        // Denunciar um recado impróprio — qualquer logado (equipe ou portal).
+        [HttpPost("{id}/denunciar")]
+        [Authorize(Roles = "Administrador,Supervisor,Professor,Responsavel")]
+        public async Task<IActionResult> Denunciar(long id, [FromBody] DenunciarRecadoRequest body)
+        {
+            return await ExecuteAsync(async () =>
+            {
+                await _service.Denunciar(id, body?.Motivo ?? string.Empty, UsuarioAutenticado.Login);
+                return Ok(new ResultViewModel
+                {
+                    Message = "Denúncia registrada. A equipe vai analisar.",
+                    Success = true,
+                    Data = null
+                });
+            });
+        }
+
+        // Fila de denúncias pendentes — só a equipe.
+        [HttpGet("denuncias")]
+        [Authorize(Policy = AuthPolicies.ProfessorOuSuperior)]
+        public async Task<IActionResult> Denuncias()
+        {
+            return await ExecuteAsync(async () => Ok(new ResultViewModel
+            {
+                Message = "Denúncias obtidas com sucesso!",
+                Success = true,
+                Data = await _service.ListarDenunciasPendentes()
+            }));
+        }
+
+        // Ignorar/encerrar uma denúncia (sem remover o recado).
+        [HttpPost("denuncias/{denunciaId}/resolver")]
+        [Authorize(Policy = AuthPolicies.ProfessorOuSuperior)]
+        public async Task<IActionResult> ResolverDenuncia(long denunciaId)
+        {
+            return await ExecuteAsync(async () =>
+            {
+                await _service.ResolverDenuncia(denunciaId, UsuarioAutenticado.Login);
+                return Ok(new ResultViewModel
+                {
+                    Message = "Denúncia resolvida.",
+                    Success = true,
+                    Data = null
                 });
             });
         }

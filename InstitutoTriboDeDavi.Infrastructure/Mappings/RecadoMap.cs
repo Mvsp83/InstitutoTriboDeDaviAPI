@@ -23,6 +23,7 @@ namespace InstitutoTriboDeDavi.Infrastructure.Mappings
             builder.Property(x => x.Anunciante).HasMaxLength(120).IsRequired(false);
             builder.Property(x => x.Contato).IsRequired().HasMaxLength(120);
             builder.Property(x => x.CriadoPor).HasMaxLength(60).IsRequired(false);
+            builder.Property(x => x.FotoArquivoId).HasMaxLength(80).IsRequired(false);
 
             // Consulta principal do mural: vigentes (ativo + não expirado), recentes.
             builder.HasIndex(x => new { x.Ativo, x.ExpiraEm });

@@ -19,6 +19,8 @@ namespace InstitutoTriboDeDavi.Domain.Entities
         public string Contato { get; set; } = string.Empty;
         // Polo de origem (do autor). Nulo = geral/administração.
         public long? PoloId { get; set; }
+        // Foto opcional do anúncio: id no storage de fotos (vazio = sem foto).
+        public string FotoArquivoId { get; set; } = string.Empty;
         public DateTime DataCriacao { get; set; }
         public DateTime ExpiraEm { get; set; }
         public string CriadoPor { get; set; } = string.Empty;

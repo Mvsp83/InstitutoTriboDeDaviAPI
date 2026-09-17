@@ -9,6 +9,9 @@ namespace InstitutoTriboDeDavi.Application.DTO
         public string Anunciante { get; set; }
         public string Contato { get; set; }
         public long? PoloId { get; set; }
+        // Foto opcional: id no storage. Vazio = sem foto. O binário é servido
+        // pelo endpoint GET Recado/{id}/foto (o cliente checa se está preenchido).
+        public string FotoArquivoId { get; set; }
         public DateTime DataCriacao { get; set; }
         // Validade opcional no envio; o servidor aplica um padrão se vier vazio.
         public DateTime? ExpiraEm { get; set; }

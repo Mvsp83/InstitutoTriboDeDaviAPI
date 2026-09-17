@@ -1,8 +1,11 @@
 using InstitutoTriboDeDavi.API.Utilities;
 using InstitutoTriboDeDavi.API.ViewModels.Result;
+using InstitutoTriboDeDavi.Application.Common;
 using InstitutoTriboDeDavi.Application.DTO;
 using InstitutoTriboDeDavi.Application.Services.Interfaces;
+using InstitutoTriboDeDavi.Domain.Exceptions;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InstitutoTriboDeDavi.API.Controllers
@@ -16,12 +19,14 @@ namespace InstitutoTriboDeDavi.API.Controllers
     public class RecadoController : BaseController
     {
         private readonly IRecadoService _service;
+        private readonly IFotoStorage _fotoStorage;
         private readonly ILogger<RecadoController> _logger;
 
-        public RecadoController(IRecadoService service, ILogger<RecadoController> logger)
+        public RecadoController(IRecadoService service, IFotoStorage fotoStorage, ILogger<RecadoController> logger)
             : base(logger)
         {
             _service = service;
+            _fotoStorage = fotoStorage;
             _logger = logger;
         }
 
@@ -77,12 +82,84 @@ namespace InstitutoTriboDeDavi.API.Controllers
             }));
         }
 
+        // Upload da foto do recado (opcional). Devolve o id do storage, que o
+        // formulário inclui no create/update. Valida dimensões antes de guardar.
+        [HttpPost("foto")]
+        [Authorize(Policy = AuthPolicies.ProfessorOuSuperior)]
+        [RequestSizeLimit(15_000_000)]
+        public async Task<IActionResult> UploadFoto(IFormFile arquivo)
+        {
+            return await ExecuteAsync(async () =>
+            {
+                if (arquivo == null || arquivo.Length == 0)
+                    throw new DomainException("Nenhuma imagem enviada.");
+                if (!(arquivo.ContentType ?? "").StartsWith("image/"))
+                    throw new DomainException("O arquivo enviado não é uma imagem.");
+
+                using var buffer = new MemoryStream();
+                await arquivo.CopyToAsync(buffer);
+                var bytes = buffer.ToArray();
+                Imagem.ValidarDimensoes(bytes); // guarda anti-bomba de descompressão
+
+                using var stream = new MemoryStream(bytes);
+                var fotoArquivoId = await _fotoStorage.UploadAsync(
+                    arquivo.FileName, arquivo.ContentType, stream);
+
+                return Ok(new ResultViewModel
+                {
+                    Message = "Foto recebida.",
+                    Success = true,
+                    Data = new { fotoArquivoId }
+                });
+            });
+        }
+
+        // Foto do recado como miniatura (data URI). Visível a quem vê o mural
+        // (equipe + portal do responsável).
+        [HttpGet("{id}/foto")]
+        [Authorize(Roles = "Administrador,Supervisor,Professor,Responsavel")]
+        public async Task<IActionResult> ObterFoto(long id)
+        {
+            return await ExecuteAsync(async () =>
+            {
+                var recado = await _service.Obter(id);
+                if (string.IsNullOrEmpty(recado.FotoArquivoId))
+                    return StatusCode(404, new ResultViewModel
+                    {
+                        Message = "Sem foto neste recado.",
+                        Success = false,
+                        Data = null
+                    });
+
+                var download = await _fotoStorage.BaixarAsync(recado.FotoArquivoId);
+                using var ms = new MemoryStream();
+                await download.Conteudo.CopyToAsync(ms);
+                var mini = Imagem.GerarMiniatura(ms.ToArray(), maxLado: 480, qualidade: 72);
+                var dataUri = $"data:image/jpeg;base64,{Convert.ToBase64String(mini)}";
+
+                return Ok(new ResultViewModel
+                {
+                    Message = "Foto do recado.",
+                    Success = true,
+                    Data = new { dataUri }
+                });
+            });
+        }
+
         [HttpDelete("delete/{id}")]
         [Authorize(Policy = AuthPolicies.ProfessorOuSuperior)]
         public async Task<IActionResult> Delete(long id)
         {
             return await ExecuteAsync(async () =>
             {
+                // Remove o binário da foto junto (best-effort), depois o registro.
+                var recado = await _service.Obter(id);
+                if (!string.IsNullOrEmpty(recado.FotoArquivoId))
+                {
+                    try { await _fotoStorage.ExcluirAsync(recado.FotoArquivoId); }
+                    catch { /* foto órfã não impede remover o recado */ }
+                }
+
                 await _service.Delete(id, UsuarioAutenticado);
                 return Ok(new ResultViewModel
                 {

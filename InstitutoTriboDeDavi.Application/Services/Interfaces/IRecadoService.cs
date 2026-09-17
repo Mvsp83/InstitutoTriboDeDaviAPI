@@ -8,6 +8,7 @@ namespace InstitutoTriboDeDavi.Application.Services.Interfaces
         Task<List<RecadoDTO>> ListarVigentes();
         // Gestão da equipe (todos, inclui expirados/inativos).
         Task<List<RecadoDTO>> ListarTodos();
+        Task<RecadoDTO> Obter(long id);
         Task<RecadoDTO> Create(RecadoDTO dto, UsuarioDTO usuario);
         Task<RecadoDTO> Update(RecadoDTO dto, UsuarioDTO usuario);
         Task Delete(long id, UsuarioDTO usuario);

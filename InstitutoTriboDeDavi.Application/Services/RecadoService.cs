@@ -28,6 +28,14 @@ namespace InstitutoTriboDeDavi.Application.Services
         public async Task<List<RecadoDTO>> ListarTodos()
             => _mapper.Map<List<RecadoDTO>>(await _repository.ObterTodosAsync());
 
+        public async Task<RecadoDTO> Obter(long id)
+        {
+            var recado = await _repository.GetByIdAsync(id);
+            if (recado == null)
+                throw new DomainException("Recado não encontrado.");
+            return _mapper.Map<RecadoDTO>(recado);
+        }
+
         public async Task<RecadoDTO> Create(RecadoDTO dto, UsuarioDTO usuario)
         {
             var recado = _mapper.Map<Recado>(dto);
@@ -59,6 +67,7 @@ namespace InstitutoTriboDeDavi.Application.Services
             existente.Categoria = dto.Categoria;
             existente.Anunciante = dto.Anunciante ?? string.Empty;
             existente.Contato = dto.Contato;
+            existente.FotoArquivoId = dto.FotoArquivoId ?? string.Empty;
             existente.Ativo = dto.Ativo;
             existente.ExpiraEm = ValidadeOuPadrao(dto.ExpiraEm, existente.DataCriacao);
 

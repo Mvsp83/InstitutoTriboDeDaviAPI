@@ -27,19 +27,37 @@ namespace InstitutoTriboDeDavi.API.Controllers
         private readonly IRecadoService _service;
         private readonly IFotoStorage _fotoStorage;
         private readonly IAlunoFotoService _alunoFotoService;
+        private readonly IPushService _pushService;
         private readonly ILogger<RecadoController> _logger;
 
         public RecadoController(
             IRecadoService service,
             IFotoStorage fotoStorage,
             IAlunoFotoService alunoFotoService,
+            IPushService pushService,
             ILogger<RecadoController> logger)
             : base(logger)
         {
             _service = service;
             _fotoStorage = fotoStorage;
             _alunoFotoService = alunoFotoService;
+            _pushService = pushService;
             _logger = logger;
+        }
+
+        // Avisa os dispositivos inscritos que um recado ficou visível no mural.
+        // Best-effort: falha de push nunca derruba a operação principal.
+        private async Task NotificarNovoRecadoAsync(string titulo)
+        {
+            try
+            {
+                await _pushService.EnviarParaTodosAsync(
+                    "Novo recado no mural", titulo ?? string.Empty, "/recados");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Falha ao notificar novo recado por push.");
+            }
         }
 
         // Feed do mural: recados vigentes, visível a quem está logado (equipe e
@@ -74,12 +92,18 @@ namespace InstitutoTriboDeDavi.API.Controllers
         [Authorize(Policy = AuthPolicies.ProfessorOuSuperior)]
         public async Task<IActionResult> Create([FromBody] RecadoDTO dto)
         {
-            return await ExecuteAsync(async () => Ok(new ResultViewModel
+            return await ExecuteAsync(async () =>
             {
-                Message = "Recado publicado com sucesso!",
-                Success = true,
-                Data = await _service.Create(dto, UsuarioAutenticado)
-            }));
+                var criado = await _service.Create(dto, UsuarioAutenticado);
+                // Recado da equipe já nasce visível → notifica os inscritos.
+                await NotificarNovoRecadoAsync(criado.Titulo);
+                return Ok(new ResultViewModel
+                {
+                    Message = "Recado publicado com sucesso!",
+                    Success = true,
+                    Data = criado
+                });
+            });
         }
 
         [HttpPut("update")]
@@ -206,6 +230,9 @@ namespace InstitutoTriboDeDavi.API.Controllers
             return await ExecuteAsync(async () =>
             {
                 await _service.Aprovar(id);
+                // Ao aprovar, o recado do portal fica visível → notifica os inscritos.
+                var recado = await _service.Obter(id);
+                await NotificarNovoRecadoAsync(recado.Titulo);
                 return Ok(new ResultViewModel
                 {
                     Message = "Recado aprovado.",

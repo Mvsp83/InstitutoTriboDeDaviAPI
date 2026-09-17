@@ -19,5 +19,9 @@ namespace InstitutoTriboDeDavi.Application.Services.Interfaces
         // Envia uma notificação a todos os dispositivos do usuário. Retorna quantos
         // envios tiveram sucesso; inscrições expiradas são removidas no caminho.
         Task<int> EnviarParaUsuarioAsync(string usuarioLogin, string titulo, string corpo, string url);
+
+        // Envia a todos os dispositivos inscritos (broadcast). Usado para avisos
+        // de interesse geral, como um novo recado publicado no mural.
+        Task<int> EnviarParaTodosAsync(string titulo, string corpo, string url);
     }
 }

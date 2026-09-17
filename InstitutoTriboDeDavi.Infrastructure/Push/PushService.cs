@@ -79,7 +79,29 @@ namespace InstitutoTriboDeDavi.Infrastructure.Push
             }
 
             var inscricoes = await _repository.ObterPorUsuarioAsync(usuarioLogin);
-            if (inscricoes.Count == 0)
+            return await EnviarParaInscricoesAsync(inscricoes, titulo, corpo, url);
+        }
+
+        public async Task<int> EnviarParaTodosAsync(string titulo, string corpo, string url)
+        {
+            if (!EstaConfigurado)
+            {
+                _logger.LogInformation("Web Push não configurado — envio ignorado.");
+                return 0;
+            }
+
+            // Broadcast: todos os dispositivos inscritos (quem ativou notificações).
+            var inscricoes = await _repository.GetAllAsync();
+            return await EnviarParaInscricoesAsync(inscricoes, titulo, corpo, url);
+        }
+
+        // Envia o mesmo payload a uma lista de inscrições; remove as expiradas
+        // (404/410) e ignora as demais falhas. Retorna quantos deram certo.
+        private async Task<int> EnviarParaInscricoesAsync(
+            IReadOnlyCollection<DomainPushSubscription> inscricoes,
+            string titulo, string corpo, string url)
+        {
+            if (inscricoes == null || inscricoes.Count == 0)
                 return 0;
 
             var payload = JsonSerializer.Serialize(new { title = titulo, body = corpo, url });
@@ -102,7 +124,7 @@ namespace InstitutoTriboDeDavi.Infrastructure.Push
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogWarning(ex, "Falha ao enviar push para {Login}.", usuarioLogin);
+                    _logger.LogWarning(ex, "Falha ao enviar push para {Endpoint}.", inscricao.Endpoint);
                 }
             }
 

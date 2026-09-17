@@ -74,12 +74,27 @@ namespace InstitutoTriboDeDavi.API.Controllers
         [Authorize(Policy = AuthPolicies.ProfessorOuSuperior)]
         public async Task<IActionResult> Update([FromBody] RecadoDTO dto)
         {
-            return await ExecuteAsync(async () => Ok(new ResultViewModel
+            return await ExecuteAsync(async () =>
             {
-                Message = "Recado atualizado com sucesso!",
-                Success = true,
-                Data = await _service.Update(dto, UsuarioAutenticado)
-            }));
+                // Foto antiga antes da alteração (Update valida o dono e lança se
+                // não for). Se a foto mudou, remove o binário órfão (best-effort).
+                var antigo = await _service.Obter(dto.Id);
+                var atualizado = await _service.Update(dto, UsuarioAutenticado);
+
+                if (!string.IsNullOrEmpty(antigo.FotoArquivoId) &&
+                    antigo.FotoArquivoId != atualizado.FotoArquivoId)
+                {
+                    try { await _fotoStorage.ExcluirAsync(antigo.FotoArquivoId); }
+                    catch { /* foto órfã não impede a atualização */ }
+                }
+
+                return Ok(new ResultViewModel
+                {
+                    Message = "Recado atualizado com sucesso!",
+                    Success = true,
+                    Data = atualizado
+                });
+            });
         }
 
         // Upload da foto do recado (opcional). Devolve o id do storage, que o

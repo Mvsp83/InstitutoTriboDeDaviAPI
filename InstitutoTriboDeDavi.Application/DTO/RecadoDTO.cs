@@ -17,5 +17,6 @@ namespace InstitutoTriboDeDavi.Application.DTO
         public DateTime? ExpiraEm { get; set; }
         public string CriadoPor { get; set; }
         public bool Ativo { get; set; }
+        public bool Aprovado { get; set; }
     }
 }

@@ -18,7 +18,7 @@ namespace InstitutoTriboDeDavi.Infrastructure.Repositories
         {
             var agora = DateTime.Now;
             return await _context.Recados
-                .Where(r => r.Ativo && r.ExpiraEm >= agora)
+                .Where(r => r.Ativo && r.Aprovado && r.ExpiraEm >= agora)
                 .AsNoTracking()
                 .OrderByDescending(r => r.DataCriacao)
                 .ToListAsync();

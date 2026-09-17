@@ -10,6 +10,9 @@ namespace InstitutoTriboDeDavi.Application.Services.Interfaces
         Task<List<RecadoDTO>> ListarTodos();
         Task<RecadoDTO> Obter(long id);
         Task<RecadoDTO> Create(RecadoDTO dto, UsuarioDTO usuario);
+        // Criação pelo portal (aluno/responsável): nasce pendente de aprovação.
+        Task<RecadoDTO> CriarPeloPortal(RecadoDTO dto, string quem, string nome, long? poloId);
+        Task Aprovar(long id);
         Task<RecadoDTO> Update(RecadoDTO dto, UsuarioDTO usuario);
         Task Delete(long id, UsuarioDTO usuario);
 

@@ -25,6 +25,9 @@ namespace InstitutoTriboDeDavi.Domain.Entities
         public DateTime ExpiraEm { get; set; }
         public string CriadoPor { get; set; } = string.Empty;
         public bool Ativo { get; set; } = true;
+        // Moderação: recado da equipe já nasce aprovado; do portal (aluno) nasce
+        // pendente (false) e só aparece no mural após a equipe aprovar.
+        public bool Aprovado { get; set; } = true;
 
         public override bool Validate()
         {

@@ -26,13 +26,19 @@ namespace InstitutoTriboDeDavi.API.Controllers
     {
         private readonly IRecadoService _service;
         private readonly IFotoStorage _fotoStorage;
+        private readonly IAlunoFotoService _alunoFotoService;
         private readonly ILogger<RecadoController> _logger;
 
-        public RecadoController(IRecadoService service, IFotoStorage fotoStorage, ILogger<RecadoController> logger)
+        public RecadoController(
+            IRecadoService service,
+            IFotoStorage fotoStorage,
+            IAlunoFotoService alunoFotoService,
+            ILogger<RecadoController> logger)
             : base(logger)
         {
             _service = service;
             _fotoStorage = fotoStorage;
+            _alunoFotoService = alunoFotoService;
             _logger = logger;
         }
 
@@ -163,6 +169,48 @@ namespace InstitutoTriboDeDavi.API.Controllers
                     Message = "Foto do recado.",
                     Success = true,
                     Data = new { dataUri }
+                });
+            });
+        }
+
+        // Criação pelo portal do responsável: nasce PENDENTE de aprovação da
+        // equipe. Origem (polo) e autor vêm do próprio token do responsável.
+        [HttpPost("portal")]
+        [Authorize(Roles = "Responsavel")]
+        public async Task<IActionResult> CriarPeloPortal([FromBody] RecadoDTO dto)
+        {
+            return await ExecuteAsync(async () =>
+            {
+                long? poloId = null;
+                if (long.TryParse(User.FindFirst("AlunoId")?.Value, out var alunoId))
+                    poloId = await _alunoFotoService.ObterPoloId(alunoId);
+
+                var nome = User.FindFirst("NomeAluno")?.Value ?? string.Empty;
+                var criado = await _service.CriarPeloPortal(
+                    dto, UsuarioAutenticado.Login, nome, poloId);
+
+                return Ok(new ResultViewModel
+                {
+                    Message = "Recado enviado! Ele aparece no mural após a equipe aprovar.",
+                    Success = true,
+                    Data = criado
+                });
+            });
+        }
+
+        // Aprova um recado pendente (vindo do portal) — só a equipe.
+        [HttpPost("{id}/aprovar")]
+        [Authorize(Policy = AuthPolicies.ProfessorOuSuperior)]
+        public async Task<IActionResult> Aprovar(long id)
+        {
+            return await ExecuteAsync(async () =>
+            {
+                await _service.Aprovar(id);
+                return Ok(new ResultViewModel
+                {
+                    Message = "Recado aprovado.",
+                    Success = true,
+                    Data = null
                 });
             });
         }

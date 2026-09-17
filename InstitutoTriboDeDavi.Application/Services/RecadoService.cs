@@ -51,11 +51,47 @@ namespace InstitutoTriboDeDavi.Application.Services
             recado.CriadoPor = usuario.Login;
             recado.PoloId = usuario.PoloId; // polo de origem do autor
             recado.Ativo = true;
+            recado.Aprovado = true; // publicado pela equipe: já vai ao ar
             recado.ExpiraEm = ValidadeOuPadrao(dto.ExpiraEm, agora);
 
             recado.Validate();
             var criado = await _repository.CreateAsync(recado);
             return _mapper.Map<RecadoDTO>(criado);
+        }
+
+        public async Task<RecadoDTO> CriarPeloPortal(RecadoDTO dto, string quem, string nome, long? poloId)
+        {
+            var agora = DateTime.Now;
+            var recado = new Recado
+            {
+                Titulo = dto.Titulo,
+                Descricao = dto.Descricao,
+                Categoria = dto.Categoria,
+                // Sem anunciante informado, usa o nome do próprio aluno do token.
+                Anunciante = string.IsNullOrWhiteSpace(dto.Anunciante)
+                    ? (nome ?? string.Empty)
+                    : dto.Anunciante,
+                Contato = dto.Contato,
+                PoloId = poloId,
+                DataCriacao = agora,
+                CriadoPor = quem ?? string.Empty,
+                Ativo = true,
+                Aprovado = false, // vindo do portal: aguarda aprovação da equipe
+                ExpiraEm = ValidadeOuPadrao(dto.ExpiraEm, agora),
+            };
+            recado.Validate();
+            var criado = await _repository.CreateAsync(recado);
+            return _mapper.Map<RecadoDTO>(criado);
+        }
+
+        public async Task Aprovar(long id)
+        {
+            var recado = await _repository.GetByIdAsync(id);
+            if (recado == null)
+                throw new DomainException("Recado não encontrado.");
+            if (recado.Aprovado) return;
+            recado.Aprovado = true;
+            await _repository.UpdateAsync(recado);
         }
 
         public async Task<RecadoDTO> Update(RecadoDTO dto, UsuarioDTO usuario)
